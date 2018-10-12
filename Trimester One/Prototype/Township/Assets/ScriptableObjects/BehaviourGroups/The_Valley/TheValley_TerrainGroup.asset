@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81a282b99fdcd6241aec57974c7db428, type: 3}
+  m_Name: TheValley_TerrainGroup
+  m_EditorClassIdentifier: 
+  terrainDimensions: 1024
+  terrainHeight: 100
+  detailResolution: 1024
+  terrainBehaviours:
+  - {fileID: 11400000, guid: 182777e1265b78c4dae0842054ca15b8, type: 2}
+  - {fileID: 11400000, guid: 209d9cd0550fad44a8d189c4d075fafe, type: 2}
+  - {fileID: 11400000, guid: 54694cb8444c7fa469d054e4159730ed, type: 2}
+  terrainSplat: {fileID: 0}
