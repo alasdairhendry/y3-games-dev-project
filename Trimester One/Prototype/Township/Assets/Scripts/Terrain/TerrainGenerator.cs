@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class TerrainGenerator : MonoBehaviour {
 
     [SerializeField] private TerrainBehaviourGroup behaviourGroup;
+    public TerrainBehaviourGroup BehaviourGroup { get { return behaviourGroup; } }
 
     private Terrain terrain;
     private TerrainData terrainData;
@@ -18,7 +20,7 @@ public class TerrainGenerator : MonoBehaviour {
     [SerializeField] private int seed;
 
     [ContextMenu("Generate")]
-    private void Generate()
+    public void Generate()
     {
         UnityEngine.Random.InitState(seed);
         if(behaviourGroup == null)
@@ -26,14 +28,10 @@ public class TerrainGenerator : MonoBehaviour {
             Debug.LogError("No behaviour group assigned");
             return;
         }
-
-        Debug.Log("1");
-        CheckTerrain();
-        Debug.Log("2");
-        ApplyTerrainValues();
-        Debug.Log("3");
-        StartCoroutine(IGenerate());
-        Debug.Log("4");
+        
+        CheckTerrain();       
+        ApplyTerrainValues();        
+        StartCoroutine(IGenerate());        
     }
 
     private void CheckTerrain()
@@ -53,6 +51,9 @@ public class TerrainGenerator : MonoBehaviour {
             terrain.terrainData = new TerrainData();
 
         terrainData = terrain.terrainData;
+
+        if (terrainData == null) Debug.LogError("ERROR");
+
         this.GetComponent<TerrainCollider>().terrainData = terrain.terrainData;
 
         //if (!GetComponent<Terrain>())
@@ -79,6 +80,7 @@ public class TerrainGenerator : MonoBehaviour {
     private void ApplyTerrainValues()
     {        
         terrainData.heightmapResolution = behaviourGroup.TerrainDimensions;
+        terrainData.baseMapResolution = terrainData.heightmapResolution;
         terrainData.baseMapResolution = behaviourGroup.TerrainDimensions;
         terrainData.SetDetailResolution(behaviourGroup.DetailResolution, 16);
         terrainData.size = new Vector3(behaviourGroup.TerrainDimensions, behaviourGroup.TerrainHeight, behaviourGroup.TerrainDimensions);

@@ -9,11 +9,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81a282b99fdcd6241aec57974c7db428, type: 3}
-  m_Name: Small_Hills
+  m_Name: Small_Hills_2
   m_EditorClassIdentifier: 
-  terrainDimensions: 1024
-  terrainHeight: 128
-  detailResolution: 128
+  terrainDimensions: 256
+  terrainHeight: 64
+  detailResolution: 256
   terrainBehaviours:
   - {fileID: 11400000, guid: 92df59799ed52db4e96c70448b4b8e1e, type: 2}
   - {fileID: 11400000, guid: 92df59799ed52db4e96c70448b4b8e1e, type: 2}
