@@ -21,6 +21,12 @@ public class TerrainController : MonoBehaviour {
         GetComponent<TerrainGenerator>().onEndGenerate += OnTerrainEndGenerate;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.G))
+            GenerateTerrain();
+    }
+
     public void GenerateTerrain()
     {
         GetComponent<TerrainGenerator>().Generate();

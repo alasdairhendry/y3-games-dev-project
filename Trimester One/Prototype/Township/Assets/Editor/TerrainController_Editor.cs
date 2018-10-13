@@ -8,7 +8,7 @@ using UnityEngine;
 public class TerrainController_Editor : Editor {
 
     TerrainController controller;
-    TerrainGenerator generator;
+    //TerrainGenerator generator;
 
     private SerializedProperty autoGenerateMesh;
     private SerializedProperty levelOfDetail;      
@@ -17,7 +17,7 @@ public class TerrainController_Editor : Editor {
     {
         autoGenerateMesh = serializedObject.FindProperty("autoGenerateMesh");
         levelOfDetail = serializedObject.FindProperty("levelOfDetail");
-        generator = controller.GetComponent<TerrainGenerator>();
+        //generator = controller.GetComponent<TerrainGenerator>();
         Debug.Log(this.name + " enabled");
     }
 
@@ -27,36 +27,36 @@ public class TerrainController_Editor : Editor {
 
         controller = (TerrainController)target;
 
-        if (!generator)
-        {
-            generator = controller.GetComponent<TerrainGenerator>();
-        }
+        //if (!generator)
+        //{
+        //    generator = controller.GetComponent<TerrainGenerator>();
+        //}
 
         DrawDefaultInspector();
 
-        EditorGUILayout.BeginVertical("Box");
+        //EditorGUILayout.BeginVertical("Box");
 
-        EditorGUI.indentLevel++;
-
-
-        for (int i = 0; i < generator.BehaviourGroup.TerrainBehaviours.Count; i++)
-        {
-            EditorGUILayout.BeginHorizontal();
-
-            GUILayout.Label(generator.BehaviourGroup.TerrainBehaviours[i].name);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Activate"))
-            {
-                generator.BehaviourGroup.TerrainBehaviours[i].Activate(generator.BehaviourGroup, controller.GetComponent<Terrain>(), controller.GetComponent<Terrain>().terrainData);
-            }
-
-            EditorGUILayout.EndHorizontal();
-        }
+        //EditorGUI.indentLevel++;
 
 
-        EditorGUI.indentLevel--;
+        //for (int i = 0; i < generator.BehaviourGroup.TerrainBehaviours.Count; i++)
+        //{
+        //    EditorGUILayout.BeginHorizontal();
 
-        EditorGUILayout.EndVertical();
+        //    GUILayout.Label(generator.BehaviourGroup.TerrainBehaviours[i].name);
+        //    GUILayout.FlexibleSpace();
+        //    if (GUILayout.Button("Activate"))
+        //    {
+        //        generator.BehaviourGroup.TerrainBehaviours[i].Activate(generator.BehaviourGroup, controller.GetComponent<Terrain>(), controller.GetComponent<Terrain>().terrainData);
+        //    }
+
+        //    EditorGUILayout.EndHorizontal();
+        //}
+
+
+        //EditorGUI.indentLevel--;
+
+        //EditorGUILayout.EndVertical();
 
         if (GUILayout.Button("Generate Terrain"))
         {

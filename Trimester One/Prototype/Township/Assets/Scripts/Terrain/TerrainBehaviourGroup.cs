@@ -9,13 +9,26 @@ public class TerrainBehaviourGroup : ScriptableObject {
     [SerializeField] private int terrainHeight = 100;
     [SerializeField] private int detailResolution = 100;
 
-    [SerializeField] private List<TerrainBehaviour> terrainBehaviours = new List<TerrainBehaviour>();
-    [SerializeField] private TerrainBehaviour_Splat terrainSplat;
+    /*[HideInInspector]*/ public List<TerrainBehaviourLayer> terrainBehaviours = new List<TerrainBehaviourLayer>();
+    //[SerializeField] private TerrainBehaviour_Splat terrainSplat;
 
     public int TerrainDimensions { get { return terrainDimensions; } }
     public int TerrainHeight { get { return terrainHeight; } }
     public int DetailResolution { get { return detailResolution; } }
 
-    public List<TerrainBehaviour> TerrainBehaviours { get { return terrainBehaviours; } }
-    public TerrainBehaviour_Splat TerrainSplat { get { return terrainSplat; } }
+    public List<TerrainBehaviourLayer> TerrainBehaviours { get { return terrainBehaviours; } }
+    //public TerrainBehaviour_Splat TerrainSplat { get { return terrainSplat; } }
+}
+
+[System.Serializable]
+public class TerrainBehaviourLayer
+{
+    public TerrainBehaviour terrainBehaviour;
+    public bool enabled;
+
+    public TerrainBehaviourLayer(TerrainBehaviour terrainBehaviour, bool enabled)
+    {
+        this.terrainBehaviour = terrainBehaviour;
+        this.enabled = enabled;
+    }
 }

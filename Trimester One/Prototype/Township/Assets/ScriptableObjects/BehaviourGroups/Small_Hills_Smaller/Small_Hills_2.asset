@@ -11,17 +11,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81a282b99fdcd6241aec57974c7db428, type: 3}
   m_Name: Small_Hills_2
   m_EditorClassIdentifier: 
-  terrainDimensions: 256
+  terrainDimensions: 1024
   terrainHeight: 64
-  detailResolution: 256
+  detailResolution: 1024
   terrainBehaviours:
-  - {fileID: 11400000, guid: 92df59799ed52db4e96c70448b4b8e1e, type: 2}
-  - {fileID: 11400000, guid: 92df59799ed52db4e96c70448b4b8e1e, type: 2}
-  - {fileID: 11400000, guid: a3fa1c0b694db0d4a894923cbe4fb485, type: 2}
-  - {fileID: 11400000, guid: e56a3bedf8f6deb478de979940153c07, type: 2}
-  - {fileID: 11400000, guid: e56a3bedf8f6deb478de979940153c07, type: 2}
-  - {fileID: 11400000, guid: 6d4c008543a17014a9c4362ae6e1ac2e, type: 2}
-  - {fileID: 11400000, guid: 92df59799ed52db4e96c70448b4b8e1e, type: 2}
-  - {fileID: 11400000, guid: 92df59799ed52db4e96c70448b4b8e1e, type: 2}
-  - {fileID: 11400000, guid: 0914b83556ad5e54083100a4486a91bf, type: 2}
-  terrainSplat: {fileID: 0}
+  - terrainBehaviour: {fileID: 11400000, guid: 44af36da9e6a26541885d65658ea5158, type: 2}
+    enabled: 1
+  - terrainBehaviour: {fileID: 11400000, guid: f1c53310cc604df44915ef3aa2411f40, type: 2}
+    enabled: 1
+  - terrainBehaviour: {fileID: 11400000, guid: f1c53310cc604df44915ef3aa2411f40, type: 2}
+    enabled: 1
+  - terrainBehaviour: {fileID: 11400000, guid: 977f0ece920b88240b44f46a5f04eb12, type: 2}
+    enabled: 1
+  - terrainBehaviour: {fileID: 11400000, guid: 7bf34f9a8beb18c4a9a21361421b62ab, type: 2}
+    enabled: 1
+  - terrainBehaviour: {fileID: 11400000, guid: 7bf34f9a8beb18c4a9a21361421b62ab, type: 2}
+    enabled: 1
+  - terrainBehaviour: {fileID: 11400000, guid: b5dca387e6493804fbc95316eb296e2e, type: 2}
+    enabled: 1

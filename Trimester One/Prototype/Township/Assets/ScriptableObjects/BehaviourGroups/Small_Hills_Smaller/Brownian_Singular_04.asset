@@ -14,8 +14,8 @@ MonoBehaviour:
   iterations: 1
   xScale: 0.01
   yScale: 0.01
-  octaves: 3
-  persistence: 5
-  heightScale: 0.05
+  octaves: 4
+  persistence: 8
+  heightScale: 0.25
   xOffset: 0
   yOffset: 0

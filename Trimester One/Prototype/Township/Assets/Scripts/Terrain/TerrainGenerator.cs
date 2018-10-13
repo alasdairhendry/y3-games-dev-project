@@ -96,35 +96,37 @@ public class TerrainGenerator : MonoBehaviour {
         if (onBeginGenerate != null)
             onBeginGenerate();
 
-        Queue<TerrainBehaviour> behaviours = new Queue<TerrainBehaviour>(behaviourGroup.TerrainBehaviours);
+        Queue<TerrainBehaviourLayer> behaviours = new Queue<TerrainBehaviourLayer>(behaviourGroup.TerrainBehaviours);
 
-        foreach (TerrainBehaviour tb in behaviours)
+        foreach (TerrainBehaviourLayer tb in behaviours)
         {
-            tb.ResetStatus();
+            tb.terrainBehaviour.ResetStatus();
         }
 
         while(behaviours.Count > 0)
         {
-            TerrainBehaviour activeBehaviour = behaviours.Dequeue();
-            Debug.Log("Obtained Active Behaviour: " + activeBehaviour.name);
+            TerrainBehaviourLayer activeBehaviour = behaviours.Dequeue();
+            Debug.Log("Obtained Active Behaviour: " + activeBehaviour.terrainBehaviour.name);
             int iteration = 0;
 
-            while (iteration < activeBehaviour.Iterations)
+            while (iteration < activeBehaviour.terrainBehaviour.Iterations)
             {                
-                while (activeBehaviour.IsRunning)
+                while (activeBehaviour.terrainBehaviour.IsRunning)
                 {                    
                     yield return null;
                 }                
 
-                Debug.Log("Generating Behaviour: " + activeBehaviour.name + "  -  Iteration " + iteration + " of " + activeBehaviour.Iterations);
-                activeBehaviour.Activate(behaviourGroup, terrain, terrainData);
+                Debug.Log("Generating Behaviour: " + activeBehaviour.terrainBehaviour.name + "  -  Iteration " + iteration + " of " + activeBehaviour.terrainBehaviour.Iterations);
+
+                if (activeBehaviour.enabled)
+                    activeBehaviour.terrainBehaviour.Activate(behaviourGroup, terrain, terrainData);
 
                 iteration++;
 
                 yield return null;
             }
 
-            Debug.Log("Behaviour Generated Successfully: " + activeBehaviour.name);
+            Debug.Log("Behaviour Generated Successfully: " + activeBehaviour.terrainBehaviour.name);
 
             yield return null;
         }

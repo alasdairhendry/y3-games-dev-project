@@ -416,8 +416,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoGenerateTerrain: 0
-  autoGenerateMesh: 1
-  autoGenerateNavMesh: 1
+  autoGenerateMesh: 0
+  autoGenerateNavMesh: 0
   levelOfDetail: 10
   chunkData: []
 --- !u!114 &407099251
