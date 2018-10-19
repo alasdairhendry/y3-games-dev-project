@@ -2,15 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NoiseData : MonoBehaviour {
+[CreateAssetMenu()]
+public class NoiseData : UpdatableScriptableObject
+{
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public float noiseScale;
+
+    public int octaves;
+    [Range(0.0f, 1.0f)] public float persistance;
+    public float lacunarity;
+
+    public int seed;
+    public Vector2 offset;
+
+    protected override void OnValidate()
+    {
+        if (lacunarity < 1) lacunarity = 1;
+        if (octaves < 0) octaves = 0;
+
+        base.OnValidate();
+    }
 }

@@ -4,33 +4,35 @@ using UnityEngine;
 
 public class MapDisplay : MonoBehaviour {
 
-    public Renderer textureRenderer;
-    public MeshFilter meshFilter;
-    public MeshRenderer meshRenderer;
-    public MeshCollider meshCollider;
-    public Material[] materials;
+    public MapObject terrainMesh;
+    public MapObject waterMesh;
 
-    public void DrawTexture(Texture2D texture)
-    {        
-        textureRenderer.sharedMaterial.mainTexture = texture;
-        textureRenderer.transform.localScale = new Vector3(texture.width, 1.0f, texture.height);
-        meshRenderer.enabled = false;
-        textureRenderer.enabled = true;
+    public void DrawTerrainMesh(MeshData meshData)
+    {
+        Mesh mesh = meshData.CreateMesh();
+
+        terrainMesh.meshFilter.sharedMesh = mesh;
+        terrainMesh.meshRenderer.sharedMaterial = terrainMesh.meshMaterial;
+        terrainMesh.meshCollider.sharedMesh = terrainMesh.meshFilter.sharedMesh;
     }
 
-    public void DrawMesh(MeshData meshData, Texture2D texture, bool useFlatShading)
+    public void DrawWaterMesh(MeshData meshData)
     {
-        meshFilter.sharedMesh = meshData.CreateMesh();
+        Mesh mesh = meshData.CreateMesh();
 
-        if (useFlatShading)
-            meshRenderer.sharedMaterial = materials[1];
-        else
-            meshRenderer.sharedMaterial = materials[0];
+        waterMesh.meshFilter.sharedMesh = mesh;
+        waterMesh.meshRenderer.sharedMaterial = waterMesh.meshMaterial;
+        waterMesh.meshCollider.sharedMesh = waterMesh.meshFilter.sharedMesh;
+    }
 
-        meshRenderer.sharedMaterial.mainTexture = texture;
-        meshCollider.sharedMesh = meshFilter.sharedMesh;
-        meshRenderer.enabled = true;
-        textureRenderer.enabled = false;
-        Debug.Log("Mesh Generated");
+    [System.Serializable]
+    public class MapObject
+    {
+        public GameObject targetObject;
+
+        public MeshFilter meshFilter;
+        public MeshRenderer meshRenderer;
+        public MeshCollider meshCollider;
+        public Material meshMaterial;
     }
 }

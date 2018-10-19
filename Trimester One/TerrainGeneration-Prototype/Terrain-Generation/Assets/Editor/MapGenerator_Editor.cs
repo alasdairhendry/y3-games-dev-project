@@ -15,6 +15,7 @@ public class MapGenerator_Editor : Editor {
             if (mapGen.autoUpdate)
             {
                 mapGen.GenerateMap();
+                Debug.Log("Generate");
             }
         }
 

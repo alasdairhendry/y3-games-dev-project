@@ -4,38 +4,37 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour {
 
-    public enum DrawMode { NoiseMap, ColourMap, Mesh, FalloffMap }
+    public enum DrawMode { NoiseMap, Mesh, FalloffMap }
     public DrawMode drawMode;
 
-    public FilterMode filterMode;    
+    public FilterMode filterMode;
 
-    private const int mapChunkSize = 241;
-    [Range(0,6)] public int levelOfDetail;
-    public float noiseScale;
+    [Tooltip("Something with good factors, ie 1, 2, 4, 6 then +1")] [SerializeField] private int terrainChunkSize = 97;
+    [Tooltip("Something with good factors, ie 1, 2, 4, 6 then +1")] [SerializeField] private int waterChunkSize = 97;
+    [Range(0, 6)] public int terrainLevelOfDetail;
+    [Range(0, 6)] public int waterLevelOfDetail;
 
-    public int octaves;
-    [Range(0.0f, 1.0f)] public float persistance;
-    public float lacunarity;
+    public TerrainData terrainData;
+    public NoiseData noiseData;
+    public TextureData textureData;
+    public Material terrainMaterial;
 
-    public int seed;
-    public Vector2 offset;
+    [Range(0.001f, 10.0f)] public float falloffMapParamA;
+    [Range(1.0f, 50.0f)] public float falloffMapParamB;
 
-    public float meshHeightMultiplier;
-    public AnimationCurve meshHeightCurve;
-
-    public bool useFlatShading;
-    public bool useFalloffMap;
     public bool autoUpdate;
-    public bool generateMeshOnAwake;
-
-    public TerrainType[] regions;
+    public bool generateMeshOnAwake;    
 
     float[,] falloffMap;
 
     private void Awake()
     {
-        falloffMap = FalloffGenerator.GenerateFalloffMap(mapChunkSize);
+        falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, falloffMapParamA, falloffMapParamB);
+        Debug.Log("MapGenerator");
+    }
 
+    private void Start()
+    {
         if (generateMeshOnAwake)
         {
             drawMode = DrawMode.Mesh;
@@ -43,56 +42,82 @@ public class MapGenerator : MonoBehaviour {
         }
     }
 
+    private void OnValuesUpdated()
+    {
+        if (!Application.isPlaying)
+        {
+            GenerateMap();
+        }
+    }
+
+    private void OnTextureValuesUpdated()
+    {
+        textureData.ApplyToMaterial(terrainMaterial);
+    }
+
     public void GenerateMap()
     {
-        float[,] noiseMap = Noise.GenerateNoise(mapChunkSize, mapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
-        Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
-
-        for (int y = 0; y < mapChunkSize; y++)
+        if (Application.isPlaying)
         {
-            for (int x = 0; x < mapChunkSize; x++)
+            GameState.Instance.worldLoadState.AddStage("generate-terrain", false);
+            GameState.Instance.worldLoadState.AddStage("generate-water", false);
+        }
+
+        float[,] terrainNoiseMap = Noise.GenerateNoise(terrainChunkSize, terrainChunkSize, noiseData.seed, noiseData.noiseScale, noiseData.octaves, noiseData.persistance, noiseData.lacunarity, noiseData.offset);
+        float[,] waterNoiseMap = new float[waterChunkSize, waterChunkSize];
+
+        if (terrainData.useFalloffMap)
+        {
+            if (falloffMap == null)
+                falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, falloffMapParamA, falloffMapParamB);
+
+            for (int y = 0; y < terrainChunkSize; y++)
             {
-                if (useFalloffMap)
+                for (int x = 0; x < terrainChunkSize; x++)
                 {
-                    noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - falloffMap[x, y]);
-                }
-
-                float currentHeight = noiseMap[x, y];
-
-                for (int i = 0; i < regions.Length; i++)
-                {
-                    if (currentHeight <= regions[i].height)
-                    {
-                        colourMap[y * mapChunkSize + x] = regions[i].colour;
-                        break;
-                    }
+                    terrainNoiseMap[x, y] = Mathf.Clamp01(terrainNoiseMap[x, y] - falloffMap[x, y]);
                 }
             }
         }
 
+        textureData.UpdateMeshHeights(terrainMaterial, terrainData.minHeight, terrainData.maxHeight);
+        textureData.ApplyToMaterial(terrainMaterial);
+        DisplayMeshes(terrainNoiseMap, waterNoiseMap);
+    }
+
+    private void DisplayMeshes(float[,] terrainNoiseMap, float[,] waterNoiseMap)
+    {
         MapDisplay display = FindObjectOfType<MapDisplay>();
-        if (drawMode == DrawMode.NoiseMap)
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap, filterMode));
-        else if (drawMode == DrawMode.ColourMap)
-            display.DrawTexture(TextureGenerator.TextureFromColourMap(colourMap, mapChunkSize, mapChunkSize, filterMode));
-        else if (drawMode == DrawMode.Mesh)
-            display.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail, useFlatShading), TextureGenerator.TextureFromColourMap(colourMap, mapChunkSize, mapChunkSize, filterMode), useFlatShading);
-        else if (drawMode == DrawMode.FalloffMap)
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(mapChunkSize), filterMode));
+        display.DrawTerrainMesh(MeshGenerator.GenerateTerrainMesh(terrainNoiseMap, terrainData.meshHeightMultiplier, terrainData.meshHeightCurve, terrainLevelOfDetail, terrainData.useFlatShading));
+        display.DrawWaterMesh(MeshGenerator.GenerateTerrainMesh(waterNoiseMap, 1.0f, terrainData.meshHeightCurve, waterLevelOfDetail, terrainData.useFlatShading));
+        if (Application.isPlaying)
+        {
+            GameState.Instance.worldLoadState.UpdateStage("generate-terrain", true);
+            GameState.Instance.worldLoadState.UpdateStage("generate-water", true);
+            GetComponent<NavMeshGenerator>().GenerateNavMesh();
+        }
     }
 
     private void OnValidate()
     {
-        if (lacunarity < 1) lacunarity = 1;
-        if (octaves < 0) octaves = 0;
-        falloffMap = FalloffGenerator.GenerateFalloffMap(mapChunkSize);        
-    }
-}
+        if (terrainData != null)
+        {
+            terrainData.OnValuesUpdated -= OnValuesUpdated;
+            terrainData.OnValuesUpdated += OnValuesUpdated;
+        }
 
-[System.Serializable]
-public struct TerrainType
-{
-    public string name;
-    public float height;
-    public Color colour;
+        if (noiseData != null)
+        {
+            noiseData.OnValuesUpdated -= OnValuesUpdated;
+            noiseData.OnValuesUpdated += OnValuesUpdated;
+        }
+
+        if (textureData != null)
+        {
+            textureData.OnValuesUpdated -= OnTextureValuesUpdated;
+            textureData.OnValuesUpdated += OnTextureValuesUpdated;
+        }
+
+        falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, falloffMapParamA, falloffMapParamB);
+    }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public static class MeshGenerator {
@@ -63,37 +65,61 @@ public class MeshData
         triangleIndex += 3;
     }
 
-    //public void FlatShade()
-    //{
-    //    Vector3[] flatShadedVertices = new Vector3[triangles.Length];
-    //    Vector2[] flatShadedUvs = new Vector2[triangles.Length];
+    public void FlatShade()
+    {
+        Vector3[] flatShadedVertices = new Vector3[triangles.Length];
+        Vector2[] flatShadedUvs = new Vector2[triangles.Length];
 
-    //    for (int i = 0; i < triangles.Length; i++)
-    //    {
-    //        flatShadedVertices[i] = vertices[triangles[i]];
-    //        flatShadedUvs[i] = uvs[triangles[i]];
-    //        triangles[i] = i;
-    //    }
+        for (int i = 0; i < triangles.Length; i++)
+        {
+            flatShadedVertices[i] = vertices[triangles[i]];
+            flatShadedUvs[i] = uvs[triangles[i]];
+            triangles[i] = i;
+        }
 
-    //    vertices = flatShadedVertices;
-    //    uvs = flatShadedUvs;
-    //    Debug.Log("Flat shaded");
-    //}
+
+        if (!Application.isPlaying)
+            Debug.Log("Flat Shading Started: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
+
+        vertices = flatShadedVertices;
+        uvs = flatShadedUvs;
+
+        if (!Application.isPlaying)
+            Debug.Log("Flat Shading Complete: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
+    }
 
     public Mesh CreateMesh()
     {
         Mesh mesh = new Mesh();
+
+        if (useFlatShading)
+            FlatShade();
+
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uvs;
 
-        //if (useFlatShading)
-        //    FlatShade();
-
         mesh.RecalculateNormals();
 
+        //if (!Application.isPlaying)
+        //    Debug.Log("Mesh Created: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
 
-
+        //if (!Application.isPlaying)
+        //{
+        //    if (useFlatShading)
+        //    {
+        //        AssetDatabase.CreateAsset(mesh, "Assets/TerrainAssets/TerrainMesh_Flat.asset");
+        //        AssetDatabase.SaveAssets();
+        //        Debug.Log("Saved TerrainMesh_Flat.asset");
+        //    }
+        //    else
+        //    {
+        //        AssetDatabase.CreateAsset(mesh, "Assets/TerrainAssets/TerrainMesh.asset");
+        //        AssetDatabase.SaveAssets();
+        //        Debug.Log("Saved TerrainMesh.asset");
+        //    }
+        //}
+                
         return mesh;
     }
 }
