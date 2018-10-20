@@ -78,14 +78,14 @@ public class MeshData
         }
 
 
-        if (!Application.isPlaying)
-            Debug.Log("Flat Shading Started: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
+        //if (!Application.isPlaying)
+            //Debug.Log("Flat Shading Started: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
 
         vertices = flatShadedVertices;
         uvs = flatShadedUvs;
 
-        if (!Application.isPlaying)
-            Debug.Log("Flat Shading Complete: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
+        //if (!Application.isPlaying)
+            //Debug.Log("Flat Shading Complete: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
     }
 
     public Mesh CreateMesh()

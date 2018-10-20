@@ -26,20 +26,19 @@ public class CameraMovement : MonoBehaviour {
         Zoom();
         NavMeshControl();
 	}
-    [SerializeField] NavMeshAgent target;
-    [SerializeField] GameObject seeker;
+
     private void NavMeshControl()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if(Physics.Raycast(ray, out hit))
-            {
-                target.SetDestination(hit.point);
-                seeker.transform.position = hit.point;
-            }
-        }
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //    RaycastHit hit;
+        //    if(Physics.Raycast(ray, out hit))
+        //    {
+        //        target.SetDestination(hit.point);
+        //        seeker.transform.position = hit.point;
+        //    }
+        //}
     }
 
     private void LateUpdate()

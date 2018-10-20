@@ -2,34 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapGenerator : MonoBehaviour {
+public class MapGenerator : MonoBehaviour
+{
 
-    public enum DrawMode { NoiseMap, Mesh, FalloffMap }
-    public DrawMode drawMode;
+    //public enum DrawMode { NoiseMap, Mesh, FalloffMap }
+    //public DrawMode drawMode;
 
     public FilterMode filterMode;
 
-    [Tooltip("Something with good factors, ie 1, 2, 4, 6 then +1")] [SerializeField] private int terrainChunkSize = 97;
-    [Tooltip("Something with good factors, ie 1, 2, 4, 6 then +1")] [SerializeField] private int waterChunkSize = 97;
+    [Tooltip("Something with good factors, ie 1, 2, 4, 6 then +1")] private int terrainChunkSize = 97;
+    [Tooltip("Something with good factors, ie 1, 2, 4, 6 then +1")] private int waterChunkSize = 241;
     [Range(0, 6)] public int terrainLevelOfDetail;
     [Range(0, 6)] public int waterLevelOfDetail;
 
-    public TerrainData terrainData;
-    public NoiseData noiseData;
-    public TextureData textureData;
+    [HideInInspector] public WorldData worldData;
+    [HideInInspector] public NoiseData noiseData;
+    [HideInInspector] public TextureData textureData;
     public Material terrainMaterial;
 
-    [Range(0.001f, 10.0f)] public float falloffMapParamA;
-    [Range(1.0f, 50.0f)] public float falloffMapParamB;
-
     public bool autoUpdate;
-    public bool generateMeshOnAwake;    
+    public bool generateMeshOnAwake;
 
     float[,] falloffMap;
 
     private void Awake()
     {
-        falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, falloffMapParamA, falloffMapParamB);
+        falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, worldData.falloffMapParamA, worldData.falloffMapParamB);
         Debug.Log("MapGenerator");
     }
 
@@ -37,7 +35,6 @@ public class MapGenerator : MonoBehaviour {
     {
         if (generateMeshOnAwake)
         {
-            drawMode = DrawMode.Mesh;
             GenerateMap();
         }
     }
@@ -59,17 +56,16 @@ public class MapGenerator : MonoBehaviour {
     {
         if (Application.isPlaying)
         {
-            GameState.Instance.worldLoadState.AddStage("generate-terrain", false);
-            GameState.Instance.worldLoadState.AddStage("generate-water", false);
+            //GameState.Instance.worldLoadState.AddStage("generate-terrain", false);
+            //GameState.Instance.worldLoadState.AddStage("generate-water", false);
         }
 
         float[,] terrainNoiseMap = Noise.GenerateNoise(terrainChunkSize, terrainChunkSize, noiseData.seed, noiseData.noiseScale, noiseData.octaves, noiseData.persistance, noiseData.lacunarity, noiseData.offset);
         float[,] waterNoiseMap = new float[waterChunkSize, waterChunkSize];
 
-        if (terrainData.useFalloffMap)
+        if (worldData.useFalloffMap)
         {
-            if (falloffMap == null)
-                falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, falloffMapParamA, falloffMapParamB);
+            falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, worldData.falloffMapParamA, worldData.falloffMapParamB);
 
             for (int y = 0; y < terrainChunkSize; y++)
             {
@@ -80,7 +76,7 @@ public class MapGenerator : MonoBehaviour {
             }
         }
 
-        textureData.UpdateMeshHeights(terrainMaterial, terrainData.minHeight, terrainData.maxHeight);
+        textureData.UpdateMeshHeights(terrainMaterial, worldData.GetMinHeight(), worldData.GetMaxHeight());
         textureData.ApplyToMaterial(terrainMaterial);
         DisplayMeshes(terrainNoiseMap, waterNoiseMap);
     }
@@ -88,22 +84,22 @@ public class MapGenerator : MonoBehaviour {
     private void DisplayMeshes(float[,] terrainNoiseMap, float[,] waterNoiseMap)
     {
         MapDisplay display = FindObjectOfType<MapDisplay>();
-        display.DrawTerrainMesh(MeshGenerator.GenerateTerrainMesh(terrainNoiseMap, terrainData.meshHeightMultiplier, terrainData.meshHeightCurve, terrainLevelOfDetail, terrainData.useFlatShading));
-        display.DrawWaterMesh(MeshGenerator.GenerateTerrainMesh(waterNoiseMap, 1.0f, terrainData.meshHeightCurve, waterLevelOfDetail, terrainData.useFlatShading));
+        display.DrawTerrainMesh(MeshGenerator.GenerateTerrainMesh(terrainNoiseMap, worldData.meshHeightMultiplier, worldData.meshHeightCurve, terrainLevelOfDetail, worldData.useFlatShading));
+        display.DrawWaterMesh(MeshGenerator.GenerateTerrainMesh(waterNoiseMap, 1.0f, worldData.meshHeightCurve, waterLevelOfDetail, worldData.useFlatShading));
         if (Application.isPlaying)
         {
-            GameState.Instance.worldLoadState.UpdateStage("generate-terrain", true);
-            GameState.Instance.worldLoadState.UpdateStage("generate-water", true);
+            //GameState.Instance.worldLoadState.UpdateStage("generate-terrain", true);
+            //GameState.Instance.worldLoadState.UpdateStage("generate-water", true);
             GetComponent<NavMeshGenerator>().GenerateNavMesh();
         }
     }
 
     private void OnValidate()
     {
-        if (terrainData != null)
+        if (worldData != null)
         {
-            terrainData.OnValuesUpdated -= OnValuesUpdated;
-            terrainData.OnValuesUpdated += OnValuesUpdated;
+            worldData.OnValuesUpdated -= OnValuesUpdated;
+            worldData.OnValuesUpdated += OnValuesUpdated;
         }
 
         if (noiseData != null)
@@ -118,6 +114,10 @@ public class MapGenerator : MonoBehaviour {
             textureData.OnValuesUpdated += OnTextureValuesUpdated;
         }
 
-        falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, falloffMapParamA, falloffMapParamB);
+        if (worldData == null)
+        {
+            Debug.LogError("WTF");
+        }
+        falloffMap = FalloffGenerator.GenerateFalloffMap(terrainChunkSize, worldData.falloffMapParamA, worldData.falloffMapParamB);
     }
 }

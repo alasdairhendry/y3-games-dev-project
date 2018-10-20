@@ -17,7 +17,7 @@ public class NavMeshGenerator : MonoBehaviour {
     {
         if (Application.isPlaying)
         {
-            GameState.Instance.worldLoadState.AddStage("generate-nav-mesh", false);            
+            //GameState.Instance.worldLoadState.AddStage("generate-nav-mesh", false);            
         }
 
         navMeshSurface.BuildNavMesh();

@@ -48,6 +48,7 @@ public class TextureData : UpdatableScriptableObject {
     {
         savedMinHeight = minHeight;
         savedMaxHeight = maxHeight;
+        Debug.Log("savedMinHeight: " + minHeight + " - - " + "savedMaxHeight: " + maxHeight);
         material.SetFloat("minHeight", minHeight);
         material.SetFloat("maxHeight", maxHeight);
     }
