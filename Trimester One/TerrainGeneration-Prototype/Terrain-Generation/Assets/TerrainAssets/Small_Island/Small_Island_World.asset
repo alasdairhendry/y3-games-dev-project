@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Name: Small_Island_World
   m_EditorClassIdentifier: 
   autoUpdate: 1
-  meshHeightMultiplier: 100
-  meshHeightCurve:
+  heightMultiplier: 100
+  heightCruve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3

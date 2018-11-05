@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Name: Scattered_Islands_World
   m_EditorClassIdentifier: 
   autoUpdate: 1
-  meshHeightMultiplier: 100
-  meshHeightCurve:
+  heightMultiplier: 100
+  heightCruve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -23,16 +23,34 @@ MonoBehaviour:
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
-      time: 0.20005804
-      value: 0.007031733
-      inSlope: 0.08684376
-      outSlope: 0.08684376
+      time: 0.300948
+      value: -0.1010492
+      inSlope: -2.170444
+      outSlope: -2.170444
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.020388914
+      inWeight: 0.14513248
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.33860296
+      value: -0.15023613
+      inSlope: 2.669561
+      outSlope: 2.669561
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.28340885
+    - serializedVersion: 3
+      time: 0.5459445
+      value: 0.036417276
+      inSlope: -0.12361549
+      outSlope: -0.12361549
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.073959135
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
@@ -41,12 +59,12 @@ MonoBehaviour:
       outSlope: 2
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   useFlatShading: 1
   useFalloffMap: 1
   falloffMapParamA: 0.55
-  falloffMapParamB: 50
+  falloffMapParamB: 5

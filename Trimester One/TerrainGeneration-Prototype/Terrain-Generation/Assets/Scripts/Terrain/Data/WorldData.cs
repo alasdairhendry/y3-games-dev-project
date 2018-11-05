@@ -5,8 +5,8 @@ using UnityEngine;
 [CreateAssetMenu()]
 public class WorldData : UpdatableScriptableObject {
 
-    public float meshHeightMultiplier;
-    public AnimationCurve meshHeightCurve;
+    public float heightMultiplier;
+    public AnimationCurve heightCruve;
 
     public bool useFlatShading;
     public bool useFalloffMap;
@@ -16,11 +16,13 @@ public class WorldData : UpdatableScriptableObject {
 
     public float GetMinHeight()
     {
-        return meshHeightMultiplier * meshHeightCurve.Evaluate(0);
+        Debug.Log("Got Min Height: " + heightMultiplier * heightCruve.Evaluate(0));
+        return heightMultiplier * heightCruve.Evaluate(0);
     }
 
     public float GetMaxHeight()
     {
-        return meshHeightMultiplier * meshHeightCurve.Evaluate(1);
+        Debug.Log("Got Max Height: " + heightMultiplier * heightCruve.Evaluate(1));
+        return heightMultiplier * heightCruve.Evaluate(1);
     }
 }

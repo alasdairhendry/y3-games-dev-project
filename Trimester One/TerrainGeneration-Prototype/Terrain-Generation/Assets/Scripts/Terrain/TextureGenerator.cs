@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public static class TextureGenerator {
+
+    static bool done = false;
 
     public static Texture2D TextureFromHeightMap(float[,] heightMap, FilterMode filterMode)
     {
@@ -29,6 +32,7 @@ public static class TextureGenerator {
         texture.wrapMode = TextureWrapMode.Clamp;
         texture.SetPixels(colourMap);
         texture.Apply();
+        
         return texture;
     }
 }

@@ -6,32 +6,32 @@ using UnityEditor;
 [CustomEditor(typeof(MapGenerator))]
 public class MapGenerator_Editor : Editor {
 
-    private bool worldDataFoldout = false;
-    private bool noiseDataFoldout = false;
-    private bool textureDataFoldout = false;
+    //private bool worldDataFoldout = false;
+    //private bool noiseDataFoldout = false;
+    //private bool textureDataFoldout = false;
 
-    public override void OnInspectorGUI()
-    {
-        MapGenerator mapGen = (MapGenerator)target;
+    //public override void OnInspectorGUI()
+    //{
+    //    MapGenerator mapGen = (MapGenerator)target;
 
-        if (DrawDefaultInspector())
-        {
-            if (mapGen.autoUpdate)
-            {
-                mapGen.GenerateMap();
-                Debug.Log("Generate");
-            }
-        }
+    //    if (DrawDefaultInspector())
+    //    {
+    //        if (mapGen.autoUpdate)
+    //        {
+    //            mapGen.GenerateMap();
+    //            Debug.Log("Generate");
+    //        }
+    //    }
 
-        QuickSwitch.Draw<WorldData>(mapGen.GenerateMap, serializedObject, "worldData", ref mapGen.worldData, ref worldDataFoldout);
-        QuickSwitch.Draw<NoiseData>(mapGen.GenerateMap, serializedObject, "noiseData", ref mapGen.noiseData, ref noiseDataFoldout);
-        QuickSwitch.Draw<TextureData>(mapGen.GenerateMap, serializedObject, "textureData", ref mapGen.textureData, ref textureDataFoldout);
+    //    QuickSwitch.Draw<WorldData>(mapGen.GenerateMap, serializedObject, "worldData", ref mapGen.worldData, ref worldDataFoldout);
+    //    QuickSwitch.Draw<NoiseData>(mapGen.GenerateMap, serializedObject, "noiseData", ref mapGen.noiseData, ref noiseDataFoldout);
+    //    QuickSwitch.Draw<TextureData>(mapGen.GenerateMap, serializedObject, "textureData", ref mapGen.textureData, ref textureDataFoldout);
 
-        if (GUILayout.Button("Generate"))
-        {
-            mapGen.GenerateMap();
-        }
-    }
+    //    if (GUILayout.Button("Generate"))
+    //    {
+    //        mapGen.GenerateMap();
+    //    }
+    //}
 
     //private bool Check(System.Action field)
     //{

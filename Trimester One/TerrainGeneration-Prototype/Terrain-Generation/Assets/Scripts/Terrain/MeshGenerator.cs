@@ -1,12 +1,9 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 public static class MeshGenerator {
 
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve, int levelOfDetail, bool useFlatShading)
+    public static IEnumerator GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve, int levelOfDetail, bool useFlatShading, World sender, float meshTransformScale)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -16,26 +13,32 @@ public static class MeshGenerator {
         int meshSimplificationIncrement = (levelOfDetail == 0) ? 1 : levelOfDetail * 2;
         int verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
 
-        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine, useFlatShading);
+        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine, useFlatShading);        
         int vertexIndex = 0;
 
-        for (int y = 0; y < height; y += meshSimplificationIncrement)
+        int y = 0;      
+
+        while(y<= height)
         {
-            for (int x = 0; x < width; x += meshSimplificationIncrement)
+            for (int x = 0; x < width; x+=meshSimplificationIncrement)
             {
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + x, heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier, topLeftZ - y);
+                Vector3 vertexPosition = new Vector3(/*topLeftX + */x, heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier, /*topLeftZ -*/ y);
+                meshData.vertices[vertexIndex] = vertexPosition;                
+
                 meshData.uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
                 if (x < width - 1 && y < height - 1)
                 {
-                    meshData.AddTriangle(vertexIndex, vertexIndex + verticesPerLine + 1, vertexIndex + verticesPerLine);
-                    meshData.AddTriangle(vertexIndex + verticesPerLine + 1, vertexIndex, vertexIndex + 1);
+                    meshData.AddTriangle(vertexIndex, vertexIndex + verticesPerLine, vertexIndex + verticesPerLine + 1);
+                    meshData.AddTriangle(vertexIndex + verticesPerLine + 1, vertexIndex + 1, vertexIndex);
                 }
 
                 vertexIndex++;
-            }
+            }            
+            y += meshSimplificationIncrement;           
         }
-
-        return meshData;
+        
+        sender.SetMesh(meshData.CreateMesh());
+        yield return null;
     }
 }
 
@@ -77,15 +80,8 @@ public class MeshData
             triangles[i] = i;
         }
 
-
-        //if (!Application.isPlaying)
-            //Debug.Log("Flat Shading Started: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
-
         vertices = flatShadedVertices;
         uvs = flatShadedUvs;
-
-        //if (!Application.isPlaying)
-            //Debug.Log("Flat Shading Complete: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
     }
 
     public Mesh CreateMesh()
@@ -100,25 +96,6 @@ public class MeshData
         mesh.uv = uvs;
 
         mesh.RecalculateNormals();
-
-        //if (!Application.isPlaying)
-        //    Debug.Log("Mesh Created: " + "(Verts: " + vertices.Length + ") - (Tris: " + triangles.Length + ")");
-
-        //if (!Application.isPlaying)
-        //{
-        //    if (useFlatShading)
-        //    {
-        //        AssetDatabase.CreateAsset(mesh, "Assets/TerrainAssets/TerrainMesh_Flat.asset");
-        //        AssetDatabase.SaveAssets();
-        //        Debug.Log("Saved TerrainMesh_Flat.asset");
-        //    }
-        //    else
-        //    {
-        //        AssetDatabase.CreateAsset(mesh, "Assets/TerrainAssets/TerrainMesh.asset");
-        //        AssetDatabase.SaveAssets();
-        //        Debug.Log("Saved TerrainMesh.asset");
-        //    }
-        //}
                 
         return mesh;
     }
