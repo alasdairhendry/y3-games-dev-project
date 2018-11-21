@@ -65,8 +65,10 @@ public class HUD_CreateMap_Panel : UIPanel
     public void OnClick_PlayMap ()
     {
         Hide ();
+        FindObjectOfType<World> ().DEBUG_UpdateShaderParams ();
         FindObjectOfType<HUD_LoadingOverlay_Panel> ().Hide ();
         FindObjectOfType<HUD_Toolbar_Panel> ().Show ();
+        FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );
     }
 
     private World SetWorldDatas ()

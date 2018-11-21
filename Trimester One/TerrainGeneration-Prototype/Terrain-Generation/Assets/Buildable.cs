@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Buildable : MonoBehaviour {
 
-    Prop prop;
+    private Prop prop;
     private float constructionPercent = 0.0f;
     public bool IsComplete { get { return constructionPercent >= 100.0f ? true : false; } }
 
@@ -15,6 +12,7 @@ public class Buildable : MonoBehaviour {
     private bool hasBegun = false;
 
     [SerializeField] private MaterialPoint[] materialPoints;
+    [SerializeField] private ResourceInventory inventory = new ResourceInventory();
 
     private void Start ()
     {
@@ -51,34 +49,43 @@ public class Buildable : MonoBehaviour {
     {
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
-            Job_Haul job = new Job_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, transform.position );
+            Job_Haul job = new Job_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, this);
             JobController.QueueJob ( job );
         }
     }
 
-    [ContextMenu("Add")]
-    public void Add ()
+    public void AddConstructionPercentage (float amount)
     {
-        AddPercentage ( 15.0f );
-    }
+        if (IsComplete) return;
 
-    public void AddPercentage (float amount)
-    {
         constructionPercent += amount;
-
-        if (IsComplete)
-        {
-            Complete ();
-        }
-        else
-        {
-            CheckStages ();
-        }
+        CheckStages ();
     }
 
-    public void AddMaterial ()
+    public void AddMaterial (int resourceID, float quantity)
     {
-        
+        inventory.AddItemQuantity ( resourceID, quantity );
+        CheckMaterials ();
+    }
+
+    private void CheckMaterials ()
+    {
+        for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
+        {
+            if(!inventory.CheckHasQuantity(prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount ))
+            {
+                return;
+            }
+        }
+
+        OnMaterialsMet ();
+    }
+
+    private void OnMaterialsMet ()
+    {
+        Debug.Log ( "Creating new Job Item (Build Job) for item " + this.gameObject.name );
+        Job_Build job = new Job_Build ( "Build object " + prop.data.name, true, 5.0f, this );
+        JobController.QueueJob ( job );
     }
 
     private void CheckStages ()

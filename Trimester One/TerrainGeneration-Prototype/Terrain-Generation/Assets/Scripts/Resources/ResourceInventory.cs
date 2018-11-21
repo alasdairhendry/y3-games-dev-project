@@ -78,4 +78,9 @@ public class ResourceInventory {
         inventory[itemID] -= quantity;        
         return quantity;
     }	
+
+    public Resource GetResourceByID(int itemID)
+    {
+        return ResourceManager.Instance.GetResourceByID ( itemID );
+    }
 }

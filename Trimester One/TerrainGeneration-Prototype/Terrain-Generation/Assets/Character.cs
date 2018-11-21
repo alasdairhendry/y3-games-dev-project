@@ -33,4 +33,9 @@ public class Character : MonoBehaviour {
 
         currentJob.DoJob ( Time.deltaTime );
     }
+
+    public void OnJob_Complete ()
+    {
+        currentJob = null;
+    }
 }

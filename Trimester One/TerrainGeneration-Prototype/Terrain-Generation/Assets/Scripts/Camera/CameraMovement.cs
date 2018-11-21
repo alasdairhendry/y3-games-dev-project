@@ -52,9 +52,7 @@ public class CameraMovement : MonoBehaviour {
         RaycastHit hit;
         if(Physics.Raycast(targetZoomPosition, transform.forward, out hit))
         {
-            currentZoomDistance = Vector3.Distance(targetZoomPosition, hit.point);
-
-            //Debug.Log("Camera above terrain ");
+            currentZoomDistance = Vector3.Distance(targetZoomPosition, hit.point);            
 
             if (currentZoomDistance <= zoomNearClamp)
                 targetZoomPosition = hit.point + (-transform.forward * zoomNearClamp);
@@ -83,5 +81,11 @@ public class CameraMovement : MonoBehaviour {
         //Debug.DrawRay(targetZoomPosition, -transform.forward * 250.0f, Color.blue, 0.25f);
 
         targetPosition = targetZoomPosition;
+    }
+
+    public void PanTo(Vector3 position)
+    {
+        targetPosition = position;
+        Zoom ();
     }
 }

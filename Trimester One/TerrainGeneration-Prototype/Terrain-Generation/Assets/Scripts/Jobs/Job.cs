@@ -11,52 +11,47 @@ public class Job {
     //public float TimeRequired { get; protected set; }
 
     public string Name;
-    public bool Open;
     public bool Complete;
     public float TimeRequired;
+    public bool Open { get; protected set; }
+    public enum WorkerType { Builder, Gatherer, Farmer }
 
-    public Character character;
-
-    //public List<Job> waitingOn = new List<Job> ();
+    protected Character character;
+    
     public System.Action onComplete;
 
     public Job () { }
 
-    public Job (string name, bool open, float timeRequired)
+    public Job (string name, bool open, float timeRequired, System.Action onComplete)
     {
         this.Name = name;
         this.Open = open;
         this.TimeRequired = timeRequired;
+        this.onComplete = onComplete;
     }
 
-    public virtual void OnEnter (Character character) { this.character = character; }
+    public virtual void OnCharacterAccept (Character character) { this.character = character; Open = false; }
 
-    public virtual void OnExit () { }
+    public virtual void OnCharacterLeave() { this.character.OnJob_Complete (); this.character = null; this.Open = true; this.onComplete = null; }
 
-    public virtual void DoJob (float deltaTime)
+    public virtual void DoJob (float deltaGameTime)
     {
         if (Complete) return;
 
-        TimeRequired -= deltaTime;
+        TimeRequired -= deltaGameTime;
 
         if (TimeRequired <= 0) OnComplete ();
     }
 
-    public virtual void OnComplete ()
+    protected virtual void OnComplete ()
     {
+        this.character.OnJob_Complete ();
+        this.character = null;
+
+        Open = false;
         Complete = true;
+
+        JobController.RemoveJob ( this );
         if (onComplete != null) onComplete ();
-    }
-
-    //public void AddDependancy (Job job)
-    //{
-    //    waitingOn.Add ( job );
-    //    job.onComplete += () => { RemoveDependancy ( job ); };
-    //}
-
-    //public void RemoveDependancy(Job job)
-    //{
-    //    waitingOn.Remove ( job );
-    //    if (waitingOn.Count <= 0) Open = true;
-    //}
+    }  
 }

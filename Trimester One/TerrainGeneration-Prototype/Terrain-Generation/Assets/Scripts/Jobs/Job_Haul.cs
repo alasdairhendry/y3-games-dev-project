@@ -4,75 +4,125 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Job_Haul : Job {
+public class Job_Haul : Job
+{
 
-    private Prop_Warehouse target;
-    private Vector3 destination;
+    public enum Stage { Find, Collect, Transport }
+    private Stage stage = Stage.Find;
 
-    private bool reachedTarget = false;
-    private bool reachedDestination = false;
+    private Prop_Warehouse targetWarehouse;
+    private Buildable targetBuildable;
 
-    private bool givenDestination = false;
+    private bool agentGivenDestination = false;
+
+    private bool resourcesTakenFromWarehouse = false;
+    private bool resourcesGivenToCitizen = false;
 
     private int resourceID;
     private float resourceQuantity;
-    
-    public Job_Haul(string name, bool open, int resourceID, float resourceQuantity, Vector3 destination)
+
+    public Job_Haul (string name, bool open, int resourceID, float resourceQuantity, Buildable targetBuildable)
     {
         base.Name = name;
         base.Open = open;
         this.resourceID = resourceID;
         this.resourceQuantity = resourceQuantity;
-        this.destination = destination;
+        this.targetBuildable = targetBuildable;
     }
 
-    public override void DoJob (float deltaTime)
+    public override void DoJob (float deltaGameTime)
     {
-        if (target == null) { target = FindResource (); }
-
-        if (target == null) { Debug.Log ( "Still no warehouse." ); return; }
-
-        if (!reachedTarget && !character.agent.hasPath && !givenDestination)
+        switch (stage)
         {
-            character.agent.SetDestination ( target.transform.position );
-            givenDestination = true;
+            case Stage.Find:
+                DoJob_Stage_Find ();
+                break;
+            case Stage.Collect:
+                DoJob_Stage_Collect ();
+                break;
+            case Stage.Transport:
+                DoJob_Stage_Transport ();
+                break;
+        }
+    }
+
+    private void DoJob_Stage_Find ()
+    {
+        if (targetWarehouse == null) { targetWarehouse = FindResource (); }
+        if (targetWarehouse == null) { Debug.Log ( "Still no warehouse." ); return; }
+
+        targetWarehouse.inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+        resourcesTakenFromWarehouse = true;
+
+        stage = Stage.Collect;
+        Debug.LogError ( "SetStage: " + stage.ToString () );
+    }
+
+    private void DoJob_Stage_Collect ()
+    {
+        if (!character.agent.hasPath && !agentGivenDestination)
+        {
+            character.agent.SetDestination ( targetWarehouse.transform.position );
+            agentGivenDestination = true;
             return;
         }
 
-        Debug.Log ( "Remaining Distance: " + character.agent.remainingDistance );
-
-        if (ReachedPath () && !reachedTarget)
+        if (ReachedPath ())
         {
-            Debug.Log ( "Reached target position" );
+            character.inventory.AddItemQuantity ( resourceID, resourceQuantity );
+            resourcesGivenToCitizen = true;
 
-            if (!target.inventory.CheckHasQuantity ( resourceID, resourceQuantity ))
-            {
-                target = null;
-                return;
-            }
+            stage = Stage.Transport;
+            agentGivenDestination = false;
+            Debug.LogError ( "SetStage: " + stage.ToString () );
+        }
+    }
 
-            target.inventory.AddItemQuantity ( resourceID, character.inventory.AddItemQuantity ( resourceID, target.inventory.RemoveItemQuantity ( resourceID, resourceQuantity ) ) );
-
-            reachedTarget = true;
+    private void DoJob_Stage_Transport ()
+    {
+        if (!character.agent.hasPath && !agentGivenDestination)
+        {
+            character.agent.SetDestination ( targetBuildable.transform.position );
+            agentGivenDestination = true;
             return;
         }
 
+        if (ReachedPath ())
+        {
+            character.inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            resourcesGivenToCitizen = false;
+            agentGivenDestination = false;
 
+            targetBuildable.AddMaterial ( resourceID, resourceQuantity );
+
+            base.OnComplete ();
+        }
+    }
+
+    public override void OnCharacterLeave ()
+    {
+        if (resourcesTakenFromWarehouse)
+            targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        if (resourcesGivenToCitizen)
+            base.character.inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+
+        stage = Stage.Find;
+        base.OnCharacterLeave ();
     }
 
     private bool ReachedPath ()
     {
-        if (character.agent.pathPending) return false;
-        if (character.agent.remainingDistance > character.agent.stoppingDistance) return false;
-        if (character.agent.hasPath) return false;
+        if (character.agent.pathPending) { Debug.LogError ( "Path Pending" ); return false; }
+        if (character.agent.remainingDistance > character.agent.stoppingDistance) { Debug.LogError ( "Path Working" ); return false; }
+        if (character.agent.hasPath) { Debug.LogError ( "Path Is Valid" ); return false; }
         return true;
     }
 
     private Prop_Warehouse FindResource ()
     {
-        List<GameObject> GOs = PropManager.Instance.worldProps;        
+        List<GameObject> GOs = PropManager.Instance.worldProps;
 
-        if(GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
+        if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
 
         List<Prop_Warehouse> eligibleWarehouses = new List<Prop_Warehouse> ();
 
@@ -80,7 +130,7 @@ public class Job_Haul : Job {
         {
             Prop_Warehouse w = GOs[i].GetComponent<Prop_Warehouse> ();
 
-            if(w.inventory.CheckHasQuantity(resourceID, resourceQuantity))
+            if (w.inventory.CheckHasQuantity ( resourceID, resourceQuantity ))
             {
                 eligibleWarehouses.Add ( w );
             }
@@ -98,19 +148,19 @@ public class Job_Haul : Job {
             NavMesh.CalculatePath ( base.character.transform.position, eligibleWarehouses[i].transform.position, 0, path );
 
             float f = GetPathLength ( path );
-            if(f <= bestDistance)
+            if (f <= bestDistance)
             {
                 bestDistance = f;
                 fastestPath = i;
             }
-        }   
-        
-        if(fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
+        }
+
+        if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
         return eligibleWarehouses[fastestPath];
     }
 
-    private float GetPathLength(NavMeshPath path)
+    private float GetPathLength (NavMeshPath path)
     {
         float length = float.MaxValue;
         if (path.status != NavMeshPathStatus.PathComplete) return length;

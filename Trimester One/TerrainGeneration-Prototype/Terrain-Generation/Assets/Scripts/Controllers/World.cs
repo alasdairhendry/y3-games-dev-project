@@ -8,7 +8,6 @@ using UnityEngine.AI;
 [ExecuteInEditMode]
 public class World : MonoBehaviour
 {
-
     [HideInInspector] public WorldData worldData;
     [HideInInspector] public NoiseData noiseData;
     [HideInInspector] public TextureData textureData;
@@ -57,7 +56,7 @@ public class World : MonoBehaviour
         terrainLoadState.onStart += () => { isGenerating = true; if (OnTerrainBeginGenerate != null) OnTerrainBeginGenerate(); };
         terrainLoadState.onStageComplete += OnTerrainGenerateStateChange;
         terrainLoadState.onComplete += () => { isGenerating = false; if (OnTerrainEndGenerate != null) OnTerrainEndGenerate(); };
-    }
+    }    
 
     public void SetRichness(Richness richness)
     {
@@ -125,9 +124,9 @@ public class World : MonoBehaviour
             yield return CreateEnvironment();
 
         if (DEBUG_NAV)
-            yield return CreateNavMeshSurface();
-        yield return null;
-        Debug.Log("CreateWorld: Finished");
+            yield return CreateNavMeshSurface();      
+
+        yield return null;        
     }
 
     private IEnumerator CreateHeightMap()
@@ -221,6 +220,14 @@ public class World : MonoBehaviour
             yield return null;
             terrainLoadState.UpdateStage ( "cnm", true );
         }
+
+        DEBUG_UpdateShaderParams ();
+    }
+
+    public void DEBUG_UpdateShaderParams ()
+    {
+        textureData.UpdateMeshHeights ( terrainMaterial, worldData.GetMinHeight (), worldData.GetMaxHeight () );
+        textureData.ApplyToMaterial ( terrainMaterial );        
     }
 
     public void SetHeightMap(float[,] heightMap)
