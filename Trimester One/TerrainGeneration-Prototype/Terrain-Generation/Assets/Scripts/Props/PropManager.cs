@@ -20,7 +20,6 @@ public class PropManager : MonoBehaviour {
 
     private void Start ()
     {
-        Debug.Log ( "Wooh" );
         GenerateDictionaries ();
     }
 
@@ -35,8 +34,7 @@ public class PropManager : MonoBehaviour {
             else
             {
                 propDataCategorised.Add ( propData[i].category, new List<PropData> () { propData[i] } );
-            }
-            Debug.Log ( propData[i].name );
+            }            
         }
     }
 

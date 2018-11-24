@@ -7,10 +7,14 @@ public class Job_Build : Job {
     private Buildable buildableTarget;
     private float buildSpeed = 0.0f;
 
+    private bool assignedCharacterDestination = false;
+
     public Job_Build(string name, bool open, float buildSpeed, Buildable buildableTarget)
     {
+        this.id = JobController.GetNewJobID ();
         this.Name = name;
         this.Open = open;
+        
         this.buildSpeed = buildSpeed;
         this.buildableTarget = buildableTarget;
     }
@@ -19,11 +23,29 @@ public class Job_Build : Job {
     {
         if (buildableTarget.IsComplete)
         {
-            base.OnComplete ();
+            this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
+            base.OnComplete ();            
             return;
         }
 
+        if (!assignedCharacterDestination)
+        {
+            assignedCharacterDestination = true;
+            this.character.agent.SetDestination ( buildableTarget.GetPropData.CitizenInteractionPointGlobal );
+        }
+
+        if (!ReachedPath ()) return;
+
+        this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( true );
         buildableTarget.AddConstructionPercentage ( deltaGameTime * buildSpeed );
+    }
+
+    public override void OnCharacterLeave (string reason)
+    {
+        assignedCharacterDestination = false;
+        this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
+
+        base.OnCharacterLeave ( reason );
     }
 
 }

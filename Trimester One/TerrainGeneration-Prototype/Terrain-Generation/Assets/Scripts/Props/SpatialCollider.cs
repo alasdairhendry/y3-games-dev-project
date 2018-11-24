@@ -5,9 +5,11 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class SpatialCollider : MonoBehaviour {
 
-    public bool IsColliding { get { if (colliders.Count > 0) return true; else return false; } }
+    public bool IsColliding { get { if (spatialColliders.Count > 0) return true; else return false; } }
 
-    private List<SpatialCollider> colliders = new List<SpatialCollider> ();
+    private List<SpatialCollider> spatialColliders = new List<SpatialCollider> ();
+    private List<RawMaterialCollider> environmentCollider = new List<RawMaterialCollider> ();
+    public List<RawMaterialCollider> EnvironmentColliders { get { return environmentCollider; } }
 
     private void Awake ()
     {
@@ -23,29 +25,41 @@ public class SpatialCollider : MonoBehaviour {
     {
         if (other.gameObject.GetComponent<SpatialCollider> () != null)
             other.gameObject.GetComponent<SpatialCollider> ().AddCollision ( this );
+
+        if (other.gameObject.GetComponent<RawMaterialCollider> () != null)
+        {
+            environmentCollider.Add ( other.gameObject.GetComponent<RawMaterialCollider> () );
+            other.gameObject.GetComponentInParent<PropVisualiser> ().Visualise ( Resources.Load<Material> ( "PropOutline_Red_material" ) );
+        }
     }
 
     private void OnTriggerExit (Collider other)
     {
         if (other.gameObject.GetComponent<SpatialCollider> () != null)
             other.gameObject.GetComponent<SpatialCollider> ().RemoveCollision ( this );
+
+        if (other.gameObject.GetComponent<RawMaterialCollider> () != null)
+        {
+            environmentCollider.Remove ( other.gameObject.GetComponent<RawMaterialCollider> () );
+            other.gameObject.GetComponentInParent<PropVisualiser> ().TurnOff ();
+        }
     }
 
     private void OnDestroy ()
     {
-        for (int i = 0; i < colliders.Count; i++)
+        for (int i = 0; i < spatialColliders.Count; i++)
         {
-            colliders[i].RemoveCollision ( this );
+            spatialColliders[i].RemoveCollision ( this );
         }
     }
 
     public void AddCollision(SpatialCollider from)
     {
-        colliders.Add ( from );
+        spatialColliders.Add ( from );
     }
 
     public void RemoveCollision(SpatialCollider from)
     {
-        colliders.Remove ( from );
+        spatialColliders.Remove ( from );
     }
 }

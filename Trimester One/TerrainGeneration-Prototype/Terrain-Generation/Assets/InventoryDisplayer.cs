@@ -4,35 +4,52 @@ using UnityEngine;
 
 public class InventoryDisplayer : MonoBehaviour {
 
-    private TextMesh textMesh;
-    [SerializeField] private Behaviour target;
-    [SerializeField] private string inventoryParam;
+    [SerializeField] private Character targetCitizen;
+    [SerializeField] private Prop_Warehouse targetWarehouse;
 
+    private TextMesh textMesh;        
     private ResourceInventory inventory;
-    	
-	void Update () {
-        if(inventory == null && target.enabled)
+
+    private void Start ()
+    {        
+        textMesh = GetComponent<TextMesh> ();
+
+        if(targetCitizen == null && targetWarehouse== null)
         {
-            if(target == null)
-            {
-                Debug.LogError ( "null target" );
-                return;
-            }
-            textMesh = GetComponent<TextMesh> ();
-            inventory = (ResourceInventory)target.GetType ().GetField ( inventoryParam ).GetValue ( target );
+            targetCitizen = GetComponentInParent<Character> ();
+            targetWarehouse = GetComponentInParent<Prop_Warehouse> ();
         }
-        else { return; }
 
-        if (inventory.inventory == null) return;
+        if (targetCitizen != null) inventory = targetCitizen.Inventory;
+        else if (targetWarehouse != null) inventory = targetWarehouse.inventory;
+    }
 
+    void Update () {
         string text = "";
 
-        foreach (int key in inventory.inventory.Keys)
+        if(targetCitizen != null && targetWarehouse == null)
         {
-            text += inventory.inventory[key] + " - " + inventory.GetResourceByID(key).name;
-            text += "/n";
+            if (targetCitizen.GetCurrentJob != null)
+            {
+                text += targetCitizen.GetCurrentJob.AgentJobStatus;
+                text += "\n";
+            }
+            else
+            {
+                text += "Idling";
+                text += "\n";
+            }
         }
 
+        if(inventory!= null)
+        {            
+            foreach (int key in inventory.inventoryOverall.Keys)
+            {
+                text += inventory.inventoryOverall[key] + " " + ResourceManager.Instance.GetResourceByID ( key ).name;
+                text += "\n";
+            }
+        }
+        
         textMesh.text = text;
 	}
 }

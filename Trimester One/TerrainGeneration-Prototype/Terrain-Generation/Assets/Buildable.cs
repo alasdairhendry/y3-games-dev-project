@@ -3,7 +3,11 @@
 public class Buildable : MonoBehaviour {
 
     private Prop prop;
+    public Prop GetPropData { get { return prop; } }
+
     private float constructionPercent = 0.0f;
+    public float ConstructionPercent { get { return constructionPercent; } }
+
     public bool IsComplete { get { return constructionPercent >= 100.0f ? true : false; } }
 
     private int currentStage = 0;
@@ -12,12 +16,14 @@ public class Buildable : MonoBehaviour {
     private bool hasBegun = false;
 
     [SerializeField] private MaterialPoint[] materialPoints;
-    [SerializeField] private ResourceInventory inventory = new ResourceInventory();
+    [SerializeField] private ResourceInventory inventory;
+    public ResourceInventory GetInventory { get { return inventory; } }
 
     private void Start ()
     {
         if (hasBegun) return;
 
+        inventory = new ResourceInventory ();
         stageCount = transform.Find ( "Graphics" ).Find ( "Stages" ).childCount;
         for (int i = 0; i < stageCount; i++)
         {
@@ -29,6 +35,7 @@ public class Buildable : MonoBehaviour {
     {        
         hasBegun = true;
         prop = GetComponent<Prop> ();
+        inventory = new ResourceInventory ();
 
         stageCount = transform.Find ( "Graphics" ).Find ( "Stages" ).childCount;
 
@@ -56,7 +63,9 @@ public class Buildable : MonoBehaviour {
 
     public void AddConstructionPercentage (float amount)
     {
-        if (IsComplete) return;
+        if (IsComplete) { Debug.Log ( "complete - returning" ); return; }
+
+        Debug.Log ( "AddConstructionPercentage - " + amount);
 
         constructionPercent += amount;
         CheckStages ();
@@ -72,7 +81,7 @@ public class Buildable : MonoBehaviour {
     {
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
-            if(!inventory.CheckHasQuantity(prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount ))
+            if(!inventory.CheckHasQuantityAvailable(prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount ))
             {
                 return;
             }
@@ -107,19 +116,16 @@ public class Buildable : MonoBehaviour {
     {
         if (currentStage >= 1)
         {
-            transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( currentStage - 1 ).gameObject.SetActive ( false );
-            Debug.Log ( "Removing last" );
+            transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( currentStage - 1 ).gameObject.SetActive ( false );            
         }
 
-        Debug.Log ( "Boop" );
         Transform t = transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( currentStage );
         Debug.Log ( t.name );
         t.gameObject.SetActive ( true );
     }
 
     private void Complete ()
-    {
-        Debug.Log ( "Complete" );
+    {        
         transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
         transform.Find ( "Graphics" ).GetChild ( 0 ).gameObject.SetActive ( true );
         PropManager.Instance.OnPropBuilt ( this.gameObject );
@@ -130,7 +136,7 @@ public class Buildable : MonoBehaviour {
         for (int i = 0; i < materialPoints.Length; i++)
         {
             Gizmos.color = new Color ( 1.0f, 0.5f, 0.0f );
-            Gizmos.DrawWireCube ( materialPoints[i].localPosition, Vector3.one );
+            Gizmos.DrawWireCube ( transform.localPosition + materialPoints[i].localPosition, Vector3.one );
         }
     }
 

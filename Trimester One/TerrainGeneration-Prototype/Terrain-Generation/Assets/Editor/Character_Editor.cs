@@ -23,24 +23,24 @@ public class Character_Editor : Editor
 
         f = EditorGUILayout.FloatField ( "Amount to add/remove", f );
 
-        if (t.inventory == null) return;
+        if (t.Inventory == null) return;
 
-        List<int> keys = new List<int> ( t.inventory.inventory.Keys );
+        List<int> keys = new List<int> ( t.Inventory.inventoryOverall.Keys );
 
         foreach (int k in keys)
         {
             EditorGUILayout.BeginHorizontal ();
 
             Resource r = ResourceManager.Instance.GetResourceByID ( k );
-            GUILayout.Label ( r.name + ": " + t.inventory.inventory[k] );
+            GUILayout.Label ( r.name + ": " + t.Inventory.inventoryOverall[k] );
 
             if (GUILayout.Button ( "Add " + r.name ))
             {
-                t.inventory.AddItemQuantity ( k, f );
+                t.Inventory.AddItemQuantity ( k, f );
             }
             else if (GUILayout.Button ( "Remove " + r.name ))
             {
-                t.inventory.RemoveItemQuantity ( k, f );
+                t.Inventory.RemoveItemQuantity ( k, f );
             }
             EditorGUILayout.EndHorizontal ();
         }

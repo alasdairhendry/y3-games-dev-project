@@ -16,13 +16,11 @@ public class WorldData : UpdatableScriptableObject {
 
     public float GetMinHeight()
     {
-        Debug.Log("Got Min Height: " + heightMultiplier * heightCruve.Evaluate(0));
         return heightMultiplier * heightCruve.Evaluate(0);
     }
 
     public float GetMaxHeight()
-    {
-        Debug.Log("Got Max Height: " + heightMultiplier * heightCruve.Evaluate(1));
+    {        
         return heightMultiplier * heightCruve.Evaluate(1);
     }
 }

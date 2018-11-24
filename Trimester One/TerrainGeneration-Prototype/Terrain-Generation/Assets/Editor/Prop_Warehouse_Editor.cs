@@ -25,14 +25,14 @@ public class Prop_Warehouse_Editor : Editor {
 
         if (t.inventory == null) return;
 
-        List<int> keys = new List<int> ( t.inventory.inventory.Keys );
+        List<int> keys = new List<int> ( t.inventory.inventoryOverall.Keys );
 
         foreach (int k in keys)
         {
             EditorGUILayout.BeginHorizontal ();
 
             Resource r = ResourceManager.Instance.GetResourceByID ( k );
-            GUILayout.Label ( r.name + ": " + t.inventory.inventory[k] );
+            GUILayout.Label ( r.name + ": " + t.inventory.inventoryOverall[k] );
 
             if (GUILayout.Button ( "Add " + r.name ))
             {

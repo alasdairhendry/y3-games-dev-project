@@ -51,11 +51,6 @@ public class BuildMode : MonoBehaviour {
         if (!isActive) return;
         if (currentPropOutline == null) return;
 
-        if (Input.GetKeyDown ( KeyCode.D ))
-        {            
-            Destroy ( GameObject.Find ( "PlacedObject: House" ) );
-        }
-
         Ray ray = Camera.main.ScreenPointToRay ( Input.mousePosition );
         RaycastHit hit;
         int mask = 1 << 9;
@@ -86,25 +81,17 @@ public class BuildMode : MonoBehaviour {
         r.y = outlineYRotation;
 
         currentPropOutline.transform.rotation = Quaternion.Slerp ( currentPropOutline.transform.rotation, Quaternion.Euler ( r ), Time.deltaTime * 20 );
-    }
+    }    
 
     private void GraphicsHandle (Vector3 point)
     {
-        if (SampleEligibility(point, 1))
+        if (SampleEligibility ( point, 1 ))
         {
-            Renderer[] r = currentPropOutline.GetComponentsInChildren<Renderer> ();
-            foreach (Renderer renderer in r)
-            {
-                renderer.material = outlineMaterials[0];
-            }
+            currentPropOutline.GetComponentInChildren<PropVisualiser> ().Visualise ( outlineMaterials[0] );
         }
         else
         {
-            Renderer[] r = currentPropOutline.GetComponentsInChildren<Renderer> ();
-            foreach (Renderer renderer in r)
-            {
-                renderer.material = outlineMaterials[1];
-            }
+            currentPropOutline.GetComponentInChildren<PropVisualiser> ().Visualise ( outlineMaterials[1] );
         }
     }    
 
@@ -113,12 +100,24 @@ public class BuildMode : MonoBehaviour {
         if (EventSystem.current.IsPointerOverGameObject()) return;
         if(SampleEligibility(point, 1))
         {
+            RemoveRawMaterials ();
+
             GameObject go = Instantiate ( currentPropData.Prefab );
             go.transform.position = point;
             go.transform.rotation = currentPropOutline.transform.rotation;
             go.transform.name = "PlacedObject: " + currentPropData.name;
             Prop prop = go.GetComponent<Prop> ();
             prop.Place (currentPropData);
+        }
+    }
+
+    private void RemoveRawMaterials ()
+    {
+        List<RawMaterialCollider> colliders = currentPropOutline.GetComponentInChildren<SpatialCollider> ().EnvironmentColliders;
+
+        for (int i = 0; i < colliders.Count; i++)
+        {
+            colliders[i].GetComponentInParent<RawMaterial> ().Remove ();
         }
     }
 

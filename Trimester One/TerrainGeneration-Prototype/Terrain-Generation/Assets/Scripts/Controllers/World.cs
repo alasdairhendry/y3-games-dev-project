@@ -124,7 +124,7 @@ public class World : MonoBehaviour
             yield return CreateEnvironment();
 
         if (DEBUG_NAV)
-            yield return CreateNavMeshSurface();      
+            yield return CreateNavMeshSurface();        
 
         yield return null;        
     }
@@ -223,12 +223,12 @@ public class World : MonoBehaviour
 
         DEBUG_UpdateShaderParams ();
     }
-
+  
     public void DEBUG_UpdateShaderParams ()
     {
         textureData.UpdateMeshHeights ( terrainMaterial, worldData.GetMinHeight (), worldData.GetMaxHeight () );
         textureData.ApplyToMaterial ( terrainMaterial );        
-    }
+    }  
 
     public void SetHeightMap(float[,] heightMap)
     {

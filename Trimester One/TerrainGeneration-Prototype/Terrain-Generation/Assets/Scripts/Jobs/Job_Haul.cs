@@ -6,7 +6,6 @@ using UnityEngine.AI;
 
 public class Job_Haul : Job
 {
-
     public enum Stage { Find, Collect, Transport }
     private Stage stage = Stage.Find;
 
@@ -15,6 +14,7 @@ public class Job_Haul : Job
 
     private bool agentGivenDestination = false;
 
+    private bool resourcesReservedFromWarehouse = false;
     private bool resourcesTakenFromWarehouse = false;
     private bool resourcesGivenToCitizen = false;
 
@@ -23,8 +23,10 @@ public class Job_Haul : Job
 
     public Job_Haul (string name, bool open, int resourceID, float resourceQuantity, Buildable targetBuildable)
     {
+        this.id = JobController.GetNewJobID ();
         base.Name = name;
         base.Open = open;
+
         this.resourceID = resourceID;
         this.resourceQuantity = resourceQuantity;
         this.targetBuildable = targetBuildable;
@@ -36,12 +38,15 @@ public class Job_Haul : Job
         {
             case Stage.Find:
                 DoJob_Stage_Find ();
+                agentJobStatus = "Searching for " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to take to " + targetBuildable.gameObject.name;
                 break;
             case Stage.Collect:
                 DoJob_Stage_Collect ();
+                agentJobStatus = "Collecting " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to take to " + targetBuildable.gameObject.name;
                 break;
             case Stage.Transport:
                 DoJob_Stage_Transport ();
+                agentJobStatus = "Delivering " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to " + targetBuildable.gameObject.name;
                 break;
         }
     }
@@ -49,32 +54,33 @@ public class Job_Haul : Job
     private void DoJob_Stage_Find ()
     {
         if (targetWarehouse == null) { targetWarehouse = FindResource (); }
-        if (targetWarehouse == null) { Debug.Log ( "Still no warehouse." ); return; }
+        if (targetWarehouse == null) { OnCharacterLeave ("No warehouses found with required resource."); return; }
 
-        targetWarehouse.inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
-        resourcesTakenFromWarehouse = true;
+        targetWarehouse.inventory.ReserveItemQuantity ( resourceID, resourceQuantity );
+        resourcesReservedFromWarehouse = true;
 
         stage = Stage.Collect;
-        Debug.LogError ( "SetStage: " + stage.ToString () );
     }
 
     private void DoJob_Stage_Collect ()
     {
         if (!character.agent.hasPath && !agentGivenDestination)
         {
-            character.agent.SetDestination ( targetWarehouse.transform.position );
+            character.agent.SetDestination ( targetWarehouse.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
             return;
         }
 
         if (ReachedPath ())
         {
-            character.inventory.AddItemQuantity ( resourceID, resourceQuantity );
+            targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
+            character.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+
+            resourcesTakenFromWarehouse = true;
             resourcesGivenToCitizen = true;
 
             stage = Stage.Transport;
-            agentGivenDestination = false;
-            Debug.LogError ( "SetStage: " + stage.ToString () );
+            agentGivenDestination = false;            
         }
     }
 
@@ -82,14 +88,14 @@ public class Job_Haul : Job
     {
         if (!character.agent.hasPath && !agentGivenDestination)
         {
-            character.agent.SetDestination ( targetBuildable.transform.position );
+            character.agent.SetDestination ( targetBuildable.GetPropData.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
             return;
         }
 
         if (ReachedPath ())
         {
-            character.inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
             resourcesGivenToCitizen = false;
             agentGivenDestination = false;
 
@@ -99,24 +105,30 @@ public class Job_Haul : Job
         }
     }
 
-    public override void OnCharacterLeave ()
+    public override void OnCharacterLeave (string reason)
     {
-        if (resourcesTakenFromWarehouse)
+        if(resourcesReservedFromWarehouse && !resourcesTakenFromWarehouse)
+        {
+            targetWarehouse.inventory.UnreserveItemQuantity ( resourceID, resourceQuantity );
+        }
+        else if(resourcesReservedFromWarehouse && resourcesTakenFromWarehouse)
+        {
             targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        }
+        
         if (resourcesGivenToCitizen)
-            base.character.inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            base.character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
         stage = Stage.Find;
-        base.OnCharacterLeave ();
-    }
+        targetWarehouse = null;        
 
-    private bool ReachedPath ()
-    {
-        if (character.agent.pathPending) { Debug.LogError ( "Path Pending" ); return false; }
-        if (character.agent.remainingDistance > character.agent.stoppingDistance) { Debug.LogError ( "Path Working" ); return false; }
-        if (character.agent.hasPath) { Debug.LogError ( "Path Is Valid" ); return false; }
-        return true;
-    }
+        agentGivenDestination = false;
+        resourcesReservedFromWarehouse = false;
+        resourcesTakenFromWarehouse = false;
+        resourcesGivenToCitizen = false;
+
+        base.OnCharacterLeave (reason);
+    }    
 
     private Prop_Warehouse FindResource ()
     {
@@ -130,9 +142,16 @@ public class Job_Haul : Job
         {
             Prop_Warehouse w = GOs[i].GetComponent<Prop_Warehouse> ();
 
-            if (w.inventory.CheckHasQuantity ( resourceID, resourceQuantity ))
+            if(w == null) { continue; }
+            if(w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+
+            if (w.inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity ))
             {
                 eligibleWarehouses.Add ( w );
+            }
+            else
+            {
+                Debug.LogError ( "Warehouse inventory does not have sufficient quantity" ); continue;
             }
         }
 
@@ -145,6 +164,10 @@ public class Job_Haul : Job
         for (int i = 0; i < eligibleWarehouses.Count; i++)
         {
             NavMeshPath path = new NavMeshPath ();
+
+            if (base.character == null) continue;
+            if (eligibleWarehouses[i] == null) continue;
+
             NavMesh.CalculatePath ( base.character.transform.position, eligibleWarehouses[i].transform.position, 0, path );
 
             float f = GetPathLength ( path );
@@ -158,18 +181,5 @@ public class Job_Haul : Job
         if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
         return eligibleWarehouses[fastestPath];
-    }
-
-    private float GetPathLength (NavMeshPath path)
-    {
-        float length = float.MaxValue;
-        if (path.status != NavMeshPathStatus.PathComplete) return length;
-
-        for (int i = 1; i < path.corners.Length; i++)
-        {
-            length += Vector3.Distance ( path.corners[i - 1], path.corners[i] );
-        }
-
-        return length;
     }
 }

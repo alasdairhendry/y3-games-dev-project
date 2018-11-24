@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEditor;
 
 [CreateAssetMenu()]
 public class TextureData : UpdatableScriptableObject {
@@ -30,7 +31,7 @@ public class TextureData : UpdatableScriptableObject {
         material.SetTexture("baseTextures", texturesArray);
 
         UpdateMeshHeights(material, savedMinHeight, savedMaxHeight);
-    }
+    }   
 
     Texture2DArray GenerateTextureArray(Texture2D[] textures)
     {
@@ -47,8 +48,7 @@ public class TextureData : UpdatableScriptableObject {
     public void UpdateMeshHeights(Material material, float minHeight, float maxHeight)
     {
         savedMinHeight = minHeight;
-        savedMaxHeight = maxHeight;
-        Debug.Log("savedMinHeight: " + minHeight + " - - " + "savedMaxHeight: " + maxHeight);
+        savedMaxHeight = maxHeight;        
         material.SetFloat("minHeight", minHeight);
         material.SetFloat("maxHeight", maxHeight);
     }
