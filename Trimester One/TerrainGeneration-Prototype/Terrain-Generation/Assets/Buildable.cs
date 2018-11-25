@@ -56,8 +56,9 @@ public class Buildable : MonoBehaviour {
     {
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
-            Job_Haul job = new Job_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, this);
-            JobController.QueueJob ( job );
+            GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, this );
+            //Job_Haul job = new Job_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, this);
+            //JobController.QueueJob ( job );
         }
     }
 
@@ -92,9 +93,9 @@ public class Buildable : MonoBehaviour {
 
     private void OnMaterialsMet ()
     {
-        Debug.Log ( "Creating new Job Item (Build Job) for item " + this.gameObject.name );
-        Job_Build job = new Job_Build ( "Build object " + prop.data.name, true, 5.0f, this );
-        JobController.QueueJob ( job );
+        GetComponent<JobEntity> ().CreateJob_Build ( "Build Object " + prop.data.name, true, 5.0f, this );
+        //Job_Build job = new Job_Build ( "Build object " + prop.data.name, true, 5.0f, this );
+        //JobController.QueueJob ( job );
     }
 
     private void CheckStages ()
@@ -129,6 +130,12 @@ public class Buildable : MonoBehaviour {
         transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
         transform.Find ( "Graphics" ).GetChild ( 0 ).gameObject.SetActive ( true );
         PropManager.Instance.OnPropBuilt ( this.gameObject );
+    }
+
+    public void DestroyBuildable ()
+    {
+        GetComponent<JobEntity> ().DestroyJobs ();
+        Destroy ( this.gameObject );
     }
 
     private void OnDrawGizmosSelected ()

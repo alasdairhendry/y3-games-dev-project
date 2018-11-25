@@ -15,4 +15,9 @@ public static class StaticExtensions {
         else return false;
     }
 	
+    public static string ToDescription(this float value, Dictionary<float, string> descriptions)
+    {
+        if (!descriptions.ContainsKey ( value )) return "null";
+        return descriptions[value];
+    }
 }

@@ -21,9 +21,10 @@ public class Job_Haul : Job
     private int resourceID;
     private float resourceQuantity;
 
-    public Job_Haul (string name, bool open, int resourceID, float resourceQuantity, Buildable targetBuildable)
+    public Job_Haul (JobEntity entity, string name, bool open, int resourceID, float resourceQuantity, Buildable targetBuildable)
     {
         this.id = JobController.GetNewJobID ();
+        this.jobEntity = entity;
         base.Name = name;
         base.Open = open;
 

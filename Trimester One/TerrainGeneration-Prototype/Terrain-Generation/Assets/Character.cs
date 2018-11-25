@@ -26,14 +26,6 @@ public class Character : MonoBehaviour {
     private void Update ()
     {
         DoJob ();
-
-        if (Input.GetKeyDown ( KeyCode.D ))
-        {
-            if(currentJob != null)
-            {
-                currentJob.OnCharacterLeave ( "User Left" );
-            }            
-        }
     }
 
     private void OnGameTick ()
@@ -61,6 +53,7 @@ public class Character : MonoBehaviour {
     private void Tick_CheckRandomMovement ()
     {
         if (!moveToRandomLocation) return;
+        if (agent == null) return;
 
         if (!agent.pathPending)
         {
@@ -100,6 +93,6 @@ public class Character : MonoBehaviour {
 
     private void OnDestroy ()
     {
-        GameTime.unRegisterGameTick ( OnGameTick );
+        GameTime.UnRegisterGameTick ( OnGameTick );
     }
 }

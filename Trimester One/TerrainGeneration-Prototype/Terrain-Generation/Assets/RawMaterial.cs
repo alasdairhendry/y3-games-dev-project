@@ -2,32 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RawMaterial : MonoBehaviour {
-
+public class RawMaterial : MonoBehaviour
+{
     [SerializeField] private int resourceProvided;
-    [SerializeField] private float quantityProvided;
+    [SerializeField] private float quantityProvided;    
 
-    [SerializeField] Job_GatherResource gatherJob;
-
-    [ContextMenu( "CreateRemovalJob" )]
+    [ContextMenu ( "CreateRemovalJob" )]
     public void CreateRemovalJob ()
-    {        
-        if (!gatherJob.IsNull ()) return;
-
-        Job_GatherResource job = new Job_GatherResource ( "Gather Resource", true, resourceProvided, quantityProvided, 10.0f, this );
-        gatherJob = job;
-        JobController.QueueJob ( job );
+    {
+        if (GetComponent<JobEntity> ().HasNonNullJob ()) return;
+        GetComponent<JobEntity> ().CreateJob_GatherResource ( "Gather Resource", true, resourceProvided, quantityProvided, 10.0f, this ); 
     }
 
     public virtual void Gather ()
-    {        
+    {
         Destroy ( this.gameObject );
     }
 
     public virtual void Remove ()
     {
-        if (gatherJob != null) JobController.RemoveJob ( gatherJob );
+        GetComponent<JobEntity> ().DestroyJobs ();
 
         Destroy ( this.gameObject );
     }
+
 }

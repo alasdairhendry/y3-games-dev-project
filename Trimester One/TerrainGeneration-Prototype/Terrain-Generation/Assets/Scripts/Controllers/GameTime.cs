@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameTime : MonoBehaviour {
-
-    public static GameTime Instance;
+public class GameTime : MonoBehaviour
+{
 
     public static float DeltaGameTime { get { return gameTimeModifier * Time.deltaTime; } }
+
+    private static bool isPaused = false;
+    public static bool IsPaused { get { return isPaused; } }
 
     private static float gameTimeModifier = 1.0f;
     public static float GameTimeModifier { get { return gameTimeModifier; } }
@@ -15,22 +17,31 @@ public class GameTime : MonoBehaviour {
     private float currentGameTickInterval = 0.0f;
     private static System.Action OnGameTick;
 
-    private void Awake ()
+    private static float secondsPerDay = 10.0f;
+    private static float currentSeconds = 0.0f;
+    public static float GetCurrentSecondsPercent { get { return currentSeconds / secondsPerDay; } }
+
+    public static int currentDay { get; protected set; }
+    public static int currentMonth { get; protected set; }
+    public static int currentYear { get; protected set; }
+
+    private void Start ()
     {
-        if (Instance == null) Instance = this;
-        else if (Instance != this) Destroy ( this.gameObject );
+        currentDay = 1;
+        currentMonth = 1;
+        currentYear = 1;
     }
 
     private void Update ()
-    {        
+    {
         MonitorGameTick ();
-        CheckGameTimeInput ();   
+        MonitorGameTime ();
     }
 
     private void MonitorGameTick ()
     {
         currentGameTickInterval += Time.deltaTime;
-        if(currentGameTickInterval >= gameTickInterval)
+        if (currentGameTickInterval >= gameTickInterval)
         {
             currentGameTickInterval = 0.0f;
 
@@ -38,17 +49,52 @@ public class GameTime : MonoBehaviour {
         }
     }
 
-    private void CheckGameTimeInput ()
+    private void MonitorGameTime ()
     {
-        if (Input.GetKeyDown ( KeyCode.Period ))
+        currentSeconds += DeltaGameTime;
+
+        if (currentSeconds >= secondsPerDay)
+        {
+            currentSeconds = 0.0f;
+
+            currentDay++;
+
+            if (currentDay >= 32)
+            {
+                currentDay = 1;
+
+                currentMonth++;
+
+                if (currentMonth >= 13)
+                {
+                    currentMonth = 1;
+
+                    currentYear++;
+                }
+            }
+        }
+    }
+
+    public static void ModifyGameSpeed (bool down)
+    {
+        Debug.Log ( down );
+        if (!down)
         {
             if (gameTimeModifier == 1.0f) gameTimeModifier = 2.0f;
             else if (gameTimeModifier == 2.0f) gameTimeModifier = 3.0f;
             else if (gameTimeModifier == 3.0f) gameTimeModifier = 5.0f;
-            else if (gameTimeModifier == 5.0f) gameTimeModifier = 1.0f;
-
-            Debug.Log ( "Game Time Speed: " + gameTimeModifier );
         }
+        else
+        {
+            if (gameTimeModifier == 2.0f) gameTimeModifier = 1.0f;
+            else if (gameTimeModifier == 3.0f) gameTimeModifier = 2.0f;
+            else if (gameTimeModifier == 5.0f) gameTimeModifier = 3.0f;
+        }
+    }
+
+    public static void PausePlay ()
+    {
+        isPaused = !isPaused;
     }
 
     public static void RegisterGameTick (System.Action foo)
@@ -56,7 +102,7 @@ public class GameTime : MonoBehaviour {
         OnGameTick += foo;
     }
 
-    public static void unRegisterGameTick (System.Action foo)
+    public static void UnRegisterGameTick (System.Action foo)
     {
         OnGameTick -= foo;
     }

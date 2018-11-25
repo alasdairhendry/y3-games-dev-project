@@ -9,9 +9,10 @@ public class Job_Build : Job {
 
     private bool assignedCharacterDestination = false;
 
-    public Job_Build(string name, bool open, float buildSpeed, Buildable buildableTarget)
+    public Job_Build(JobEntity entity, string name, bool open, float buildSpeed, Buildable buildableTarget)
     {
         this.id = JobController.GetNewJobID ();
+        this.jobEntity = entity;
         this.Name = name;
         this.Open = open;
         

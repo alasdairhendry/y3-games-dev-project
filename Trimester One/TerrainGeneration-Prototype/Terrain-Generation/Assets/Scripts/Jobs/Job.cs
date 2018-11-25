@@ -25,14 +25,18 @@ public class Job {
 
     protected Character character;
     public Character Character { get { return character; } }
+
+    protected JobEntity jobEntity;
+    public JobEntity JobEntity { get { return jobEntity; } }
     
     public System.Action onComplete;
 
     public Job () { }
 
-    public Job (string name, bool open, float timeRequired, System.Action onComplete)
+    public Job (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete)
     {
         this.id = JobController.GetNewJobID ();
+        this.jobEntity = entity;
         this.Name = name;
         this.Open = open;
         this.TimeRequired = timeRequired;
@@ -72,15 +76,16 @@ public class Job {
     // Called by the job itself when the core logic is finished.
     protected virtual void OnComplete ()
     {
-        Debug.Log ( "Job Completed " + Name );
-
-        this.character.OnJob_Complete ();
-        this.character = null;
+        if (this.character != null)
+        {            
+            this.character.OnJob_Complete ();
+            this.character = null;
+        }
 
         Open = false;
         Complete = true;
 
-        JobController.RemoveJob ( this );
+        JobController.DestroyJob ( this );
         if (onComplete != null) onComplete ();
     }
 

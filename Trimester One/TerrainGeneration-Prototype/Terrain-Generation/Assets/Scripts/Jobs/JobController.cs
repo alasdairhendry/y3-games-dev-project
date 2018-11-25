@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class JobController {
+public static class JobController
+{
 
     private static List<Job> jobs = new List<Job> ();
     private static int idCount = 0;
 
     public static Job QueueJob (Job job)
     {
-        jobs.Add ( job );        
+        jobs.Add ( job );
         Debug.Log ( "Queued Job " + job.ID );
         return job;
     }
@@ -40,27 +41,53 @@ public static class JobController {
         return idCount;
     }
 
-    public static void RemoveJob (Job job)
-    {
+    public static void DestroyJob (Job job)
+    {       
         if (!jobs.Contains ( job )) return;
-
-        if(job.Character != null && !job.Complete)
+        
+        if (job.Character != null && !job.Complete)
         {
-            job.OnCharacterLeave ( "Job destroyed" );
+            job.OnCharacterLeave ( "Job destroyed, the object the job belonged to may have been destroyed." );
         }
+
+        job.JobEntity.OnJobRemovedFromQueue ( job );
 
         jobs.Remove ( job );
     }
 
-    public static void DecreasePriority(Job job)
+    public static void DestroyJobs(List<Job> givenJobs)
+    {
+        List<Job> targetJobs = new List<Job> ();
+
+        for (int i = 0; i < givenJobs.Count; i++)
+        {
+            targetJobs.Add ( givenJobs[i] );
+        }
+
+        for (int i = 0; i < targetJobs.Count; i++)
+        {
+            if (!jobs.Contains ( targetJobs[i] )) continue;
+
+            if (targetJobs[i].Character != null && !targetJobs[i].Complete)
+            {
+                targetJobs[i].OnCharacterLeave ( "Job destroyed, the object the job belonged to may have been destroyed." );
+            }
+
+            targetJobs[i].JobEntity.OnJobRemovedFromQueue ( targetJobs[i] );
+
+            jobs.Remove ( targetJobs[i] );
+        }
+    }
+
+    public static void DecreasePriority (Job job)
     {
         int currentIndex = jobs.IndexOf ( job );
 
-        if(jobs.Count == 1)
+        if (jobs.Count == 1)
         {
             // this is the only job we have, so we cant do anything
         }
-        else if(currentIndex >= jobs.Count - 1)
+        else if (currentIndex >= jobs.Count - 1)
         {
             // This job is the lowest priority, so don't do anything.
         }

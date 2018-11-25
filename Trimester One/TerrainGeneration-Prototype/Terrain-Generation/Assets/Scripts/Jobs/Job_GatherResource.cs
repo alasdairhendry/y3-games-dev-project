@@ -20,9 +20,10 @@ public class Job_GatherResource : Job {
 
     private Prop_Warehouse targetWarehouse;
 
-    public Job_GatherResource (string name, bool open, int resourceID, float resourceQuantity, float timeRequired, RawMaterial rawMaterial)
+    public Job_GatherResource (JobEntity entity, string name, bool open, int resourceID, float resourceQuantity, float timeRequired, RawMaterial rawMaterial)
     {
         this.id = JobController.GetNewJobID ();
+        this.jobEntity = entity;
         base.Name = name;
         base.Open = open;
 
@@ -57,9 +58,19 @@ public class Job_GatherResource : Job {
 
     public override void OnCharacterAccept (Character character)
     {
-        base.OnCharacterAccept ( character );
+        base.OnCharacterAccept ( character );        
 
-        if(!base.character.Inventory.CheckCanHold(resourceID, resourceQuantity ))
+        //if (rawMaterial == null)
+        //{
+        //    Debug.Log ( "rawMaterial null" );
+        //    character.OnJob_Complete ();
+        //    Open = false;
+        //    JobController.DestroyJob ( this );
+
+        //    return;
+        //}
+
+        if (!base.character.Inventory.CheckCanHold(resourceID, resourceQuantity ))
         {
             OnCharacterLeave ( "Citizen can't hold that many resources" );
         }
@@ -70,6 +81,12 @@ public class Job_GatherResource : Job {
         if (givenResourceToCitizen)
         {
             base.character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+        }
+
+        if(stage == Stage.FindWarehouse || stage == Stage.TravelFrom)
+        {
+            base.OnComplete ();
+            return;
         }
 
         stage = Stage.TravelTo;
@@ -85,7 +102,7 @@ public class Job_GatherResource : Job {
     private void DoJob_Stage_TravelTo ()
     {
         if(!destinationProvided)
-        {
+        {                 
             base.character.agent.SetDestination ( rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
             destinationProvided = true;
         }

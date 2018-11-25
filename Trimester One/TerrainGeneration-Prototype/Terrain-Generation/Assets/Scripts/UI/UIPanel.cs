@@ -13,15 +13,48 @@ public class UIPanel : MonoBehaviour {
     [Header("Options")]
     [SerializeField] private bool showOnAwake;
     [SerializeField] private bool blockRaycasts;
+    [SerializeField] private bool isStatic = true;
+    [SerializeField] private bool clampToScreen = true;
 
     //protected PanelGroup panelGroup;
     protected CanvasGroup cGroup;
     protected bool active = false;
 
+    protected RectTransform parentRectTransform;
+    protected RectTransform rectTransform;
+    protected Vector3 targetAnchoredPosition = Vector3.zero;
+    protected Vector3 targetAnchorOffset = Vector3.zero;
+
+    protected virtual void Update ()
+    {
+        if (!active) return;
+        if (!isStatic)
+        {
+            SetAnchoredPosition ();
+            MovePanel ();
+        }
+    }
+
+    protected virtual void SetAnchoredPosition () { Debug.LogError ( "This panel is not static, but nothing is setting its target position" ); }
+
+    protected virtual void MovePanel ()
+    {
+        Vector3 targetPosition = targetAnchoredPosition + targetAnchorOffset;
+
+        if (clampToScreen)
+        {
+            targetPosition.x = Mathf.Clamp ( targetPosition.x, 32, 1920.0f - rectTransform.sizeDelta.x - 32 );
+            targetPosition.y = Mathf.Clamp ( targetPosition.y, 32 + rectTransform.sizeDelta.y, 1080.0f - 64 );
+        }
+
+        rectTransform.anchoredPosition = Vector3.Slerp ( rectTransform.anchoredPosition, targetPosition, Time.deltaTime * 15.0f );
+    }
+
     protected virtual void Start ()
     {
         cGroup = GetComponent<CanvasGroup> ();
-        //panelGroup = GetComponentInParent<PanelGroup> ();
+        parentRectTransform = GetComponentInParent<RectTransform> ();
+        rectTransform = GetComponent<RectTransform> ();
         if (showOnAwake) Show (); else Hide ();
     }
 

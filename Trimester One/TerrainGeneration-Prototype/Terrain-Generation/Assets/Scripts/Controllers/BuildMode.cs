@@ -32,7 +32,7 @@ public class BuildMode : MonoBehaviour {
     }
 
     public void SetPropData (PropData data)
-    {
+    {        
         DestroyPropOutline ();
 
         currentPropData = data;
@@ -87,27 +87,31 @@ public class BuildMode : MonoBehaviour {
     {
         if (SampleEligibility ( point, 1 ))
         {
+            if (currentPropOutline.GetComponentInChildren<PropVisualiser> () == null) return;
             currentPropOutline.GetComponentInChildren<PropVisualiser> ().Visualise ( outlineMaterials[0] );
         }
         else
         {
+            if (currentPropOutline.GetComponentInChildren<PropVisualiser> () == null) return;
             currentPropOutline.GetComponentInChildren<PropVisualiser> ().Visualise ( outlineMaterials[1] );
         }
-    }    
+    }
 
     private void PlaceHandle (Vector3 point)
     {
-        if (EventSystem.current.IsPointerOverGameObject()) return;
-        if(SampleEligibility(point, 1))
+        if (!EventSystem.current.IsPointerOverGameObject ())
         {
-            RemoveRawMaterials ();
+            if (SampleEligibility ( point, 1 ))
+            {
+                RemoveRawMaterials ();
 
-            GameObject go = Instantiate ( currentPropData.Prefab );
-            go.transform.position = point;
-            go.transform.rotation = currentPropOutline.transform.rotation;
-            go.transform.name = "PlacedObject: " + currentPropData.name;
-            Prop prop = go.GetComponent<Prop> ();
-            prop.Place (currentPropData);
+                GameObject go = Instantiate ( currentPropData.Prefab );
+                go.transform.position = point;
+                go.transform.rotation = currentPropOutline.transform.rotation;
+                go.transform.name = "PlacedObject: " + currentPropData.name;
+                Prop prop = go.GetComponent<Prop> ();
+                prop.Place ( currentPropData );
+            }
         }
     }
 
@@ -144,6 +148,7 @@ public class BuildMode : MonoBehaviour {
 
     private bool SampleCollider ()
     {
+        if (currentPropOutline.GetComponentInChildren<SpatialCollider> () == null) return false;
         return !currentPropOutline.GetComponentInChildren<SpatialCollider> ().IsColliding;
     }
 
@@ -159,13 +164,13 @@ public class BuildMode : MonoBehaviour {
     private void TriggerCallback ()
     {
         if (isActive) if (OnActivate != null) OnActivate ();
-        if (!isActive) if (OnDeactivate != null) OnDeactivate ();
+        if (!isActive) if (OnDeactivate != null) OnDeactivate ();        
 
         DestroyPropOutline ();
     }   
     
     private void DestroyPropOutline ()
-    {
+    {        
         if (currentPropOutline.transform.childCount > 0)
             Destroy ( currentPropOutline.transform.GetChild ( 0 ).gameObject );
     }

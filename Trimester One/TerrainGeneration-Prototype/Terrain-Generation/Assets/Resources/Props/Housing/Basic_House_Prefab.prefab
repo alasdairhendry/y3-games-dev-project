@@ -169,6 +169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4238458448813444}
   - component: {fileID: 54630411096480476}
+  - component: {fileID: 114650134077512706}
   - component: {fileID: 114529913703068884}
   - component: {fileID: 114599521657100294}
   - component: {fileID: 208022352068048728}
@@ -690,6 +691,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   citizenInteractionPoint: {x: 0.78, y: 0, z: 4.5}
+--- !u!114 &114650134077512706
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1731089548043342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c9dbff650a7abe4d801ed2d7c40028c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114724865497244904
 MonoBehaviour:
   m_ObjectHideFlags: 1
