@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class HUD_CreateMap_Panel : UIPanel
 {
+    [SerializeField] private bool autoStart = true;
     [SerializeField] private List<Presets> presets = new List<Presets> ();
     [SerializeField] private Button CreateMap_Button;
     [SerializeField] private Button PlayMap_Button;
@@ -20,6 +21,8 @@ public class HUD_CreateMap_Panel : UIPanel
         World world = FindObjectOfType<World> ();
         world.OnTerrainBeginGenerate += OnTerrainGenerationBegin;
         world.OnTerrainEndGenerate += OnTerrainGenerationEnd;
+
+        if (autoStart) OnClick_Skip ();
     }
 
     private void GenerateMapTypeDDown ()
@@ -75,6 +78,18 @@ public class HUD_CreateMap_Panel : UIPanel
             //FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
             FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );
         } );
+    }
+
+    public void OnClick_Skip ()
+    {
+        Hide ();
+        FindObjectOfType<World> ().DEBUG_UpdateShaderParams ();
+        FindObjectOfType<HUD_LoadingOverlay_Panel> ().Hide ();
+        FindObjectOfType<HUD_Toolbar_Panel> ().Show ();
+        FindObjectOfType<HUD_GameTime_Panel> ().Show ();
+        //FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
+        FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );
+        FindObjectOfType<World> ().SetTemperatures ();
     }
 
     private World SetWorldDatas ()

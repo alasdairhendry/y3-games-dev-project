@@ -7,7 +7,7 @@ using UnityEngine.AI;
 
 [ExecuteInEditMode]
 public class World : MonoBehaviour
-{
+{    
     [HideInInspector] public WorldData worldData;
     [HideInInspector] public NoiseData noiseData;
     [HideInInspector] public TextureData textureData;
@@ -17,7 +17,8 @@ public class World : MonoBehaviour
     //[SerializeField] private _DEBUG_NAV_DATA DEBUG_NAV_DATA;
     //private bool createWithOldNav = false;
 
-    [SerializeField] private Material terrainMaterial;
+    //[SerializeField] private Material terrainMaterial;
+    private Material terrainMaterial { get { return terrainMeshObject.GetComponent<MeshRenderer> ().sharedMaterial; } }
     [SerializeField] private GameObject terrainMeshObject;
 
     [Space]
@@ -56,12 +57,22 @@ public class World : MonoBehaviour
         terrainLoadState.onStart += () => { isGenerating = true; if (OnTerrainBeginGenerate != null) OnTerrainBeginGenerate(); };
         terrainLoadState.onStageComplete += OnTerrainGenerateStateChange;
         terrainLoadState.onComplete += () => { isGenerating = false; if (OnTerrainEndGenerate != null) OnTerrainEndGenerate(); };
-        DEBUG_UpdateShaderParams ();
-    }    
+        DEBUG_UpdateShaderParams ();        
+    }        
 
     public void SetRichness(Richness richness)
     {
         this.richness = richness;
+    }
+
+    public RenderTexture dest;
+
+    [ContextMenu( "CreateTerrainTexture" )]
+    public void CreateTerrainTexture ()
+    {
+        //var mat = new Material ( Shader.Find ( "Terrain_Snow" ) );
+        //Graphics.Blit ( mat.GetTexture("testTexture"), dest, mat );
+        //Graphics.Blit ( terrainMaterial.GetTexture ( "testTexture" ), dest, terrainMaterial );
     }
 
     public void Create()
@@ -73,12 +84,19 @@ public class World : MonoBehaviour
         Seed.CreateSeed(noiseData.seed);
         AddLoadStages();
         StartCoroutine(CreateWorld());
+        SetTemperatures ();
+    }
+
+    public void SetTemperatures ()
+    {
+        TemperatureController.Instance.SetAverageTemperate ( worldData.temperatureMin, worldData.temperatureMax );
     }
 
     public void Create_NavMesh (System.Action onComplete)
     {
         if (isGenerating) return;
         StartCoroutine ( CreateWorld_NavMesh (onComplete) );
+        SetTemperatures ();
     }
 
     private void DestroyEnvironmentObjects ()

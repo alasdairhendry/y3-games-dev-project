@@ -11,6 +11,9 @@ public class WorldData : UpdatableScriptableObject {
     public bool useFlatShading;
     public bool useFalloffMap;
 
+    public float temperatureMin = -4.0f;
+    public float temperatureMax = 30.0f;
+
     [Range(0.001f, 10.0f)] public float falloffMapParamA;
     [Range(1.0f, 50.0f)] public float falloffMapParamB;
 
