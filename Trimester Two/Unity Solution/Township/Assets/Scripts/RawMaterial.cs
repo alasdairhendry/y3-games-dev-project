@@ -11,7 +11,12 @@ public class RawMaterial : MonoBehaviour
     public void CreateRemovalJob ()
     {
         if (GetComponent<JobEntity> ().HasNonNullJob ()) return;
-        GetComponent<JobEntity> ().CreateJob_GatherResource ( "Gather Resource", true, resourceProvided, quantityProvided, 10.0f, this ); 
+        GetComponent<JobEntity> ().CreateJob_GatherResource ( "Gather Resource", true, resourceProvided, quantityProvided, 10.0f, this );
+    }
+
+    private void Start ()
+    {        
+        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), false );
     }
 
     public virtual void Gather ()
@@ -22,6 +27,8 @@ public class RawMaterial : MonoBehaviour
     public virtual void Remove ()
     {
         GetComponent<JobEntity> ().DestroyJobs ();
+
+        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );
 
         Destroy ( this.gameObject );
     }

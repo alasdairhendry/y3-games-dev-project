@@ -38,12 +38,30 @@ public class SnowController : MonoBehaviour
 
     private void CheckShouldSnow ()
     {
-        if(currentTemperature <= terrainTemperatureThreshold)
+        if (currentTemperature <= terrainTemperatureThreshold)
         {
-
+            if (terrainSnowLevel == 0)
+                shouldTerrainSnow = true;
         }
-        shouldTerrainSnow = currentTemperature <= terrainTemperatureThreshold ? true : false;
-        shouldObjectSnow = currentTemperature <= objectTemperatureThreshold ? true : false;
+        else
+        {
+            if (terrainSnowLevel == 1)
+                shouldTerrainSnow = false;
+        }
+
+        if (currentTemperature <= objectTemperatureThreshold)
+        {
+            if (objectSnowLevel == 0)
+                shouldObjectSnow = true;
+        }
+        else
+        {
+            if (objectSnowLevel == 0.33f)
+                shouldObjectSnow = false;
+        }
+
+        //shouldTerrainSnow = currentTemperature <= terrainTemperatureThreshold ? true : false;
+        //shouldObjectSnow = currentTemperature <= objectTemperatureThreshold ? true : false;
     }
 
     private void SetTerrainSnowLevels ()

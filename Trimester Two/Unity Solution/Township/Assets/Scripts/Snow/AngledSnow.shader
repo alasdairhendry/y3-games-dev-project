@@ -45,9 +45,11 @@ Shader "Custom/AngledSnow" {
 			void surf(Input IN, inout SurfaceOutputStandard o) {
 				half4 c = tex2D(_MainTex, IN.uv_MainTex);
 				o.Normal = UnpackNormal(tex2D(_Bump, IN.uv_Bump));
+				//if (dot(WorldNormalVector(IN, o.Normal), _SnowDirection.xyz) >= 0.34)
 				if (dot(WorldNormalVector(IN, o.Normal), _SnowDirection.xyz) >= lerp(1,-1,_Snow))
 				{
 					o.Albedo = _SnowColor.rgb * lerp(.65, 1, _Snow / 0.33);
+					//o.Albedo = lerp(c.rgb, _SnowColor.rgb, _Snow / 0.33));
 				}
 				else {
 					o.Albedo = c.rgb;

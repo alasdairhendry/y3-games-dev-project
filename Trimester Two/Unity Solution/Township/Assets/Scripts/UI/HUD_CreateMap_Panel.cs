@@ -75,8 +75,10 @@ public class HUD_CreateMap_Panel : UIPanel
             FindObjectOfType<HUD_LoadingOverlay_Panel> ().Hide ();
             FindObjectOfType<HUD_Toolbar_Panel> ().Show ();
             FindObjectOfType<HUD_GameTime_Panel> ().Show ();
-            //FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
+            // The default
             FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );
+
+            //FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
         } );
     }
 
@@ -87,8 +89,8 @@ public class HUD_CreateMap_Panel : UIPanel
         FindObjectOfType<HUD_LoadingOverlay_Panel> ().Hide ();
         FindObjectOfType<HUD_Toolbar_Panel> ().Show ();
         FindObjectOfType<HUD_GameTime_Panel> ().Show ();
-        //FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
-        FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );
+        FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
+        //FindObjectOfType<CameraMovement> ().PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );
         FindObjectOfType<World> ().SetTemperatures ();
     }
 

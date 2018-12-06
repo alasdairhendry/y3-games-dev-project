@@ -17,7 +17,7 @@ public class GameTime : MonoBehaviour
     private static int currentRelativeTick = 0;
     private static System.Action<int> OnGameTick;
 
-    private static float secondsPerDay = 1.0f;
+    private static float secondsPerDay = 10.0f;
     private static float currentSeconds = 0.0f;
     public static float GetCurrentSecondsPercent { get { return currentSeconds / secondsPerDay; } }
 
@@ -38,10 +38,11 @@ public class GameTime : MonoBehaviour
     public static System.Action<int, int> onYearChanged;
 
     // Range between 0 - 1 to determine which part of the year the game starts in.
-    private static float gameTimeStart = 0.5f;
+    private static float gameTimeStart = 0.95f;
 
     private void Start ()
     {
+        Debug.Log ( "lerp " + Mathf.Lerp ( 1, -1, 0.33f ) );
         currentDay = 1;
         currentMonth = 1;
         currentYear = 1;

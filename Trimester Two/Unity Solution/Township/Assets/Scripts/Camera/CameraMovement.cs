@@ -76,6 +76,7 @@ public class CameraMovement : MonoBehaviour {
 
     public void PanTo(Vector3 position)
     {
+        Debug.Log ( "pan to" );
         targetPosition = position;
         Zoom ();
     }
