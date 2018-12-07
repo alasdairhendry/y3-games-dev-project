@@ -55,9 +55,12 @@ public class GameTime : MonoBehaviour
         float daysPerYear = 372;
         currentDay = Mathf.RoundToInt ( daysPerYear * gameTimeStart );
         currentOverallDay = currentDay;
-        onDayChanged ( currentDay - 1, currentDay );
+
+        if (onDayChanged != null)
+            onDayChanged ( currentDay - 1, currentDay );
+
         currentMonth = Mathf.RoundToInt(currentDay / 31.0f);
-        CheckGameTime ();
+        CheckGameTime ();        
     }
 
     private void Update ()
@@ -99,7 +102,6 @@ public class GameTime : MonoBehaviour
         currentDay++;
         currentOverallDay++;
 
-
         if (currentDay >= 32)
         {
             if (onDayChanged != null) onDayChanged ( currentDay - 1, 1 );
@@ -118,7 +120,7 @@ public class GameTime : MonoBehaviour
 
                 currentOverallDay = 1;
             }
-        }
+        }        
     }
 
     public static void ModifyGameSpeed (bool down)

@@ -21,14 +21,18 @@ public class RawMaterial : MonoBehaviour
 
     public virtual void Gather ()
     {
+        FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 1000, 3, transform.position );
+        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );
         Destroy ( this.gameObject );
     }
 
-    public virtual void Remove ()
+    public virtual void RemoveOnBuildingPlaced ()
     {
+        FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 1000, 3, transform.position );
         GetComponent<JobEntity> ().DestroyJobs ();
 
         FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );
+
 
         Destroy ( this.gameObject );
     }

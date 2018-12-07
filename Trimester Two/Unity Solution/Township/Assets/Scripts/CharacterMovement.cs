@@ -43,6 +43,7 @@ public class CharacterMovement : MonoBehaviour {
 
     private void SetSpeeds ()
     {
+        FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 5500, 0.5f, transform.position + (transform.forward * 0.5f) );
         if (agent.velocity == Vector3.zero) { animator.SetBool ( "isMoving", false ); return; }
 
         agent.speed = agentSpeed * GameTime.GameTimeModifier;

@@ -23,6 +23,15 @@ public class Inspectable_RawMaterial : Inspectable {
                 panel.Hide ();
 
             }, "Cut Down" );
+
+            panel.AddButtonData ( () =>
+            {
+                if (rawMaterial == null) return;
+
+                rawMaterial.RemoveOnBuildingPlaced ();
+                panel.Hide ();
+
+            }, "Remove" );
         };
     }
 }
