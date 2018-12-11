@@ -5,6 +5,7 @@ using UnityEngine;
 public class CharacterGraphics : MonoBehaviour {
 
     private CharacterMovement characterMovement;
+    [SerializeField] private GameObject marketCartGraphics;
     [SerializeField] private GameObject satchelGraphics;
     [SerializeField] private GameObject axeGraphics;
     [SerializeField] private Transform[] axePlaceholders;
@@ -12,22 +13,37 @@ public class CharacterGraphics : MonoBehaviour {
     private void Start ()
     {
         characterMovement = GetComponent<CharacterMovement> ();
-        GetComponent<Character> ().Inventory.RegisterOnInventoryChanged ( OnInventoryChanged );
+        GetComponent<Character> ().Inventory.RegisterOnInventoryChanged ( OnInventoryChanged );        
     }
 
     public void OnInventoryChanged(ResourceInventory inventory)
     {
         if (inventory.IsEmpty ())
         {
-            satchelGraphics.SetActive ( false );
+            if (satchelGraphics != null)
+                satchelGraphics.SetActive ( false );
+
             GetComponent<IconDisplayer> ().RemoveIcon ( IconDisplayer.IconType.Inventory );
+            characterMovement.SetAnimationState = CharacterMovement.AnimationState.Walking;
         }
         else
         {
-            satchelGraphics.SetActive ( true );
-
             if (GetComponent<Character> ().GetCurrentJob.IsNull ())
-                GetComponent<IconDisplayer> ().AddIcon ( IconDisplayer.IconType.Inventory );
+            {
+                characterMovement.SetAnimationState = CharacterMovement.AnimationState.Walking;
+                GetComponent<IconDisplayer> ().AddIcon ( IconDisplayer.IconType.Inventory );         
+
+                if (satchelGraphics != null)
+                    satchelGraphics.SetActive ( true );
+            }
+            //else
+            //{
+            //    
+
+            //    if (marketCartGraphics != null)
+            //        marketCartGraphics.SetActive ( true );
+            //}
+
         }
     }
 
@@ -47,5 +63,13 @@ public class CharacterGraphics : MonoBehaviour {
             axeGraphics.transform.localPosition = Vector3.zero;
             characterMovement.SetUsingTool ( useAxe );
         }
+    }
+
+    public void SetUsingCart(bool state)
+    {
+        if (marketCartGraphics != null)
+            marketCartGraphics.SetActive ( state );
+
+        characterMovement.SetAnimationState = state == true ? CharacterMovement.AnimationState.Cart : CharacterMovement.AnimationState.Idle;
     }
 }

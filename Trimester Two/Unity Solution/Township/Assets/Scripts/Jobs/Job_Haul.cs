@@ -65,9 +65,9 @@ public class Job_Haul : Job
 
     private void DoJob_Stage_Collect ()
     {
-        if (!character.agent.hasPath && !agentGivenDestination)
+        if (!character.CharacterMovement.HasPath && !agentGivenDestination)
         {
-            character.agent.SetDestination ( targetWarehouse.CitizenInteractionPointGlobal );
+            character.CharacterMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
             return;
         }
@@ -78,7 +78,7 @@ public class Job_Haul : Job
             return;
         }
 
-        if (ReachedPath ())
+        if (this.character.CharacterMovement.ReachedPath ())
         {
             targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
             character.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
@@ -93,14 +93,14 @@ public class Job_Haul : Job
 
     private void DoJob_Stage_Transport ()
     {
-        if (!character.agent.hasPath && !agentGivenDestination)
+        if (!character.CharacterMovement.HasPath && !agentGivenDestination)
         {
-            character.agent.SetDestination ( targetBuildable.GetPropData.CitizenInteractionPointGlobal );
+            character.CharacterMovement.SetDestination ( targetBuildable.gameObject, targetBuildable.GetPropData.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
             return;
         }
 
-        if (ReachedPath ())
+        if (this.character.CharacterMovement.ReachedPath ())
         {
             character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
             resourcesGivenToCitizen = false;

@@ -11,7 +11,10 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     [SerializeField] private Transform leftHorizontalView;
     [SerializeField] private Transform rightHorizontalView;
 
-    [SerializeField] private GameObject keyValueText_Prefab;    
+    [SerializeField] private GameObject keyValueText_Prefab;
+
+    private System.Action tickActions;
+    private System.Action onCloseActions;
 
     public void ShowPanel (GameObject target)
     {
@@ -48,6 +51,16 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
         go.GetComponentInChildren<Text> ().text = key;
     }
 
+    public void AddTickActionData(System.Action action)
+    {
+        if (action != null) tickActions += action;
+    }
+
+    public void AddOnCloseAction(System.Action action)
+    {
+        if (action != null) onCloseActions += action;
+    }
+
     private void ClearPanel ()
     {        
         for (int i = 0; i < leftHorizontalView.childCount; i++)
@@ -63,13 +76,19 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
 
     private void Tick_ValidityCheck (int relativeTick)
     {
-        if (target == null) { ClearPanel (); Hide (); }
+        if (target == null) { ClearPanel (); Hide (); return; }
+        if (tickActions != null) tickActions ();
     }
 
     public override void Hide ()
     {
         base.Hide ();
         FindObjectOfType<HUD_EntityInspection_Panel> ().Hide ();
+
+        if (onCloseActions != null) onCloseActions ();
+        onCloseActions = null;
+
+        tickActions = null;
         GameTime.UnRegisterGameTick ( Tick_ValidityCheck );
     }
 }

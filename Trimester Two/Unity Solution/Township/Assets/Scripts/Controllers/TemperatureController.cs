@@ -43,6 +43,7 @@ public class TemperatureController : MonoBehaviour {
 
         _temperature += Random.Range ( temperatureVariance.x, temperatureVariance.y );
 
+        Debug.Log ( "temp" + _temperature );
         //if (onTemperatureChange != null) onTemperatureChange ( temperature, _temperature );
 
         temperature = _temperature;

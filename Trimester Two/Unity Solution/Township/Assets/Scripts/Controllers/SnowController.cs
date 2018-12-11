@@ -4,10 +4,22 @@ using UnityEngine;
 
 public class SnowController : MonoBehaviour
 {
+    public static SnowController Instance;
+
+    private void Awake ()
+    {
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy ( this.gameObject );
+    }
+
     [SerializeField] private GameObject terrainObject;
     private Material terrainMaterial;
 
-    private List<MeshRenderer> objectMaterials = new List<MeshRenderer> ();
+    private List<Renderer> objectMaterials = new List<Renderer> ();
+    //private List<SkinnedMeshRenderer> objectSkinnedMaterials = new List<SkinnedMeshRenderer> ();
+
+    [SerializeField] [Range(0, 1)] private float maxSnowDepth = 0.5f;
+    public float MaxSnowDepth { get { return maxSnowDepth; } }
 
     [SerializeField] private bool shouldTerrainSnow = false;
     [SerializeField] private bool shouldObjectSnow = false;
@@ -15,6 +27,8 @@ public class SnowController : MonoBehaviour
     [SerializeField] private float objectTemperatureThreshold = 3.0f;
 
     [SerializeField] private float terrainSnowLevel;
+    public float TerrainSnowLevel { get { return terrainSnowLevel; } }
+
     [SerializeField] private float terrainSnowLevelDamp = 0.25f;
 
     [SerializeField] private float objectSnowLevel;
@@ -54,7 +68,7 @@ public class SnowController : MonoBehaviour
         }
         else
         {
-            if (terrainSnowLevel == 1)
+            if (terrainSnowLevel == maxSnowDepth)
                 shouldTerrainSnow = false;
         }
 
@@ -88,9 +102,9 @@ public class SnowController : MonoBehaviour
     {
         if (shouldTerrainSnow)
         {
-            if (terrainSnowLevel < 1)
-                terrainSnowLevel += GameTime.DeltaGameTime * terrainSnowLevelDamp;
-            else terrainSnowLevel = 1;
+            if (terrainSnowLevel < maxSnowDepth)
+                terrainSnowLevel += GameTime.DeltaGameTime * terrainSnowLevelDamp * maxSnowDepth;
+            else terrainSnowLevel = maxSnowDepth;
         }
         else
         {
@@ -100,6 +114,7 @@ public class SnowController : MonoBehaviour
         }
 
         terrainMaterial.SetFloat ( "_Displacement", terrainSnowLevel );
+        terrainMaterial.SetFloat ( "_MaxDisplacement", maxSnowDepth );
     }
 
     private void SetObjectSnowLevels ()
@@ -138,7 +153,7 @@ public class SnowController : MonoBehaviour
         RenderTexture.ReleaseTemporary ( temp );
     }
 
-    public void SetObjectMaterial(MeshRenderer[] m, bool remove)
+    public void SetObjectMaterial(Renderer[] m, bool remove)
     {
         if (!remove)
         {

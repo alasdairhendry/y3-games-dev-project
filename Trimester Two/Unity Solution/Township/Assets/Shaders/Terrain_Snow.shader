@@ -34,6 +34,7 @@
 			float _Tess;
 			sampler2D _Splat;
 			float _Displacement;
+			float _MaxDisplacement;
 			float _RecordHeights;
 			float _SnowColor;
 
@@ -118,7 +119,7 @@
 					{
 						if (IN.worldPos.y - _Displacement > 1.4)
 						{
-							o.Albedo = lerp(n, float4(1, 1, 1, 1), _Displacement);
+							o.Albedo = lerp(n, float4(1, 1, 1, 1), _Displacement / _MaxDisplacement);
 
 							fixed3 newN = o.Albedo;
 
@@ -128,7 +129,7 @@
 							fixed3 c = lerp(newN, (n * float4(.35, .35,.35, .35)), amount * _Displacement);
 							o.Albedo = c;
 						}
-						else o.Albedo = lerp(n, float4(.85, .85, .85, 1), _Displacement);
+						else o.Albedo = lerp(n, float4(.85, .85, .85, 1), _Displacement / _MaxDisplacement);
 					}
 				}
 

@@ -66,13 +66,16 @@ public class CameraMovement : MonoBehaviour {
         RaycastHit hit;
         if(Physics.Raycast(targetZoomPosition, transform.forward, out hit))
         {
-            currentZoomDistance = Vector3.Distance(targetZoomPosition, hit.point);            
+            if (LayerMask.LayerToName ( hit.collider.gameObject.layer ) == "Terrain")
+            {
+                currentZoomDistance = Vector3.Distance ( targetZoomPosition, hit.point );
 
-            if (currentZoomDistance <= zoomNearClamp)
-                targetZoomPosition = hit.point + (-transform.forward * zoomNearClamp);
+                if (currentZoomDistance <= zoomNearClamp)
+                    targetZoomPosition = hit.point + (-transform.forward * zoomNearClamp);
 
-            if (currentZoomDistance >= zoomFarClamp)
-                targetZoomPosition = hit.point + (-transform.forward * zoomFarClamp);
+                if (currentZoomDistance >= zoomFarClamp)
+                    targetZoomPosition = hit.point + (-transform.forward * zoomFarClamp);
+            }
         }
 
         targetZoomPosition += transform.forward * Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * currentZoomDistance * Time.deltaTime;       

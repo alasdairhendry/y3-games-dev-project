@@ -69,10 +69,11 @@ public class Job_GatherResource : Job {
     public override void OnCharacterLeave (string reason)
     {
         this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
-        
+        this.character.GetComponent<CharacterGraphics> ().SetUsingCart ( false );
+
         if (stage == Stage.FindWarehouse || stage == Stage.TravelFrom)
         {
-            base.OnComplete ();
+            OnComplete ();
             return;
         }
 
@@ -90,11 +91,12 @@ public class Job_GatherResource : Job {
     {
         if(!destinationProvided)
         {                 
-            base.character.agent.SetDestination ( rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
+            base.character.CharacterMovement.SetDestination ( rawMaterial.gameObject, rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
             destinationProvided = true;
         }
 
-        if (!ReachedPath ()) return;
+        if (!this.character.CharacterMovement.ReachedPath ()) return;
+
         destinationProvided = false;
 
         stage = Stage.Remove;
@@ -128,11 +130,12 @@ public class Job_GatherResource : Job {
             //if (givenResourceToCitizen)
             //    character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
-            base.OnComplete ();
+            OnComplete ();
         }
         else
         {
             stage = Stage.TravelFrom;
+            this.character.GetComponent<CharacterGraphics> ().SetUsingCart ( true );
         }
     }
 
@@ -140,17 +143,17 @@ public class Job_GatherResource : Job {
     {
         if (!destinationProvided)
         {
-            base.character.agent.SetDestination ( targetWarehouse.CitizenInteractionPointGlobal );
+            base.character.CharacterMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
             destinationProvided = true;
         }
 
         if (targetWarehouse == null)
         {
-            base.OnCharacterLeave ( "Warehouse was destroyed" );
+            OnCharacterLeave ( "Warehouse was destroyed" );
             return;
         }
 
-        if (!ReachedPath ()) return;
+        if (!this.character.CharacterMovement.ReachedPath ()) return;
 
         targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
@@ -159,6 +162,13 @@ public class Job_GatherResource : Job {
 
         givenResourceToCitizen = false;
         destinationProvided = false;
+
+        OnComplete ();
+    }
+
+    protected override void OnComplete ()
+    {
+        this.character.GetComponent<CharacterGraphics> ().SetUsingCart ( false );
 
         base.OnComplete ();
     }

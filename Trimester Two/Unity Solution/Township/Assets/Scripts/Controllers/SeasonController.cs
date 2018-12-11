@@ -11,11 +11,11 @@ public class SeasonController : MonoBehaviour {
 
     private static List<List<int>> seasons = new List<List<int>> ();
 
-	// Use this for initialization
-	private void Start () {
+    private void Awake ()
+    {
         GameTime.onMonthChanged += UpdateSeason;
 
-        UpdateSeason (((GameTime.currentMonth - 1) + 12) % 12, GameTime.currentMonth);
+        UpdateSeason ( ((GameTime.currentMonth - 1) + 12) % 12, GameTime.currentMonth );
 
         seasons = new List<List<int>> ();
         seasons.Add ( new List<int> () { 3, 4, 5 } );
@@ -24,7 +24,11 @@ public class SeasonController : MonoBehaviour {
         seasons.Add ( new List<int> () { 12, 1, 2 } );
     }
 
-    private static void UpdateSeason(int previousMonth, int currentMonth)
+    private void Start () {
+        
+    }
+
+    public static void UpdateSeason(int previousMonth, int currentMonth)
     {
         foreach (List<int> item in seasons)
         {

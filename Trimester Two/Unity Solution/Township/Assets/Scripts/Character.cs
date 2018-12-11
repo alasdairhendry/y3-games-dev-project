@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class Character : MonoBehaviour {
 
-    public NavMeshAgent agent { get; protected set; }
+    private NavMeshAgent agent { get; set; }
 
     private ResourceInventory inventory;
     public ResourceInventory Inventory { get { return inventory; } set { inventory = value; } }
@@ -16,11 +16,19 @@ public class Character : MonoBehaviour {
     private Job currentJob;
     public Job GetCurrentJob { get { return currentJob; } }
 
+    private CharacterMovement characterMovement;
+    private CharacterGraphics characterGraphics;
+
+    public CharacterMovement CharacterMovement { get { return characterMovement; } }
+    public CharacterGraphics CharacterGraphics { get { return characterGraphics; } }
+
     void Start ()
     {
         GameTime.RegisterGameTick ( OnGameTick );        
         inventory = new ResourceInventory ();
         agent = GetComponent<NavMeshAgent> ();
+        characterMovement = GetComponent<CharacterMovement> ();
+        characterGraphics = GetComponent<CharacterGraphics> ();
     }
 
     private void Update ()

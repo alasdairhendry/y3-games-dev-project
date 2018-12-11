@@ -32,13 +32,16 @@ public class Job_Build : Job {
         if (!assignedCharacterDestination)
         {
             assignedCharacterDestination = true;
-            this.character.agent.SetDestination ( buildableTarget.GetPropData.CitizenInteractionPointGlobal );
+            this.character.CharacterMovement.SetDestination ( buildableTarget.gameObject, buildableTarget.GetPropData.CitizenInteractionPointGlobal );
         }
 
-        if (!ReachedPath ()) return;
+        if (!this.character.CharacterMovement.ReachedPath ()) return;
 
         this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( true );
         buildableTarget.AddConstructionPercentage ( deltaGameTime * buildSpeed );
+
+        Quaternion lookRot = Quaternion.LookRotation ( this.buildableTarget.transform.position - this.character.transform.position, Vector3.up );
+        this.character.transform.rotation = Quaternion.Slerp ( this.character.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
     }
 
     public override void OnCharacterLeave (string reason)

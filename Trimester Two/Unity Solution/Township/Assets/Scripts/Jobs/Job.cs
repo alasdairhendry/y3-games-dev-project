@@ -51,7 +51,7 @@ public class Job {
     public virtual void OnCharacterAccept (Character character)
     {
         this.character = character;
-        character.GetComponent<NavMeshAgent> ().ResetPath ();
+        character.GetComponent<NavMeshAgent> ().ResetPath ();        
         Open = false;
         if (OnCharacterAcceptAction != null) OnCharacterAcceptAction ();
         if (OnCharacterChanged != null) OnCharacterChanged ();
@@ -64,6 +64,8 @@ public class Job {
     {
         Debug.Log ( "Character Left Job " + Name + ": " + reason );
         JobController.DecreasePriority ( this );
+
+        this.character.CharacterMovement.ClearDestination ();
 
         if(this.character == null)
         {
@@ -84,7 +86,8 @@ public class Job {
     protected virtual void OnComplete ()
     {
         if (this.character != null)
-        {            
+        {
+            this.character.CharacterMovement.ClearDestination ();
             this.character.OnJob_Complete ();
             this.character = null;
         }
@@ -109,11 +112,11 @@ public class Job {
         return length;
     }
 
-    protected bool ReachedPath ()
-    {
-        if (character.agent.pathPending) { return false; }
-        if (character.agent.remainingDistance > character.agent.stoppingDistance) { return false; }
-        if (character.agent.hasPath) { return false; }
-        return true;
-    }
+    //protected bool ReachedPath ()
+    //{
+    //    if (character.agent.pathPending) { return false; }
+    //    if (character.agent.remainingDistance > character.agent.stoppingDistance) { return false; }
+    //    if (character.agent.hasPath) { return false; }
+    //    return true;
+    //}
 }
