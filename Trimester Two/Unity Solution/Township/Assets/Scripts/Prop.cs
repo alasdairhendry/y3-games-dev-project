@@ -35,6 +35,8 @@ public class Prop : MonoBehaviour {
 
     private void OnDestroy ()
     {
+        if (this == null) return;
+        if (this.gameObject == null) return;
         FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), true );
     }
 

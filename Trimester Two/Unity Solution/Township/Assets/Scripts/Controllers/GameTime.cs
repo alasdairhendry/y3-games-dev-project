@@ -38,8 +38,8 @@ public class GameTime : MonoBehaviour
     public static System.Action<int, int> onYearChanged;
 
     // Range between 0 - 1 to determine which part of the year the game starts in.
-    private static float gameTimeStart = 0.95f; // Winter
-    //private static float gameTimeStart = 0.15f; // Summer
+    //private static float gameTimeStart = 0.95f; // Winter
+    private static float gameTimeStart = 0.15f; // Summer
 
     private void Start ()
     {
