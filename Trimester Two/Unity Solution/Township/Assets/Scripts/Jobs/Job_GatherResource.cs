@@ -56,7 +56,7 @@ public class Job_GatherResource : Job {
         }
     }
 
-    public override void OnCharacterAccept (Character character)
+    public override void OnCharacterAccept (CitizenBase character)
     {
         base.OnCharacterAccept ( character );        
 
@@ -68,8 +68,8 @@ public class Job_GatherResource : Job {
 
     public override void OnCharacterLeave (string reason)
     {
-        this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
-        this.character.GetComponent<CharacterGraphics> ().SetUsingCart ( false );
+        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
+        this.character.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
 
         if (stage == Stage.FindWarehouse || stage == Stage.TravelFrom)
         {
@@ -91,11 +91,11 @@ public class Job_GatherResource : Job {
     {
         if(!destinationProvided)
         {                 
-            base.character.CharacterMovement.SetDestination ( rawMaterial.gameObject, rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
+            base.character.CitizenMovement.SetDestination ( rawMaterial.gameObject, rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
             destinationProvided = true;
         }
 
-        if (!this.character.CharacterMovement.ReachedPath ()) return;
+        if (!this.character.CitizenMovement.ReachedPath ()) return;
 
         destinationProvided = false;
 
@@ -104,7 +104,7 @@ public class Job_GatherResource : Job {
 
     private void DoJob_Stage_Remove (float deltaGameTime)
     {
-        this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( true );
+        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( true );
 
         Quaternion lookRot = Quaternion.LookRotation ( this.rawMaterial.transform.position - this.character.transform.position, Vector3.up );
         this.character.transform.rotation = Quaternion.Slerp ( this.character.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
@@ -114,9 +114,9 @@ public class Job_GatherResource : Job {
         if(currentTime>= base.TimeRequired)
         {            
             stage = Stage.FindWarehouse;
-            this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
+            this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
             base.character.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
-            rawMaterial.Gather ();
+            rawMaterial.OnGathered ();
             givenResourceToCitizen = true;
         }
     }
@@ -127,6 +127,7 @@ public class Job_GatherResource : Job {
 
         if (targetWarehouse == null)
         {
+          Debug.Log ( "Null warehouse, goodbye" );
             //if (givenResourceToCitizen)
             //    character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
@@ -135,7 +136,7 @@ public class Job_GatherResource : Job {
         else
         {
             stage = Stage.TravelFrom;
-            this.character.GetComponent<CharacterGraphics> ().SetUsingCart ( true );
+            this.character.GetComponent<CitizenGraphics> ().SetUsingLogs ( true );
         }
     }
 
@@ -143,7 +144,7 @@ public class Job_GatherResource : Job {
     {
         if (!destinationProvided)
         {
-            base.character.CharacterMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            base.character.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
             destinationProvided = true;
         }
 
@@ -153,7 +154,7 @@ public class Job_GatherResource : Job {
             return;
         }
 
-        if (!this.character.CharacterMovement.ReachedPath ()) return;
+        if (!this.character.CitizenMovement.ReachedPath ()) return;
 
         targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
@@ -168,7 +169,7 @@ public class Job_GatherResource : Job {
 
     protected override void OnComplete ()
     {
-        this.character.GetComponent<CharacterGraphics> ().SetUsingCart ( false );
+        this.character.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
 
         base.OnComplete ();
     }
@@ -225,5 +226,10 @@ public class Job_GatherResource : Job {
         if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
         return eligibleWarehouses[fastestPath];
+    }
+
+    public override bool IsCompletable ()
+    {
+        return true;
     }
 }

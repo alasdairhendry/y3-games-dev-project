@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class CameraMovement : MonoBehaviour {
 
     [SerializeField] private float panSpeed;
     [SerializeField] private float panDamp;
+
+    [SerializeField] private float rotateSpeed;
+    [SerializeField] private float rotateDamp;
+    private float currentRotation = 0;
 
     [SerializeField] private float zoomSpeed;
     [SerializeField] private float zoomNearClamp;
@@ -20,6 +25,8 @@ public class CameraMovement : MonoBehaviour {
     [SerializeField] private Vector3 targetPosition;
     private bool isLocked = false;
     private Transform lockTarget;
+
+    [SerializeField] private LayerMask layerMask;
 
     private void Start()
     {        
@@ -35,6 +42,7 @@ public class CameraMovement : MonoBehaviour {
 
         Pan();
         Zoom();
+        Rotate ();
 
         if (isLocked && lockTarget != null)
         {
@@ -54,8 +62,8 @@ public class CameraMovement : MonoBehaviour {
         if (Input.GetMouseButton(2) || Input.GetMouseButton(0) && Input.GetKey(KeyCode.LeftControl))
         {
             isLocked = false;
-            targetPosition += Vector3.right * Time.deltaTime * panSpeed * (Input.mousePosition.x - Screen.width * 0.5f) / (Screen.width * 0.5f) * currentZoomDistance;
-            targetPosition += Vector3.forward * Time.deltaTime * panSpeed * (Input.mousePosition.y - Screen.height * 0.5f) / (Screen.height * 0.5f) * currentZoomDistance;   
+            targetPosition += transform.right * Time.deltaTime * panSpeed * (Input.mousePosition.x - Screen.width * 0.5f) / (Screen.width * 0.5f) * currentZoomDistance;
+            targetPosition += (transform.forward - new Vector3(0.0f, transform.forward.y, 0.0f)) * Time.deltaTime * panSpeed * (Input.mousePosition.y - Screen.height * 0.5f) / (Screen.height * 0.5f) * currentZoomDistance;   
         }
     }
 
@@ -64,28 +72,34 @@ public class CameraMovement : MonoBehaviour {
         Vector3 targetZoomPosition = targetPosition;
 
         RaycastHit hit;
-        if(Physics.Raycast(targetZoomPosition, transform.forward, out hit))
+        if (Physics.Raycast ( targetZoomPosition, transform.forward, out hit, 10000, layerMask ))
         {
-            if (LayerMask.LayerToName ( hit.collider.gameObject.layer ) == "Terrain")
-            {
-                currentZoomDistance = Vector3.Distance ( targetZoomPosition, hit.point );
+            //Debug.Log ( "hit" );
+            currentZoomDistance = Vector3.Distance ( targetZoomPosition, hit.point );
 
-                if (currentZoomDistance <= zoomNearClamp)
-                    targetZoomPosition = hit.point + (-transform.forward * zoomNearClamp);
+            if (currentZoomDistance <= zoomNearClamp)
+                targetZoomPosition = hit.point + (-transform.forward * zoomNearClamp);
 
-                if (currentZoomDistance >= zoomFarClamp)
-                    targetZoomPosition = hit.point + (-transform.forward * zoomFarClamp);
-            }
+            if (currentZoomDistance >= zoomFarClamp)
+                targetZoomPosition = hit.point + (-transform.forward * zoomFarClamp);
         }
 
-        targetZoomPosition += transform.forward * Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * currentZoomDistance * Time.deltaTime;       
+        if (!EventSystem.current.IsPointerOverGameObject ())
+            targetZoomPosition += transform.forward * Input.GetAxis ( "Mouse ScrollWheel" ) * zoomSpeed * currentZoomDistance * Time.deltaTime;
 
         targetPosition = targetZoomPosition;
     }
 
+    private void Rotate ()
+    {
+        if (Input.GetKey ( KeyCode.E )) currentRotation -= rotateSpeed * Time.deltaTime;
+        else if (Input.GetKey ( KeyCode.Q )) currentRotation += rotateSpeed * Time.deltaTime;
+
+        transform.localRotation = Quaternion.Slerp ( transform.localRotation, Quaternion.Euler ( 50.0f, currentRotation, 0.0f ), Time.deltaTime * rotateDamp );
+    }
+
     public void PanTo(Vector3 position)
     {
-        Debug.Log ( "pan to" );
         targetPosition = position;
         Zoom ();
     }

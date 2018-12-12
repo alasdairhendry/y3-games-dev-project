@@ -197,11 +197,11 @@ GameObject:
   - component: {fileID: 54630411096480476}
   - component: {fileID: 114650134077512706}
   - component: {fileID: 114529913703068884}
-  - component: {fileID: 114599521657100294}
   - component: {fileID: 208022352068048728}
   - component: {fileID: 114854730472400314}
   - component: {fileID: 114010375166189568}
   - component: {fileID: 114486068541784142}
+  - component: {fileID: 114634041744305168}
   m_Layer: 0
   m_Name: Basic_House_Prefab
   m_TagString: Untagged
@@ -655,6 +655,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultTab: Overview
+  tabs:
+  - Overview
+  - Family
+  - Housing
 --- !u!114 &114486068541784142
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -681,18 +686,25 @@ MonoBehaviour:
   stackedStages: 1
   materialPoints:
   - taken: 0
-    localPosition: {x: -3.25, y: 0.5, z: 2}
+    localPosition: {x: -3.25, y: 0, z: 2}
+    gameObject: {fileID: 0}
   - taken: 0
-    localPosition: {x: -3.25, y: 0.5, z: 0}
+    localPosition: {x: -3.25, y: 0, z: 0}
+    gameObject: {fileID: 0}
   - taken: 0
-    localPosition: {x: -3.25, y: 0.5, z: -3}
+    localPosition: {x: -3.25, y: 0, z: -3}
+    gameObject: {fileID: 0}
   - taken: 0
-    localPosition: {x: 3.25, y: 0.5, z: -3.25}
+    localPosition: {x: 3.25, y: 0, z: -3.25}
+    gameObject: {fileID: 0}
   - taken: 0
-    localPosition: {x: 3.25, y: 0.5, z: -2}
+    localPosition: {x: 3.25, y: 0, z: -2}
+    gameObject: {fileID: 0}
   - taken: 0
-    localPosition: {x: 3.25, y: 0.5, z: 1}
---- !u!114 &114599521657100294
+    localPosition: {x: 3.25, y: 0, z: 1}
+    gameObject: {fileID: 0}
+  materialGraphic: {fileID: 139386, guid: c2849fd453abd0445a702a035f04ac60, type: 2}
+--- !u!114 &114634041744305168
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -700,7 +712,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1731089548043342}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8203bb550f4cb6f4bbb90e547d42fe3f, type: 3}
+  m_Script: {fileID: 11500000, guid: dd476b9f01fb0e74a94a566fd31c3804, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   citizenInteractionPoint: {x: 0, y: 0, z: 6}

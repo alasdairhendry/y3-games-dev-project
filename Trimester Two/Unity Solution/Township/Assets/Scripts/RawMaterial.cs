@@ -19,22 +19,28 @@ public class RawMaterial : MonoBehaviour
         FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), false );
     }
 
-    public virtual void Gather ()
+    public virtual void OnGathered ()
     {
+        GetComponent<Wobblable> ().Break (DestroyOnGathered);
         FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 1000, 3, transform.position );
-        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );
+        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );              
+    }
+
+    protected virtual void DestroyOnGathered ()
+    {
         Destroy ( this.gameObject );
     }
 
     public virtual void RemoveOnBuildingPlaced ()
     {
-        FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 1000, 3, transform.position );
-        GetComponent<JobEntity> ().DestroyJobs ();
+        OnGathered ();
+        //FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 1000, 3, transform.position );
+        //GetComponent<JobEntity> ().DestroyJobs ();
 
-        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );
+        //FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );
 
 
-        Destroy ( this.gameObject );
+        //Destroy ( this.gameObject );
     }
 
 }

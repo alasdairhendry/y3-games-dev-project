@@ -568,6 +568,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultTab: Inventory
+  tabs:
+  - Overview
+  - Inventory
 --- !u!114 &114314632704535234
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -595,16 +599,23 @@ MonoBehaviour:
   materialPoints:
   - taken: 0
     localPosition: {x: -3.25, y: 0.5, z: 2}
+    gameObject: {fileID: 0}
   - taken: 0
     localPosition: {x: -3.25, y: 0.5, z: 0}
+    gameObject: {fileID: 0}
   - taken: 0
     localPosition: {x: -3.25, y: 0.5, z: -3}
+    gameObject: {fileID: 0}
   - taken: 0
     localPosition: {x: 3.25, y: 0.5, z: -3.25}
+    gameObject: {fileID: 0}
   - taken: 0
     localPosition: {x: 3.25, y: 0.5, z: -2}
+    gameObject: {fileID: 0}
   - taken: 0
     localPosition: {x: 3.25, y: 0.5, z: 1}
+    gameObject: {fileID: 0}
+  materialGraphic: {fileID: 139386, guid: c2849fd453abd0445a702a035f04ac60, type: 2}
 --- !u!114 &114399137898293682
 MonoBehaviour:
   m_ObjectHideFlags: 1

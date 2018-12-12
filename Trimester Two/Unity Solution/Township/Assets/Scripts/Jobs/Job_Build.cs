@@ -24,7 +24,7 @@ public class Job_Build : Job {
     {
         if (buildableTarget.IsComplete)
         {
-            this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
+            this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
             base.OnComplete ();            
             return;
         }
@@ -32,12 +32,12 @@ public class Job_Build : Job {
         if (!assignedCharacterDestination)
         {
             assignedCharacterDestination = true;
-            this.character.CharacterMovement.SetDestination ( buildableTarget.gameObject, buildableTarget.GetPropData.CitizenInteractionPointGlobal );
+            this.character.CitizenMovement.SetDestination ( buildableTarget.gameObject, buildableTarget.GetPropData.CitizenInteractionPointGlobal );
         }
 
-        if (!this.character.CharacterMovement.ReachedPath ()) return;
+        if (!this.character.CitizenMovement.ReachedPath ()) return;
 
-        this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( true );
+        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( true );
         buildableTarget.AddConstructionPercentage ( deltaGameTime * buildSpeed );
 
         Quaternion lookRot = Quaternion.LookRotation ( this.buildableTarget.transform.position - this.character.transform.position, Vector3.up );
@@ -47,9 +47,13 @@ public class Job_Build : Job {
     public override void OnCharacterLeave (string reason)
     {
         assignedCharacterDestination = false;
-        this.character.GetComponent<CharacterGraphics> ().OnUseAxeAction ( false );
+        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
 
         base.OnCharacterLeave ( reason );
     }
 
+    public override bool IsCompletable ()
+    {
+        return true;
+    }
 }

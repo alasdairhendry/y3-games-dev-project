@@ -65,9 +65,9 @@ public class Job_Haul : Job
 
     private void DoJob_Stage_Collect ()
     {
-        if (!character.CharacterMovement.HasPath && !agentGivenDestination)
+        if (!character.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            character.CharacterMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            character.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
             return;
         }
@@ -78,7 +78,7 @@ public class Job_Haul : Job
             return;
         }
 
-        if (this.character.CharacterMovement.ReachedPath ())
+        if (this.character.CitizenMovement.ReachedPath ())
         {
             targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
             character.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
@@ -93,20 +93,22 @@ public class Job_Haul : Job
 
     private void DoJob_Stage_Transport ()
     {
-        if (!character.CharacterMovement.HasPath && !agentGivenDestination)
+        if (!character.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            character.CharacterMovement.SetDestination ( targetBuildable.gameObject, targetBuildable.GetPropData.CitizenInteractionPointGlobal );
+            character.CitizenMovement.SetDestination ( targetBuildable.gameObject, targetBuildable.GetPropData.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
+            character.CitizenGraphics.SetUsingCrate ( true );
             return;
         }
 
-        if (this.character.CharacterMovement.ReachedPath ())
+        if (this.character.CitizenMovement.ReachedPath ())
         {
             character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
             resourcesGivenToCitizen = false;
             agentGivenDestination = false;
 
             targetBuildable.AddMaterial ( resourceID, resourceQuantity );
+            character.CitizenGraphics.SetUsingCrate ( false );
 
             base.OnComplete ();
         }
@@ -122,7 +124,9 @@ public class Job_Haul : Job
         {
             targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
         }
-        
+
+        character.CitizenGraphics.SetUsingCrate ( false );
+
         if (resourcesGivenToCitizen)
             base.character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
@@ -189,5 +193,10 @@ public class Job_Haul : Job
         if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
         return eligibleWarehouses[fastestPath];
+    }
+
+    public override bool IsCompletable ()
+    {
+        return true;
     }
 }

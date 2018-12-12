@@ -13,10 +13,13 @@ public class Buildable : MonoBehaviour {
     private int currentStage = 0;
     private int stageCount = 0;
 
+    public System.Action onComplete;
+
     private bool hasBegun = false;
 
     [SerializeField] private bool stackedStages = true;
     [SerializeField] private MaterialPoint[] materialPoints;
+    [SerializeField] private GameObject materialGraphic;
     [SerializeField] private ResourceInventory inventory;
     public ResourceInventory GetInventory { get { return inventory; } }
 
@@ -37,8 +40,6 @@ public class Buildable : MonoBehaviour {
         hasBegun = true;
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
-
-        CreateInspectionData ();
 
         stageCount = transform.Find ( "Graphics" ).Find ( "Stages" ).childCount;
         if (stageCount <= 0) { Complete (); return this; }
@@ -64,22 +65,6 @@ public class Buildable : MonoBehaviour {
         }
     }
 
-    private void CreateInspectionData ()
-    {
-        GetComponent<Inspectable> ().SetAdditiveAction ( () =>
-        {
-            HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
-            //panel.ShowPanel ( this.gameObject );
-
-            panel.AddButtonData ( () =>
-            {
-                if (this.gameObject == null) return;
-
-                DestroyBuildable ();
-            }, "Bulldoze" );
-        } );
-    }
-
     public void AddConstructionPercentage (float amount)
     {
         if (IsComplete) { Debug.Log ( "complete - returning" ); return; }
@@ -91,7 +76,38 @@ public class Buildable : MonoBehaviour {
     public void AddMaterial (int resourceID, float quantity)
     {
         inventory.AddItemQuantity ( resourceID, quantity );
+        SpawnMaterialGraphic ();
         CheckMaterials ();
+    }
+
+    private void SpawnMaterialGraphic ()
+    {
+        for (int i = 0; i < materialPoints.Length; i++)
+        {
+            if(materialPoints[i].taken == false)
+            {
+                GameObject go = Instantiate ( materialGraphic, this.transform );
+                go.transform.localPosition = materialPoints[i].localPosition;
+                materialPoints[i].taken = true;
+                materialPoints[i].gameObject = go;
+                return;
+            }
+        }
+    }
+
+    private void DestroyMaterialGraphics ()
+    {
+        for (int i = 0; i < materialPoints.Length; i++)
+        {
+            if (materialPoints[i].taken)
+            {
+                if (materialPoints[i].gameObject != null)
+                    Destroy ( materialPoints[i].gameObject );
+
+                materialPoints[i].taken = false;
+                materialPoints[i].gameObject = null;
+            }
+        }
     }
 
     private void CheckMaterials ()
@@ -144,17 +160,12 @@ public class Buildable : MonoBehaviour {
     }
 
     private void Complete ()
-    {        
+    {
+        DestroyMaterialGraphics ();
         transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
         transform.Find ( "Graphics" ).Find ( "Stage_Complete" ).gameObject.SetActive ( true );
         PropManager.Instance.OnPropBuilt ( this.gameObject );
-    }
-
-    public void DestroyBuildable ()
-    {
-        PropManager.Instance.OnPropDestroyed ( this.gameObject );
-        GetComponent<JobEntity> ().DestroyJobs ();
-        Destroy ( this.gameObject );
+        if (onComplete != null) onComplete ();
     }
 
     private void OnDrawGizmosSelected ()
@@ -171,5 +182,6 @@ public class Buildable : MonoBehaviour {
     {
         public bool taken;
         public Vector3 localPosition;
+        public GameObject gameObject;
     }
 }

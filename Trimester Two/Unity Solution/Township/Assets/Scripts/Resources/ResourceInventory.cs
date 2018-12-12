@@ -76,7 +76,6 @@ public class ResourceInventory {
 
         inventoryAvailable[itemID] += quantityToAdd;
 
-        Debug.Log ( "add" );
         SetOverallInventory ();
 
         return quantity;

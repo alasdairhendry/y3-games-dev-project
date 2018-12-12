@@ -5,6 +5,7 @@ using UnityEngine;
 public class Inspectable : MonoBehaviour {
 
     protected System.Action action;
+    [SerializeField] protected string defaultTab = "Overview";    
 
     protected virtual void Start () { }
 
@@ -12,7 +13,8 @@ public class Inspectable : MonoBehaviour {
     {
         if (action == null) return;
         FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().ShowPanel ( this.gameObject );
-        action ();
+        FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().SetAction ( action );        
+        FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().SetActiveTab ( defaultTab );
     }
 
     public void SetAction (System.Action action)

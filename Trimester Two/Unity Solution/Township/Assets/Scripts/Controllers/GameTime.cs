@@ -43,7 +43,6 @@ public class GameTime : MonoBehaviour
 
     private void Start ()
     {
-        Debug.Log ( "lerp " + Mathf.Lerp ( 1, -1, 0.33f ) );
         currentDay = 1;
         currentMonth = 1;
         currentYear = 1;

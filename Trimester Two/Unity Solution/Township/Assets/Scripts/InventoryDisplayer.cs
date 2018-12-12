@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class InventoryDisplayer : MonoBehaviour {
 
-    [SerializeField] private Character targetCitizen;
+    [SerializeField] private CitizenBase cBase;
     [SerializeField] private Prop_Warehouse targetWarehouse;
 
     private TextMesh textMesh;        
@@ -14,24 +14,24 @@ public class InventoryDisplayer : MonoBehaviour {
     {        
         textMesh = GetComponent<TextMesh> ();
 
-        if(targetCitizen == null && targetWarehouse== null)
+        if(cBase == null && targetWarehouse== null)
         {
-            targetCitizen = GetComponentInParent<Character> ();
+            cBase = GetComponentInParent<CitizenBase> ();
             targetWarehouse = GetComponentInParent<Prop_Warehouse> ();
         }
 
-        if (targetCitizen != null) inventory = targetCitizen.Inventory;
+        if (cBase != null) inventory = cBase.Inventory;
         else if (targetWarehouse != null) inventory = targetWarehouse.inventory;
     }
 
     void Update () {
         string text = "";
 
-        if(targetCitizen != null && targetWarehouse == null)
+        if(cBase != null && targetWarehouse == null)
         {
-            if (targetCitizen.GetCurrentJob != null)
+            if (cBase.CitizenJob.GetCurrentJob != null)
             {
-                text += targetCitizen.GetCurrentJob.AgentJobStatus;
+                text += cBase.CitizenJob.GetCurrentJob.AgentJobStatus;
                 text += "\n";
             }
             else

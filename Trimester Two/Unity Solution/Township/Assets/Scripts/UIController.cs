@@ -50,7 +50,7 @@ public class UIController : MonoBehaviour {
     [System.Serializable]
     public class UIEnumValue
     {
-        public enum Type { KeyValueText, KeyValueInput, KeyValueColour, LongButton };
+        public enum Type { KeyValueText, KeyValueInput, KeyValueColour, LongButton, Tab, Dropdown };
         public Type type;
         public GameObject prefab;
     }

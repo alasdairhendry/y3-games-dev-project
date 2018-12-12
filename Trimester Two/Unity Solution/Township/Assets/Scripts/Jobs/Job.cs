@@ -23,8 +23,8 @@ public class Job {
     protected string agentJobStatus = "";
     public string AgentJobStatus { get { return agentJobStatus; } }
 
-    protected Character character;
-    public Character Character { get { return character; } }
+    protected CitizenBase character;
+    public CitizenBase Character { get { return character; } }
 
     protected JobEntity jobEntity;
     public JobEntity JobEntity { get { return jobEntity; } }
@@ -48,7 +48,7 @@ public class Job {
     }
 
     // Called from the job controller when a character accepts a job from the job queue.
-    public virtual void OnCharacterAccept (Character character)
+    public virtual void OnCharacterAccept (CitizenBase character)
     {
         this.character = character;
         character.GetComponent<NavMeshAgent> ().ResetPath ();        
@@ -65,14 +65,17 @@ public class Job {
         Debug.Log ( "Character Left Job " + Name + ": " + reason );
         JobController.DecreasePriority ( this );
 
-        this.character.CharacterMovement.ClearDestination ();
 
         if(this.character == null)
         {
             Debug.Log ( this.Name + " has no character assigned" );return;
         }
-        this.character.OnJob_Leave ();
-        this.character = null;
+        else 
+        {
+            this.character.CitizenMovement.ClearDestination ();
+            this.character.CitizenJob.OnJob_Leave ();
+            this.character = null;
+        }
         this.Open = true;
         this.onComplete = null;       
         if (OnCharacterLeaveAction != null) OnCharacterLeaveAction ();
@@ -87,8 +90,8 @@ public class Job {
     {
         if (this.character != null)
         {
-            this.character.CharacterMovement.ClearDestination ();
-            this.character.OnJob_Complete ();
+            this.character.CitizenMovement.ClearDestination ();
+            this.character.CitizenJob.OnJob_Complete ();
             this.character = null;
         }
 
@@ -110,6 +113,12 @@ public class Job {
         }
 
         return length;
+    }
+
+    public virtual bool IsCompletable ()
+    {
+        Debug.LogError ( "You should not be calling this from the base class" );
+        return false;
     }
 
     //protected bool ReachedPath ()

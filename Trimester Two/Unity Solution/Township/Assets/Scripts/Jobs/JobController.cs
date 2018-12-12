@@ -14,13 +14,13 @@ public static class JobController
         return job;
     }
 
-    public static Job GetNext (Character character, List<Job> previouslyAttemptedJobs)
+    public static Job GetNext (CitizenBase character, List<Job> previouslyAttemptedJobs)
     {
         for (int i = 0; i < jobs.Count; i++)
         {
             if (previouslyAttemptedJobs.Contains ( jobs[i] )) { continue; }
 
-            if (jobs[i].Open)
+            if (jobs[i].Open && jobs[i].IsCompletable())
             {
                 Job job = jobs[i];
                 job.OnCharacterAccept ( character );

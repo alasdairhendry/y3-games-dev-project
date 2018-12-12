@@ -10,10 +10,36 @@ public class Prop : MonoBehaviour {
 
     public PropData data { get; protected set; }
     protected Buildable buildable;
+    private bool isBlueprint = true;
+    public bool IsBluePrint { get { return isBlueprint; } }
+    public System.Action<Prop> onDestroy;
+
+    protected virtual void Awake () { isBlueprint = true; }
+
+    protected virtual void Start () { }
+
+    protected virtual void Update () { }
+
+    protected virtual void SetInspectable ()
+    {
+        GetComponent<Inspectable> ().SetAdditiveAction ( () =>
+        {
+            HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
+
+            panel.AddButtonData ( () =>
+            {
+                if (this == null) return;
+                if (this.gameObject == null) return;
+                DestroyProp ();
+
+            }, "Destroy", "Any" );
+        } );
+    }
 
 	public virtual void Place (PropData data)
     {
         this.data = data;
+        isBlueprint = false;
         buildable = GetComponent<Buildable> ().Begin ();
         GetComponent<NavMeshObstacle> ().enabled = true;
 
@@ -33,11 +59,22 @@ public class Prop : MonoBehaviour {
         FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), false );
     }
 
-    private void OnDestroy ()
+    public virtual void DestroyProp ()
     {
+        if (onDestroy != null) onDestroy ( this );
+
         if (this == null) return;
         if (this.gameObject == null) return;
+
+        PropManager.Instance.OnPropDestroyed ( this.gameObject );
+        GetComponent<JobEntity> ().DestroyJobs ();
         FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), true );
+        Destroy ( this.gameObject );
+    }
+
+    private void OnDestroy ()
+    {
+           
     }
 
     private void OnDrawGizmosSelected ()

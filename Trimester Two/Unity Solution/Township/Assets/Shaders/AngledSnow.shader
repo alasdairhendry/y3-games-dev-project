@@ -23,6 +23,8 @@ Shader "Custom/AngledSnow" {
 			float4 _SnowColor;
 			float4 _SnowDirection;
 			float _SnowDepth;
+			float _Breakage;
+			float _Gravity;
 
 			struct Input {
 				float2 uv_MainTex;
@@ -40,7 +42,14 @@ Shader "Custom/AngledSnow" {
 				{
 				   v.vertex.xyz += normalize(sn + v.normal) * _SnowDepth * _Snow;
 				}
+
+				v.vertex.xyz += _Breakage * v.normal;
+				v.vertex.z -= _Gravity;
 			}
+
+			//float rand(vec2 co) {
+			//	return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+			//}
 
 			void surf(Input IN, inout SurfaceOutputStandard o) {
 				half4 c = tex2D(_MainTex, IN.uv_MainTex);

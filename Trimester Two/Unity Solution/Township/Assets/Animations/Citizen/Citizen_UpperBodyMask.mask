@@ -6,36 +6,36 @@ AvatarMask:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Citizen_UpperBodyMask
-  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Mask: 00000000000000000000000000000000000000000100000000000000010000000000000000000000000000000100000000000000
   m_Elements:
   - m_Path: 
     m_Weight: 1
   - m_Path: Character_Knight
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Character_Peasant
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Character_Shopkeeper
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Character_Viking
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Character_Warrior
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root
     m_Weight: 1
   - m_Path: Root/Hips
     m_Weight: 1
   - m_Path: Root/Hips/Item_CoinBag
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Item_Dagger
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Item_Pouch
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Item_SwordSheath
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Item_WaterBladder_01
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Item_WaterCanteen
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Spine_01
     m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02
@@ -78,7 +78,7 @@ AvatarMask:
     m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Clavicle_R/Item_WarriorSholderArmor
       1
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Clavicle_R/Shoulder_R
     m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Clavicle_R/Shoulder_R/Elbow_R
@@ -119,9 +119,9 @@ AvatarMask:
       1/Thumb_02 1/Thumb_03 1
     m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Item_Sword
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Item_SwordHolder
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Neck
     m_Weight: 1
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Neck/Head
@@ -131,22 +131,22 @@ AvatarMask:
   - m_Path: Root/Hips/Spine_01/Spine_02/Spine_03/Neck/Head/Eyes
     m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_L
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_L/LowerLeg_L
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_L/LowerLeg_L/Ankle_L
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_L/LowerLeg_L/Ankle_L/Ball_L
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_L/LowerLeg_L/Ankle_L/Ball_L/Toes_L
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_R
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_R/LowerLeg_R
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_R/LowerLeg_R/Ankle_R
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_R/LowerLeg_R/Ankle_R/Ball_R
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Root/Hips/UpperLeg_R/LowerLeg_R/Ankle_R/Ball_R/Toes_R
-    m_Weight: 0
+    m_Weight: 1

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum Richness { Sparse, Abundant, Plentiful }
 public enum PropCategory { Housing, Paths, Food, Entertainment, Production, Storage }
+public enum ProfessionType { None, Student, Worker, Gatherer }
 
 public static class EnumCollection {
 

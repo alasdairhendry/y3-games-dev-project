@@ -22,7 +22,7 @@ public class Inspectable_RawMaterial : Inspectable {
                 rawMaterial.CreateRemovalJob ();
                 panel.Hide ();
 
-            }, "Cut Down" );
+            }, "Cut Down", "Overview" );
 
             panel.AddButtonData ( () =>
             {
@@ -31,7 +31,7 @@ public class Inspectable_RawMaterial : Inspectable {
                 rawMaterial.RemoveOnBuildingPlaced ();
                 panel.Hide ();
 
-            }, "Remove" );
+            }, "Remove", "Overview" );
         };
     }
 }

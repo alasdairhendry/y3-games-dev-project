@@ -4,6 +4,16 @@ using UnityEngine;
 
 public class SunController : MonoBehaviour {
 
+    public static SunController Instance;
+
+    private void Awake ()
+    {
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy ( this.gameObject );
+    }
+
+    public enum Time { Day, Night }
+    private Time time;
     [SerializeField] private int dayTimeStarts = 1;
     [SerializeField] private int dayTimeEnds = 21;
 
@@ -18,6 +28,8 @@ public class SunController : MonoBehaviour {
 
     [SerializeField] private float switchTime = 1.0f;
     private float currentSwitchCounter = 0.0f;
+
+    public System.Action<Time> onSwitch;
 
     private void Start ()
     {
@@ -62,6 +74,9 @@ public class SunController : MonoBehaviour {
             currentSwitchCounter = 0.0f;
             switching = false;
         }
+
+        time = Time.Day;
+        if (onSwitch != null) onSwitch ( time );
     }
 
     private void SwitchToNightTime ()
@@ -79,5 +94,8 @@ public class SunController : MonoBehaviour {
             currentSwitchCounter = 0.0f;
             switching = false;
         }
-    }
+
+        time = Time.Night;
+        if (onSwitch != null) onSwitch ( time );
+    }    
 }
