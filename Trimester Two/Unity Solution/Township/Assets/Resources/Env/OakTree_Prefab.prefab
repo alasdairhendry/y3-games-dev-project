@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 114162971295040960}
   - component: {fileID: 114088108734101832}
   - component: {fileID: 114460927768680230}
+  - component: {fileID: 114909929541438094}
   m_Layer: 0
   m_Name: OakTree_Prefab
   m_TagString: Untagged
@@ -74,7 +75,8 @@ GameObject:
   - component: {fileID: 4636889200338308}
   - component: {fileID: 33500494546701404}
   - component: {fileID: 23653966547515288}
-  m_Layer: 0
+  - component: {fileID: 64215376542273176}
+  m_Layer: 11
   m_Name: OakTree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,6 +180,20 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1941088596855498}
   m_Mesh: {fileID: 4300000, guid: 1c6a8042b8089f641b04fd6b737884b6, type: 3}
+--- !u!64 &64215376542273176
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1941088596855498}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: 1c6a8042b8089f641b04fd6b737884b6, type: 3}
 --- !u!65 &65363098355396304
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -201,6 +217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed83aeb9fb9d7d14ab0119bc63e80e65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultTab: Overview
 --- !u!114 &114162971295040960
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -260,6 +277,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderers: []
+--- !u!114 &114909929541438094
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1374770735600504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e67b09e126a5674aa0b985f78ea349b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  breakSpeed: 2
+  gravityAcceleration: -0.075
+  time: 1.6
 --- !u!208 &208216470158862742
 NavMeshObstacle:
   m_ObjectHideFlags: 1

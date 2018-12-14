@@ -83,7 +83,8 @@ GameObject:
   - component: {fileID: 4133745166315668}
   - component: {fileID: 33380429544283436}
   - component: {fileID: 23957811404638746}
-  m_Layer: 0
+  - component: {fileID: 64739291137555038}
+  m_Layer: 11
   m_Name: SM_Bld_House_Room_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,7 +101,8 @@ GameObject:
   - component: {fileID: 4225840704702864}
   - component: {fileID: 33601895214911294}
   - component: {fileID: 23985978989696836}
-  m_Layer: 0
+  - component: {fileID: 64718399654454940}
+  m_Layer: 11
   m_Name: SM_Bld_House_FoundationRock_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +119,8 @@ GameObject:
   - component: {fileID: 4777825932935916}
   - component: {fileID: 33516934653155990}
   - component: {fileID: 23256147824823536}
-  m_Layer: 0
+  - component: {fileID: 64663132619211496}
+  m_Layer: 11
   m_Name: SM_Bld_House_Foundation_Beams_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +182,8 @@ GameObject:
   - component: {fileID: 4029764704893556}
   - component: {fileID: 33407034197764700}
   - component: {fileID: 23388349991907154}
-  m_Layer: 0
+  - component: {fileID: 64545621444946836}
+  m_Layer: 11
   m_Name: SM_Bld_House_Door_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -219,7 +223,8 @@ GameObject:
   - component: {fileID: 4339606411970164}
   - component: {fileID: 33947349453248946}
   - component: {fileID: 23880962399580696}
-  m_Layer: 0
+  - component: {fileID: 64623257680830238}
+  m_Layer: 11
   m_Name: SM_Bld_House_Room_04 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -632,6 +637,76 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!64 &64545621444946836
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1626328305066660}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: d101f77492ff76e449936889b8205c73, type: 3}
+--- !u!64 &64623257680830238
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1897204356323946}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: e796a0b9d1c39d24cbbda6cc57f05186, type: 3}
+--- !u!64 &64663132619211496
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1430497404528206}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: 38251776a33164a4d9c50a1546b670d9, type: 3}
+--- !u!64 &64718399654454940
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1396532857200856}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: 9be1dd1cbf017514c8cb52fe2fb17cb7, type: 3}
+--- !u!64 &64739291137555038
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1347189536083342}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 1
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: e796a0b9d1c39d24cbbda6cc57f05186, type: 3}
 --- !u!65 &65307841620631832
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -656,10 +731,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultTab: Overview
-  tabs:
-  - Overview
-  - Family
-  - Housing
 --- !u!114 &114486068541784142
 MonoBehaviour:
   m_ObjectHideFlags: 1

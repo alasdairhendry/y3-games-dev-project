@@ -6,12 +6,12 @@ using UnityEngine;
 [CustomEditor ( typeof ( CitizenBase ) )]
 public class CitizenBase_Editor : Editor
 {
-    CitizenBase t;
-    float f = 0.0f;
+    CitizenBase cBase;
+    float f = 1.0f;
 
     private void OnEnable ()
     {
-        t = (CitizenBase)target;
+        cBase = (CitizenBase)target;
     }
 
     public override void OnInspectorGUI ()
@@ -19,28 +19,40 @@ public class CitizenBase_Editor : Editor
         base.OnInspectorGUI ();
         EditorGUILayout.Space ();
 
-        if (t == null) Debug.LogError ( "oops" );
+        if (cBase == null) return;
 
+        Details ();
+        Inventory ();
+    }
+
+    private void Details ()
+    {
+        if (cBase.CitizenJob == null) return;
+        if (cBase.CitizenJob.GetCurrentJob == null) { GUILayout.Label ( "No Job" ); }
+        else { GUILayout.Label ( "Job: " + cBase.CitizenJob.GetCurrentJob.Name ); }
+    }
+
+    private void Inventory ()
+    {
+        if (cBase.Inventory == null) return;
         f = EditorGUILayout.FloatField ( "Amount to add/remove", f );
 
-        if (t.Inventory == null) return;
-
-        List<int> keys = new List<int> ( t.Inventory.inventoryOverall.Keys );
+        List<int> keys = new List<int> ( cBase.Inventory.inventoryOverall.Keys );
 
         foreach (int k in keys)
         {
             EditorGUILayout.BeginHorizontal ();
 
             Resource r = ResourceManager.Instance.GetResourceByID ( k );
-            GUILayout.Label ( r.name + ": " + t.Inventory.inventoryOverall[k] );
+            GUILayout.Label ( r.name + ": " + cBase.Inventory.inventoryOverall[k] );
 
             if (GUILayout.Button ( "Add " + r.name ))
             {
-                t.Inventory.AddItemQuantity ( k, f );
+                cBase.Inventory.AddItemQuantity ( k, f );
             }
             else if (GUILayout.Button ( "Remove " + r.name ))
             {
-                t.Inventory.RemoveItemQuantity ( k, f );
+                cBase.Inventory.RemoveItemQuantity ( k, f );
             }
             EditorGUILayout.EndHorizontal ();
         }

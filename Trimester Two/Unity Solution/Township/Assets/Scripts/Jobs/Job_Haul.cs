@@ -10,7 +10,9 @@ public class Job_Haul : Job
     private Stage stage = Stage.Find;
 
     private Prop_Warehouse targetWarehouse;
-    private Buildable targetBuildable;
+    //private Buildable targetBuildable;
+    private Prop targetProp;
+    private ResourceInventory targetInventory;
 
     private bool agentGivenDestination = false;
 
@@ -21,16 +23,15 @@ public class Job_Haul : Job
     private int resourceID;
     private float resourceQuantity;
 
-    public Job_Haul (JobEntity entity, string name, bool open, int resourceID, float resourceQuantity, Buildable targetBuildable)
-    {
-        this.id = JobController.GetNewJobID ();
-        this.jobEntity = entity;
-        base.Name = name;
-        base.Open = open;
-
+    public Job_Haul (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete, int resourceID, float resourceQuantity, Prop targetProp, ResourceInventory targetInventory) : base ( entity, name, open, timeRequired, onComplete )
+    {        
         this.resourceID = resourceID;
         this.resourceQuantity = resourceQuantity;
-        this.targetBuildable = targetBuildable;
+        this.targetProp = targetProp;
+        this.targetInventory = targetInventory;
+        this.professionTypes.Add ( ProfessionType.Worker );
+
+        Tick_CheckCompletable ( 0 );
     }
 
     public override void DoJob (float deltaGameTime)
@@ -39,15 +40,15 @@ public class Job_Haul : Job
         {
             case Stage.Find:
                 DoJob_Stage_Find ();
-                agentJobStatus = "Searching for " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to take to " + targetBuildable.gameObject.name;
+                AgentJobStatus = "Searching for " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to take to " + targetProp.data.name;
                 break;
             case Stage.Collect:
                 DoJob_Stage_Collect ();
-                agentJobStatus = "Collecting " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to take to " + targetBuildable.gameObject.name;
+                AgentJobStatus = "Collecting " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to take to " + targetProp.data.name;
                 break;
             case Stage.Transport:
                 DoJob_Stage_Transport ();
-                agentJobStatus = "Delivering " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to " + targetBuildable.gameObject.name;
+                AgentJobStatus = "Delivering " + ResourceManager.Instance.GetResourceByID ( resourceID ).name + " to " + targetProp.data.name;
                 break;
         }
     }
@@ -55,7 +56,7 @@ public class Job_Haul : Job
     private void DoJob_Stage_Find ()
     {
         if (targetWarehouse == null) { targetWarehouse = FindResource (); }
-        if (targetWarehouse == null) { OnCharacterLeave ("No warehouses found with required resource."); return; }
+        if (targetWarehouse == null) { OnCharacterLeave ("No warehouses found with required resource.", true ); return; }
 
         targetWarehouse.inventory.ReserveItemQuantity ( resourceID, resourceQuantity );
         resourcesReservedFromWarehouse = true;
@@ -65,23 +66,23 @@ public class Job_Haul : Job
 
     private void DoJob_Stage_Collect ()
     {
-        if (!character.CitizenMovement.HasPath && !agentGivenDestination)
+        if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            character.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            cBase.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
             return;
         }
 
         if(targetWarehouse == null)
         {
-            OnCharacterLeave ( "Warehouse was destroyed" );
+            OnCharacterLeave ( "Warehouse was destroyed", true );
             return;
         }
 
-        if (this.character.CitizenMovement.ReachedPath ())
+        if (this.cBase.CitizenMovement.ReachedPath ())
         {
             targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
-            character.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+            cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
             resourcesTakenFromWarehouse = true;
             resourcesGivenToCitizen = true;
@@ -93,28 +94,30 @@ public class Job_Haul : Job
 
     private void DoJob_Stage_Transport ()
     {
-        if (!character.CitizenMovement.HasPath && !agentGivenDestination)
+        if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            character.CitizenMovement.SetDestination ( targetBuildable.gameObject, targetBuildable.GetPropData.CitizenInteractionPointGlobal );
+            cBase.CitizenMovement.SetDestination ( targetProp.gameObject, targetProp.CitizenInteractionPointGlobal );
             agentGivenDestination = true;
-            character.CitizenGraphics.SetUsingCrate ( true );
+            cBase.CitizenGraphics.SetUsingCrate ( true );
             return;
         }
 
-        if (this.character.CitizenMovement.ReachedPath ())
+        if (this.cBase.CitizenMovement.ReachedPath ())
         {
-            character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
             resourcesGivenToCitizen = false;
             agentGivenDestination = false;
 
-            targetBuildable.AddMaterial ( resourceID, resourceQuantity );
-            character.CitizenGraphics.SetUsingCrate ( false );
+            //targetBuildable.AddMaterial ( resourceID, resourceQuantity );
+            targetInventory.AddItemQuantity ( resourceID, resourceQuantity );
+
+            cBase.CitizenGraphics.SetUsingCrate ( false );
 
             base.OnComplete ();
         }
     }
 
-    public override void OnCharacterLeave (string reason)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
     {
         if(resourcesReservedFromWarehouse && !resourcesTakenFromWarehouse)
         {
@@ -125,10 +128,10 @@ public class Job_Haul : Job
             targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
         }
 
-        character.CitizenGraphics.SetUsingCrate ( false );
+        cBase.CitizenGraphics.SetUsingCrate ( false );
 
         if (resourcesGivenToCitizen)
-            base.character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            base.cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
         stage = Stage.Find;
         targetWarehouse = null;        
@@ -138,7 +141,7 @@ public class Job_Haul : Job
         resourcesTakenFromWarehouse = false;
         resourcesGivenToCitizen = false;
 
-        base.OnCharacterLeave (reason);
+        base.OnCharacterLeave (reason , setOpenToTrue);
     }    
 
     private Prop_Warehouse FindResource ()
@@ -177,14 +180,14 @@ public class Job_Haul : Job
         {
             NavMeshPath path = new NavMeshPath ();
 
-            if (base.character == null) continue;
+            if (base.cBase == null) continue;
             if (eligibleWarehouses[i] == null) continue;
 
-            NavMesh.CalculatePath ( base.character.transform.position, eligibleWarehouses[i].transform.position, 0, path );
+            NavMesh.CalculatePath ( base.cBase.transform.position, eligibleWarehouses[i].transform.position, 0, path );
 
             float f = GetPathLength ( path );
             if (f <= bestDistance)
-            {
+            {               
                 bestDistance = f;
                 fastestPath = i;
             }
@@ -195,8 +198,81 @@ public class Job_Haul : Job
         return eligibleWarehouses[fastestPath];
     }
 
-    public override bool IsCompletable ()
-    {
-        return true;
+    //private Prop_Warehouse FindResourceIsCompletable ()
+    //{
+    //    List<GameObject> GOs = PropManager.Instance.worldProps;
+
+    //    if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
+
+    //    List<Prop_Warehouse> eligibleWarehouses = new List<Prop_Warehouse> ();
+
+    //    for (int i = 0; i < GOs.Count; i++)
+    //    {
+    //        if (GOs[i] == null) continue;
+    //        Prop_Warehouse w = GOs[i].GetComponent<Prop_Warehouse> ();
+
+    //        if (w == null) { continue; }
+    //        if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+
+    //        if (w.inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity ))
+    //        {
+    //            eligibleWarehouses.Add ( w );
+    //        }
+    //        else
+    //        {
+    //            Debug.LogError ( "Warehouse inventory does not have sufficient quantity" ); continue;
+    //        }
+    //    }
+
+    //    // TODO: Maybe add some sort of tick system so this doesnt clog up the players client
+    //    if (eligibleWarehouses.Count <= 0) { Debug.LogError ( "No Eligible Warehouses. We shouldnt run this every frame" ); return null; }
+    //    else { return eligibleWarehouses[0]; }
+    //}
+
+    protected override IEnumerator CheckIsCompletable ()
+    {        
+        isCheckingCompletable = true;
+
+        List<GameObject> GOs = PropManager.Instance.worldProps;
+
+        if (GOs == null)
+        {
+            IsCompletable = false;
+            isCheckingCompletable = false;
+            IsCompletableReason = "No warehouses in the world.";
+            yield break;
+        }
+
+        bool found = false;
+
+        for (int i = 0; i < GOs.Count; i++)
+        {
+            if (GOs[i] == null) continue;
+            Prop_Warehouse w = GOs[i].GetComponent<Prop_Warehouse> ();
+
+            if (w == null) { continue; }
+            if (w.inventory == null) { continue; }
+
+            if (w.inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity ))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            IsCompletable = false;
+            isCheckingCompletable = false;
+            IsCompletableReason = "No warehouses with available resource.";
+            yield break;
+        }
+        else
+        {
+            IsCompletable = true;
+            isCheckingCompletable = false;
+            IsCompletableReason = "";
+            yield break;
+        }
     }
 }

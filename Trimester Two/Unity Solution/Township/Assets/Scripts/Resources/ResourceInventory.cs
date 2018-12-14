@@ -10,6 +10,7 @@ public class ResourceInventory {
     private Dictionary<int, float> inventoryReserved;
 
     private System.Action<ResourceInventory> OnInventoryChanged;
+    private System.Action<int, float> onResourceAdded;
 
     private float entryCapacity = 32.0f;
 
@@ -50,6 +51,12 @@ public class ResourceInventory {
         else return true;
     }
 
+    public float GetAvailableQuantity(int itemID)
+    {
+        if (!inventoryAvailable.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return -1; }
+        return inventoryAvailable[itemID];
+    }
+
     public bool CheckHasQuantityAvailable(int itemID, float quantity)
     {
         if (!inventoryAvailable.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return false; }
@@ -75,6 +82,7 @@ public class ResourceInventory {
         }
 
         inventoryAvailable[itemID] += quantityToAdd;
+        if (onResourceAdded != null) onResourceAdded ( itemID, quantityToAdd );
 
         SetOverallInventory ();
 
@@ -220,5 +228,15 @@ public class ResourceInventory {
     public void UnregisterOnInventoryChanged (System.Action<ResourceInventory> action)
     {
         OnInventoryChanged -= action;
+    }
+
+    public void RegisterOnResourceAdded (System.Action<int, float> action)
+    {
+        onResourceAdded += action;
+    }
+
+    public void UnregisterOnResourceAdded (System.Action<int, float> action)
+    {
+        onResourceAdded -= action;
     }
 }

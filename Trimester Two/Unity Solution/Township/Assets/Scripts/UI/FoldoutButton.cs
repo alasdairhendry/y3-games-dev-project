@@ -16,6 +16,10 @@ public class FoldoutButton : MonoBehaviour {
     [SerializeField] private GameObject childPrefab;
     [SerializeField] private GameObject seperatorPrefab;
 
+    [SerializeField] public Hotkey.Function hotkey;
+    [SerializeField] public bool hasHotkey;
+
+    private Button button;
     private GameObject childrenRoot;
 
     private void Start ()
@@ -26,6 +30,7 @@ public class FoldoutButton : MonoBehaviour {
         childrenRoot = transform.Find ( "Children" ).gameObject;
         HideChildren ();
 
+        button = GetComponent<Button> ();
         EventTrigger trigger = GetComponent<EventTrigger> ();
 
         EventTrigger.Entry onEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter }; ;
@@ -37,6 +42,28 @@ public class FoldoutButton : MonoBehaviour {
         trigger.triggers.Add ( onExit );
 
         GenerateChildren ();
+    }
+
+    private void Update ()
+    {
+        if (hasHotkey)
+        {
+            if(Hotkey.GetKeyDown(hotkey))
+            {
+                if (button.onClick != null)
+                    button.onClick.Invoke ();
+            }
+        }
+
+        for (int i = 0; i < children.Count; i++)
+        {
+            if (!children[i].hasHotkey) continue;
+            if (Hotkey.GetKeyDown ( children[i].hotkey ))
+            {
+                if (children[i].action != null)
+                    children[i].action.Invoke ();
+            }
+        }
     }
 
     private void GenerateChildren ()
@@ -66,15 +93,9 @@ public class FoldoutButton : MonoBehaviour {
 
             child.transform.SetParent ( transform.Find ( "Children" ) );
             child.GetComponent<RectTransform> ().localScale = Vector3.one;
-            //Debug.Log ( child.GetComponent<Button> ().gameObject.name );
             child.GetComponent<Button> ().onClick.AddListener ( () => { if (_c.action != null) _c.action.Invoke (); } );
             child.GetComponentInChildren<Text> ().text = _c.name;
         }
-    }
-
-    void ping ()
-    {
-        Debug.Log ( "boop" );
     }
 
     private void ShowChildren ()
@@ -95,5 +116,7 @@ public class FoldoutButton : MonoBehaviour {
         public string name;
         public string seperatorName;
         public UnityEvent action = new UnityEvent();
+        public Hotkey.Function hotkey;
+        public bool hasHotkey;
     }
 }

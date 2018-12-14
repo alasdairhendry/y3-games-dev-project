@@ -33,6 +33,11 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
     //    if (spawnCounter > 100) spawnCounter = 1;
     //}
 
+    public void CreateSingleCitizen ()
+    {
+        GameObject male = CreateCitizen ( 0 );
+    }
+
     public void CreateInitialFamily ()
     {
         GameObject male = CreateCitizen ( 0 );
@@ -48,7 +53,7 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
 
         go.GetComponent<CitizenFamily> ().SetFromNew ( GetGenderedName ( (CitizenFamily.Gender)gender ), GetFamilyName (), familyIDCounter, (CitizenFamily.Gender)gender );
 
-        go.GetComponent<NavMeshAgent> ().avoidancePriority = spawnCounter;
+        go.GetComponent<CitizenMovement> ().AvoidancePriority = spawnCounter;
         spawnCounter++;
         if (spawnCounter > 100) spawnCounter = 1;
 
@@ -57,7 +62,7 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
         return go;
     }
 
-    public GameObject CreateCitizen (CitizenFamily.CitizenFamilyMember Father, CitizenFamily.CitizenFamilyMember Mother)
+    public GameObject CreateBabyCitizen (CitizenFamily.CitizenFamilyMember Father, CitizenFamily.CitizenFamilyMember Mother)
     {
         GameObject go = Instantiate ( prefab, spawnPosition, Quaternion.identity );
 

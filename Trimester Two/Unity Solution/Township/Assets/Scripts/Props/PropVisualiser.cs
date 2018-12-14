@@ -43,13 +43,16 @@ public class PropVisualiser : MonoBehaviour {
 
         for (int i = 0; i < renderers.Count; i++)
         {
+            if (renderers[i] == null) continue;
+            if (renderers[i].meshRenderer == null) continue;
+
             Material[] newMaterials = new Material[renderers[i].materials.Length];
 
             for (int x = 0; x < newMaterials.Length; x++)
             {
                 newMaterials[x] = material;
             }
-
+            
             renderers[i].meshRenderer.materials = newMaterials;
         }
     }
@@ -63,6 +66,8 @@ public class PropVisualiser : MonoBehaviour {
 
         for (int i = 0; i < renderers.Count; i++)
         {
+            if (renderers[i] == null) continue;
+            if (renderers[i].meshRenderer == null) continue;
             renderers[i].meshRenderer.materials = renderers[i].materials;
         }
     }

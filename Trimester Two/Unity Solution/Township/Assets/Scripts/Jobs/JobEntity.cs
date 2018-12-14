@@ -5,28 +5,46 @@ public class JobEntity : MonoBehaviour
 {
     private List<Job> currentJobs = new List<Job> ();
 
-    public void CreateJob_Build (string name, bool open, float buildSpeed, Buildable buildableTarget)
+    public void CreateJob_Build (string name, bool open, float timeRequired, System.Action onComplete, float buildSpeed, Buildable buildableTarget)
     {
-        Job_Build job = new Job_Build ( this, name, open, buildSpeed, buildableTarget );
+        Job_Build job = new Job_Build ( this, name, open, timeRequired, onComplete, buildSpeed, buildableTarget );
         DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
     }
 
-    public void CreateJob_Haul (string name, bool open, int resourceID, float resourceQuantity, Buildable targetBuildable)
+    public void CreateJob_Haul (string name, bool open, float timeRequired, System.Action onComplete, int resourceID, float resourceQuantity, Prop targetProp, ResourceInventory targetInventory)
     {
-        Job_Haul job = new Job_Haul ( this, name, open, resourceID, resourceQuantity, targetBuildable );
+        Job_Haul job = new Job_Haul ( this, name, open, timeRequired, onComplete, resourceID, resourceQuantity, targetProp, targetInventory );
         DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
     }
 
-    public void CreateJob_GatherResource (string name, bool open, int resourceID, float resourceQuantity, float timeRequired, RawMaterial rawMaterial)
+    public void CreateJob_GatherResource (string name, bool open, float timeRequired, System.Action onComplete, int resourceID, float resourceQuantity, RawMaterial rawMaterial)
     {
-        Job_GatherResource job = new Job_GatherResource ( this, name, open, resourceID, resourceQuantity, timeRequired, rawMaterial );
+        Job_GatherResource job = new Job_GatherResource ( this, name, open, timeRequired, onComplete, resourceID, resourceQuantity, rawMaterial );
         DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+    }
+
+    public Job_Lumberjack CreateJob_Lumberjack(string name, bool open, float timeRequired, System.Action onComplete, Prop_LumberjackHut prop, List<GameObject> trees, GameObject stump)
+    {
+        Job_Lumberjack job = new Job_Lumberjack ( this, name, open, timeRequired, onComplete, prop ,trees, stump );
+        DisplayJobWaitingIcon ();
+        job.OnCharacterChanged += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        return job;
+    }
+
+    public Job_MarketCart CreateJob_MarketCart(string name, bool open, float timeRequired, System.Action onComplete, Prop targetProp, ResourceInventory propInventory, int resourceID, int maxSupplyQuantity, bool supply)
+    {
+        Job_MarketCart job = new Job_MarketCart ( this, name, open, timeRequired, onComplete, targetProp, propInventory, resourceID, maxSupplyQuantity, supply );
+        DisplayJobWaitingIcon ();
+        job.OnCharacterChanged += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        return job;
     }
 
     public bool HasNonNullJob ()
@@ -67,7 +85,7 @@ public class JobEntity : MonoBehaviour
 
         for (int i = 0; i < currentJobs.Count; i++)
         {
-            if (currentJobs[i].Character == null)
+            if (currentJobs[i].cBase == null)
             {
                 foundEmptyJob = true;
             }

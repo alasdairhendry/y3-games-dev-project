@@ -14,8 +14,10 @@ public class PropManager : MonoBehaviour {
     }
 
     [SerializeField] public List<PropData> propData = new List<PropData> ();
-    public Dictionary<PropCategory, List<PropData>> propDataCategorised = new Dictionary<PropCategory, List<PropData>> ();    
+    public Dictionary<PropCategory, List<PropData>> propDataCategorised = new Dictionary<PropCategory, List<PropData>> (); 
+    
     public List<GameObject> worldProps = new List<GameObject> ();
+    public Dictionary<Type, List<GameObject>> worldPropsDict = new Dictionary<Type, List<GameObject>> ();
 
     private void Start ()
     {
@@ -43,11 +45,32 @@ public class PropManager : MonoBehaviour {
         return propDataCategorised[category];
     }
 
+    public List<GameObject> GetWorldPropsByType(Type type)
+    {
+        if (!worldPropsDict.ContainsKey ( type ))
+        {
+            return new List<GameObject> ();
+        }
+        else
+        {
+            return worldPropsDict[type];
+        }
+    }
+
     public void OnPropBuilt (GameObject prop)
     {
         if (!worldProps.Contains ( prop ))
         {
             worldProps.Add ( prop );
+
+            if (!worldPropsDict.ContainsKey ( prop.GetComponent<Prop>().GetType() ))
+            {
+                worldPropsDict.Add ( prop.GetComponent<Prop> ().GetType(), new List<GameObject> () { prop } );
+            }
+            else
+            {
+                worldPropsDict[prop.GetComponent<Prop> ().GetType ()].Add ( prop );
+            }
         }
     }
 
@@ -56,6 +79,19 @@ public class PropManager : MonoBehaviour {
         if (worldProps.Contains ( prop ))
         {
             worldProps.Remove ( prop );
+
+            if (!worldPropsDict.ContainsKey ( prop.GetComponent<Prop> ().GetType () ))
+            {
+                // Do nothing, this should never happen
+                Debug.LogError ( "This should never happen" );
+            }
+            else
+            {
+                if(worldPropsDict[prop.GetComponent<Prop> ().GetType ()].Contains(prop))
+                {
+                    worldPropsDict[prop.GetComponent<Prop> ().GetType ()].Remove ( prop );
+                }
+            }
         }
     }
 }

@@ -9,51 +9,43 @@ public class Job_Build : Job {
 
     private bool assignedCharacterDestination = false;
 
-    public Job_Build(JobEntity entity, string name, bool open, float buildSpeed, Buildable buildableTarget)
+    public Job_Build(JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete, float buildSpeed, Buildable buildableTarget) : base (entity, name, open, timeRequired, onComplete)
     {
-        this.id = JobController.GetNewJobID ();
-        this.jobEntity = entity;
-        this.Name = name;
-        this.Open = open;
-        
         this.buildSpeed = buildSpeed;
         this.buildableTarget = buildableTarget;
+        this.professionTypes.Add ( ProfessionType.Worker );
     }
 
     public override void DoJob (float deltaGameTime)
     {
         if (buildableTarget.IsComplete)
         {
-            this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
+            this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
             base.OnComplete ();            
+            Debug.Log ( "a" );
             return;
         }
 
         if (!assignedCharacterDestination)
         {
             assignedCharacterDestination = true;
-            this.character.CitizenMovement.SetDestination ( buildableTarget.gameObject, buildableTarget.GetPropData.CitizenInteractionPointGlobal );
+            this.cBase.CitizenMovement.SetDestination ( buildableTarget.gameObject, buildableTarget.GetPropData.CitizenInteractionPointGlobal );
         }
 
-        if (!this.character.CitizenMovement.ReachedPath ()) return;
+        if (!this.cBase.CitizenMovement.ReachedPath ()) return;
 
-        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( true );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( true, CitizenAnimation.AxeUseAnimation.Chopping );
         buildableTarget.AddConstructionPercentage ( deltaGameTime * buildSpeed );
 
-        Quaternion lookRot = Quaternion.LookRotation ( this.buildableTarget.transform.position - this.character.transform.position, Vector3.up );
-        this.character.transform.rotation = Quaternion.Slerp ( this.character.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
+        Quaternion lookRot = Quaternion.LookRotation ( this.buildableTarget.transform.position - this.cBase.transform.position, Vector3.up );
+        this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
     }
 
-    public override void OnCharacterLeave (string reason)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
     {
         assignedCharacterDestination = false;
-        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
 
-        base.OnCharacterLeave ( reason );
-    }
-
-    public override bool IsCompletable ()
-    {
-        return true;
+        base.OnCharacterLeave ( reason, setOpenToTrue );
     }
 }

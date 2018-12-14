@@ -17,7 +17,6 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
     [SerializeField] private bool isStatic = true;
     [SerializeField] private bool clampToScreen = true;
 
-    //protected PanelGroup panelGroup;
     protected CanvasGroup cGroup;
     protected bool active = false;
 
@@ -42,7 +41,7 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
 
     protected virtual void MovePanel ()
     {
-        if (mouseIsOver && Input.GetKey(KeyCode.LeftShift)) return;
+        if (mouseIsOver && Hotkey.GetKey(Hotkey.Function.HaltUI)) return;
         Vector3 targetPosition = targetAnchoredPosition + targetAnchorOffset;
 
         if (clampToScreen)
@@ -71,9 +70,6 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
         if (blockRaycasts)
             cGroup.blocksRaycasts = true;
         else cGroup.blocksRaycasts = false;
-
-
-        //panelGroup.SetActivePanel ( this );
     }
 
     public virtual void Toggle ()
@@ -85,17 +81,12 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
 
     public virtual void Hide ()
     {
-        //Debug.Log ( gameObject.name );
         active = false;
 
         if(cGroup == null) cGroup = GetComponent<CanvasGroup> ();
 
         cGroup.alpha = 0;
         cGroup.blocksRaycasts = false;
-
-        //if (!isDefault)
-        //    panelGroup.RemoveActivePanel ( this );
-        //return;
     }
 
     void IPointerEnterHandler.OnPointerEnter (PointerEventData eventData)

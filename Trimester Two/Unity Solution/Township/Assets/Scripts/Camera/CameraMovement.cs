@@ -59,7 +59,14 @@ public class CameraMovement : MonoBehaviour {
 
     private void Pan()
     {
-        if (Input.GetMouseButton(2) || Input.GetMouseButton(0) && Input.GetKey(KeyCode.LeftControl))
+        //if (Input.GetMouseButton(2) || Input.GetMouseButton(0) && Input.GetKey(KeyCode.LeftControl))
+        //{
+        //    isLocked = false;
+        //    targetPosition += transform.right * Time.deltaTime * panSpeed * (Input.mousePosition.x - Screen.width * 0.5f) / (Screen.width * 0.5f) * currentZoomDistance;
+        //    targetPosition += (transform.forward - new Vector3(0.0f, transform.forward.y, 0.0f)) * Time.deltaTime * panSpeed * (Input.mousePosition.y - Screen.height * 0.5f) / (Screen.height * 0.5f) * currentZoomDistance;   
+        //}
+
+        if (Hotkey.GetKey(Hotkey.Function.CameraPan) ||( Input.GetKey(KeyCode.Mouse0) && Input.GetKey( KeyCode.LeftControl)))
         {
             isLocked = false;
             targetPosition += transform.right * Time.deltaTime * panSpeed * (Input.mousePosition.x - Screen.width * 0.5f) / (Screen.width * 0.5f) * currentZoomDistance;
@@ -74,7 +81,6 @@ public class CameraMovement : MonoBehaviour {
         RaycastHit hit;
         if (Physics.Raycast ( targetZoomPosition, transform.forward, out hit, 10000, layerMask ))
         {
-            //Debug.Log ( "hit" );
             currentZoomDistance = Vector3.Distance ( targetZoomPosition, hit.point );
 
             if (currentZoomDistance <= zoomNearClamp)
@@ -92,10 +98,18 @@ public class CameraMovement : MonoBehaviour {
 
     private void Rotate ()
     {
-        if (Input.GetKey ( KeyCode.E )) currentRotation -= rotateSpeed * Time.deltaTime;
-        else if (Input.GetKey ( KeyCode.Q )) currentRotation += rotateSpeed * Time.deltaTime;
+        if (Hotkey.GetKey ( Hotkey.Function.CameraRotateRight )) currentRotation -= rotateSpeed * Time.deltaTime;
+        else if (Hotkey.GetKey(Hotkey.Function.CameraRotateLeft)) currentRotation += rotateSpeed * Time.deltaTime;
 
         transform.localRotation = Quaternion.Slerp ( transform.localRotation, Quaternion.Euler ( 50.0f, currentRotation, 0.0f ), Time.deltaTime * rotateDamp );
+    }
+
+    private Vector3 RotateAroundPoint(Vector3 point, Vector3 pivot, Vector3 angles)
+    {
+        Vector3 direction = point - pivot;
+        direction = Quaternion.Euler ( angles ) * direction;
+        point = direction + pivot;
+        return point;
     }
 
     public void PanTo(Vector3 position)

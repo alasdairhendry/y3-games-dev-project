@@ -5,53 +5,54 @@ using UnityEngine.AI;
 
 [System.Serializable]
 public class Job {
+    
+    public string Name { get; protected set; }
+    public int ID { get; protected set; }
+    public bool IdleJob { get; protected set; }
+    public bool Open { get; protected set; } 
+    public bool IsCompletable { get; protected set; }
+    public string IsCompletableReason { get; protected set; }
+    public float TimeRequired { get; protected set; }
+    public bool Complete { get; protected set; }
+    public List<ProfessionType> professionTypes { get; protected set; }
 
-    //public string Name { get; protected set; }
-    //public bool Open { get; protected set; }
-    //public bool Complete { get; protected set; }
-    //public float TimeRequired { get; protected set; }
-
-    protected int id = -1;
-    public int ID { get { return id; } }
-
-    public string Name;
-    public bool Complete;
-    public float TimeRequired;
-    public bool Open { get; protected set; }
-    public enum WorkerType { Builder, Gatherer, Farmer }
-
-    protected string agentJobStatus = "";
-    public string AgentJobStatus { get { return agentJobStatus; } }
-
-    protected CitizenBase character;
-    public CitizenBase Character { get { return character; } }
-
-    protected JobEntity jobEntity;
-    public JobEntity JobEntity { get { return jobEntity; } }
+    public string AgentJobStatus { get; protected set; }
+    public CitizenBase cBase { get; protected set; }
+    public JobEntity JobEntity { get; protected set; }
 
     public System.Action OnCharacterAcceptAction;
     public System.Action OnCharacterLeaveAction;
     public System.Action OnCharacterChanged;
-
     public System.Action onComplete;
+
+    protected bool isCheckingCompletable = false;
 
     public Job () { }
 
     public Job (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete)
     {
-        this.id = JobController.GetNewJobID ();
-        this.jobEntity = entity;
+        this.ID = JobController.GetNewJobID ();
+        this.JobEntity = entity;
         this.Name = name;
         this.Open = open;
         this.TimeRequired = timeRequired;
         this.onComplete = onComplete;
+        this.IsCompletableReason = "";
+        this.IsCompletable = true;
+        this.professionTypes = new List<ProfessionType> ();
+
+        GameTime.RegisterGameTick ( Tick_CheckCompletable );
     }
 
     // Called from the job controller when a character accepts a job from the job queue.
     public virtual void OnCharacterAccept (CitizenBase character)
     {
-        this.character = character;
-        character.GetComponent<NavMeshAgent> ().ResetPath ();        
+        GameTime.UnRegisterGameTick ( Tick_CheckCompletable );
+        this.cBase = character;
+        if (this.cBase != null)
+            if (character.GetComponent<NavMeshAgent> ().isOnNavMesh)
+                character.GetComponent<NavMeshAgent> ().ResetPath ();
+
         Open = false;
         if (OnCharacterAcceptAction != null) OnCharacterAcceptAction ();
         if (OnCharacterChanged != null) OnCharacterChanged ();
@@ -60,24 +61,25 @@ public class Job {
     // Usually this will be called from a job when a character is unable to complete the job ( for example, we cant find any warehouses with a specific resources).
     // In this event we should probably move this job up an index in the job queue, so it doesnt keep being assigned to other characters, as we know
     // its current incompletable.
-    public virtual void OnCharacterLeave (string reason)
+    public virtual void OnCharacterLeave (string reason, bool setOpenToTrue)
     {
-        Debug.Log ( "Character Left Job " + Name + ": " + reason );
+        GameTime.RegisterGameTick ( Tick_CheckCompletable );
         JobController.DecreasePriority ( this );
 
-
-        if(this.character == null)
+        if(this.cBase == null)
         {
             Debug.Log ( this.Name + " has no character assigned" );return;
         }
         else 
         {
-            this.character.CitizenMovement.ClearDestination ();
-            this.character.CitizenJob.OnJob_Leave ();
-            this.character = null;
+            this.cBase.CitizenMovement.ClearDestination ();
+            this.cBase.CitizenJob.OnJob_Leave ();
+            this.cBase = null;
         }
-        this.Open = true;
-        this.onComplete = null;       
+
+        if (setOpenToTrue)
+            this.Open = true;
+        
         if (OnCharacterLeaveAction != null) OnCharacterLeaveAction ();
         if (OnCharacterChanged != null) OnCharacterChanged ();
     }
@@ -88,18 +90,31 @@ public class Job {
     // Called by the job itself when the core logic is finished.
     protected virtual void OnComplete ()
     {
-        if (this.character != null)
+        GameTime.UnRegisterGameTick ( Tick_CheckCompletable );
+
+        if (this.cBase != null)
         {
-            this.character.CitizenMovement.ClearDestination ();
-            this.character.CitizenJob.OnJob_Complete ();
-            this.character = null;
+            this.cBase.CitizenMovement.ClearDestination ();
+            this.cBase.CitizenJob.OnJob_Complete ();
+            this.cBase = null;
         }
 
         Open = false;
         Complete = true;
 
-        JobController.DestroyJob ( this );
         if (onComplete != null) onComplete ();
+        JobController.DestroyJob ( this );
+    }
+
+    public virtual void SetOpen(bool open)
+    {
+        Debug.Log ( "Set job " + Name + " to open - " + open );
+        Open = open;
+
+        if (!open)
+        {
+            OnCharacterLeave ( "Job status changed to not open" , false);
+        }
     }
 
     protected float GetPathLength (NavMeshPath path)
@@ -115,17 +130,17 @@ public class Job {
         return length;
     }
 
-    public virtual bool IsCompletable ()
+    protected virtual void Tick_CheckCompletable(int relevantTick)
     {
-        Debug.LogError ( "You should not be calling this from the base class" );
-        return false;
+        if (isCheckingCompletable) return;
+        if (relevantTick  % 20 != 0) return;
+        if (cBase != null) return;
+
+        GameObject.FindObjectOfType<GameTime> ().StartCoroutine ( CheckIsCompletable () );
     }
 
-    //protected bool ReachedPath ()
-    //{
-    //    if (character.agent.pathPending) { return false; }
-    //    if (character.agent.remainingDistance > character.agent.stoppingDistance) { return false; }
-    //    if (character.agent.hasPath) { return false; }
-    //    return true;
-    //}
+    protected virtual IEnumerator CheckIsCompletable ()
+    {
+        yield return null;
+    }
 }

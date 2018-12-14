@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public class HUD_Build_Panel : UIPanel {
 
     [SerializeField] private GameObject propOptionPrefab;
-    private BuildMode buildMode;
+    //private BuildMode buildMode;
     private HUD_Toolbar_Panel toolbarPanel;
     private PropManager propManager;
     private Transform optionsContent;
 
     protected override void Start ()
     {
-        buildMode = FindObjectOfType<BuildMode> ();
+        //buildMode = FindObjectOfType<BuildMode> ();
         propManager = FindObjectOfType<PropManager> ();
         optionsContent = transform.Find ( "Content" ).Find ( "ScrollRect" ).Find ( "Options" );
         toolbarPanel = FindObjectOfType<HUD_Toolbar_Panel> ();
@@ -23,7 +23,7 @@ public class HUD_Build_Panel : UIPanel {
     public override void Show ()
     {
         base.Show ();
-        buildMode.SetActive ( true );
+        //buildMode.SetActive ( true );
 
         toolbarPanel.Hide ();
     }
@@ -36,7 +36,7 @@ public class HUD_Build_Panel : UIPanel {
     public override void Hide ()
     {
         base.Hide ();
-        buildMode.SetActive ( false );
+
         toolbarPanel.Show ();
     }
 
@@ -45,7 +45,7 @@ public class HUD_Build_Panel : UIPanel {
         if(c == "All")
         {
             List<PropData> propAll = PropManager.Instance.propData;
-            buildMode.SetPropData ( propAll[0] );
+            BuildMode.Instance.SetPropData ( propAll[0] );
             CreateOptions ( propAll );
             return;
         }
@@ -55,7 +55,7 @@ public class HUD_Build_Panel : UIPanel {
         if(props == null) { Debug.LogError ( "ERROR" ); return; }
         if (props.Count <= 0) { Debug.LogError ( "Props for category " + c + " are 0" ); return; }
 
-        buildMode.SetPropData ( props[0] );
+        BuildMode.Instance.SetPropData ( props[0] );
         CreateOptions ( props );
     }
 

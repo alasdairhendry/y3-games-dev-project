@@ -64,7 +64,10 @@ public class SnowController : MonoBehaviour
         if (currentTemperature <= terrainTemperatureThreshold)
         {
             if (terrainSnowLevel == 0)
+            {
                 shouldTerrainSnow = true;
+                //ResetDepressions ();
+            }
         }
         else
         {
@@ -93,9 +96,6 @@ public class SnowController : MonoBehaviour
             if (snow_Particles.isPlaying)
                 snow_Particles.Stop ();
         }
-
-        //shouldTerrainSnow = currentTemperature <= terrainTemperatureThreshold ? true : false;
-        //shouldObjectSnow = currentTemperature <= objectTemperatureThreshold ? true : false;
     }
 
     private void SetTerrainSnowLevels ()
@@ -103,18 +103,23 @@ public class SnowController : MonoBehaviour
         if (shouldTerrainSnow)
         {
             if (terrainSnowLevel < maxSnowDepth)
+            {
                 terrainSnowLevel += GameTime.DeltaGameTime * terrainSnowLevelDamp * maxSnowDepth;
+                terrainMaterial.SetFloat ( "_Displacement", terrainSnowLevel );
+                terrainMaterial.SetFloat ( "_MaxDisplacement", maxSnowDepth );
+            }
             else terrainSnowLevel = maxSnowDepth;
         }
         else
         {
             if (terrainSnowLevel > 0)
+            {
                 terrainSnowLevel -= GameTime.DeltaGameTime * terrainSnowLevelDamp;
+                terrainMaterial.SetFloat ( "_Displacement", terrainSnowLevel );
+                terrainMaterial.SetFloat ( "_MaxDisplacement", maxSnowDepth );
+            }
             else terrainSnowLevel = 0;
         }
-
-        terrainMaterial.SetFloat ( "_Displacement", terrainSnowLevel );
-        terrainMaterial.SetFloat ( "_MaxDisplacement", maxSnowDepth );
     }
 
     private void SetObjectSnowLevels ()
@@ -122,29 +127,38 @@ public class SnowController : MonoBehaviour
         if (shouldObjectSnow)
         {
             if (objectSnowLevel < 0.33f)
+            {
                 objectSnowLevel += GameTime.DeltaGameTime * objectSnowLevelDamp;
+                for (int i = 0; i < objectMaterials.Count; i++)
+                {
+                    objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                }
+            }
             else objectSnowLevel = 0.33f;
         }
         else
         {
             if (objectSnowLevel > 0)
+            {
                 objectSnowLevel -= GameTime.DeltaGameTime * objectSnowLevelDamp;
-            else objectSnowLevel = 0;
-        }
 
-        for (int i = 0; i < objectMaterials.Count; i++)
-        {
-            objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                for (int i = 0; i < objectMaterials.Count; i++)
+                {
+                    objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                }
+            }
+            else objectSnowLevel = 0;
         }
     }
 
     private void RemoveSnowDepressions ()
     {
+        if (!shouldTerrainSnow) return;
+
         _removeDepressionsMaterial.SetFloat ( "_PRNG", Random.value );
         _removeDepressionsMaterial.SetFloat ( "_FlakeAmount", flakeAmount );
         _removeDepressionsMaterial.SetFloat ( "_FlakeOpacity", flakeOpacity );
 
-        //RenderTexture snow = new RenderTexture ( 2048, 2048, 0, RenderTextureFormat.ARGBFloat );
         RenderTexture snow = (RenderTexture)terrainMaterial.GetTexture ( "_Splat" );
         RenderTexture temp = RenderTexture.GetTemporary ( snow.width, snow.height, 0, RenderTextureFormat.ARGBFloat );
         Graphics.Blit ( snow, temp, _removeDepressionsMaterial );
@@ -159,7 +173,9 @@ public class SnowController : MonoBehaviour
         {
             for (int i = 0; i < m.Length; i++)
             {
-                objectMaterials.Add ( m[i] );
+                objectMaterials.Add ( m[i] );                
+                m[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                
             }
         }
         else

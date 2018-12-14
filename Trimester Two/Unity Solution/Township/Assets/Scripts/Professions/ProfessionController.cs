@@ -26,7 +26,7 @@ public class ProfessionController : MonoBehaviour {
         professions.Add ( new Profession ( ProfessionType.None, 0, 6 ) );
         professions.Add ( new Profession ( ProfessionType.Student, 3, 6 ) );
         professions.Add ( new Profession ( ProfessionType.Worker ) );
-        professions.Add ( new Profession ( ProfessionType.Gatherer ) );
+        professions.Add ( new Profession ( ProfessionType.Lumberjack ) );
     }
 
     public void SetProfession (CitizenJob citizen, ProfessionType type)
@@ -34,7 +34,7 @@ public class ProfessionController : MonoBehaviour {
         Profession profession = ReturnProfessionByType ( type );
         if (profession == null) return;
 
-        int citizenAge = citizen.cBase.CitizenFamily.Age;
+        int citizenAge = citizen.cBase.CitizenAge.Age;
         if (citizenAge < profession.minimumAge || citizenAge > profession.maximumAge) return;
 
         citizen.UpdateProfession ( type );
@@ -61,7 +61,7 @@ public class ProfessionController : MonoBehaviour {
         Profession profession = ReturnProfessionByType ( type );
         if (profession == null) return;
 
-        int citizenAge = citizen.cBase.CitizenFamily.Age;
+        int citizenAge = citizen.cBase.CitizenAge.Age;
         if (citizenAge < profession.minimumAge || citizenAge > profession.maximumAge) return;
 
         citizen.UpdateProfession ( type );
@@ -130,7 +130,8 @@ public class ProfessionController : MonoBehaviour {
         Profession prof = ReturnProfessionByType ( profession );
         if (prof == null) return false;
 
-        if (citizen.cBase.CitizenFamily.Age < prof.minimumAge || citizen.cBase.CitizenFamily.Age > prof.maximumAge) return false;
+        if (citizen.cBase.CitizenAge.Age < prof.minimumAge || citizen.cBase.CitizenAge.Age > prof.maximumAge) return false;
+
         return true;
     }
 

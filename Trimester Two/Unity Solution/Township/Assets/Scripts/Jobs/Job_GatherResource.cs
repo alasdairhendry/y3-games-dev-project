@@ -20,17 +20,12 @@ public class Job_GatherResource : Job {
 
     private Prop_Warehouse targetWarehouse;
 
-    public Job_GatherResource (JobEntity entity, string name, bool open, int resourceID, float resourceQuantity, float timeRequired, RawMaterial rawMaterial)
+    public Job_GatherResource (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete, int resourceID, float resourceQuantity, RawMaterial rawMaterial) : base ( entity, name, open, timeRequired, onComplete )
     {
-        this.id = JobController.GetNewJobID ();
-        this.jobEntity = entity;
-        base.Name = name;
-        base.Open = open;
-
         this.resourceID = resourceID;
         this.resourceQuantity = resourceQuantity;
         this.rawMaterial = rawMaterial;
-        this.TimeRequired = timeRequired;
+        this.professionTypes.Add ( ProfessionType.Worker );
     }
 
     public override void DoJob (float deltaGameTime)
@@ -40,7 +35,6 @@ public class Job_GatherResource : Job {
             case Stage.TravelTo:
                 DoJob_Stage_TravelTo ();
                 break;
-
 
             case Stage.Remove:
                 DoJob_Stage_Remove ( deltaGameTime );
@@ -60,16 +54,16 @@ public class Job_GatherResource : Job {
     {
         base.OnCharacterAccept ( character );        
 
-        if (!base.character.Inventory.CheckCanHold(resourceID, resourceQuantity ))
+        if (!base.cBase.Inventory.CheckCanHold(resourceID, resourceQuantity ))
         {
-            OnCharacterLeave ( "Citizen can't hold that many resources" );
+            OnCharacterLeave ( "Citizen can't hold that many resources", true );
         }
     }
 
-    public override void OnCharacterLeave (string reason)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
     {
-        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
-        this.character.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
 
         if (stage == Stage.FindWarehouse || stage == Stage.TravelFrom)
         {
@@ -83,19 +77,18 @@ public class Job_GatherResource : Job {
         targetWarehouse = null;
         givenResourceToCitizen = false;
 
-
-        base.OnCharacterLeave ( reason );
+        base.OnCharacterLeave ( reason, setOpenToTrue );
     }
 
     private void DoJob_Stage_TravelTo ()
     {
         if(!destinationProvided)
         {                 
-            base.character.CitizenMovement.SetDestination ( rawMaterial.gameObject, rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
+            base.cBase.CitizenMovement.SetDestination ( rawMaterial.gameObject, rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
             destinationProvided = true;
         }
 
-        if (!this.character.CitizenMovement.ReachedPath ()) return;
+        if (!this.cBase.CitizenMovement.ReachedPath ()) return;
 
         destinationProvided = false;
 
@@ -104,18 +97,21 @@ public class Job_GatherResource : Job {
 
     private void DoJob_Stage_Remove (float deltaGameTime)
     {
-        this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( true );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( true , CitizenAnimation.AxeUseAnimation.Chopping);
 
-        Quaternion lookRot = Quaternion.LookRotation ( this.rawMaterial.transform.position - this.character.transform.position, Vector3.up );
-        this.character.transform.rotation = Quaternion.Slerp ( this.character.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
+        if (this.rawMaterial == null) { OnCharacterLeave ( "Material Was Destroyed", false ); return; }
+        if (this.rawMaterial.gameObject == null) { OnCharacterLeave ( "Material Was Destroyed", false ); return; }
+
+        Quaternion lookRot = Quaternion.LookRotation ( this.rawMaterial.transform.position - this.cBase.transform.position, Vector3.up );
+        this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
 
         currentTime += deltaGameTime;
 
         if(currentTime>= base.TimeRequired)
         {            
             stage = Stage.FindWarehouse;
-            this.character.GetComponent<CitizenGraphics> ().OnUseAxeAction ( false );
-            base.character.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+            this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
+            base.cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
             rawMaterial.OnGathered ();
             givenResourceToCitizen = true;
         }
@@ -136,7 +132,7 @@ public class Job_GatherResource : Job {
         else
         {
             stage = Stage.TravelFrom;
-            this.character.GetComponent<CitizenGraphics> ().SetUsingLogs ( true );
+            this.cBase.GetComponent<CitizenGraphics> ().SetUsingLogs ( true );
         }
     }
 
@@ -144,22 +140,22 @@ public class Job_GatherResource : Job {
     {
         if (!destinationProvided)
         {
-            base.character.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            base.cBase.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
             destinationProvided = true;
         }
 
         if (targetWarehouse == null)
         {
-            OnCharacterLeave ( "Warehouse was destroyed" );
+            OnCharacterLeave ( "Warehouse was destroyed", true );
             return;
         }
 
-        if (!this.character.CitizenMovement.ReachedPath ()) return;
+        if (!this.cBase.CitizenMovement.ReachedPath ()) return;
 
         targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
         if (givenResourceToCitizen)
-            character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
         givenResourceToCitizen = false;
         destinationProvided = false;
@@ -169,7 +165,7 @@ public class Job_GatherResource : Job {
 
     protected override void OnComplete ()
     {
-        this.character.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
 
         base.OnComplete ();
     }
@@ -210,10 +206,10 @@ public class Job_GatherResource : Job {
         {
             NavMeshPath path = new NavMeshPath ();
 
-            if (base.character == null) continue;
+            if (base.cBase == null) continue;
             if (eligibleWarehouses[i] == null) continue;
 
-            NavMesh.CalculatePath ( base.character.transform.position, eligibleWarehouses[i].transform.position, 0, path );
+            NavMesh.CalculatePath ( base.cBase.transform.position, eligibleWarehouses[i].transform.position, 0, path );
 
             float f = GetPathLength ( path );
             if (f <= bestDistance)
@@ -226,10 +222,5 @@ public class Job_GatherResource : Job {
         if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
         return eligibleWarehouses[fastestPath];
-    }
-
-    public override bool IsCompletable ()
-    {
-        return true;
     }
 }

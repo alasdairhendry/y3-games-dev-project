@@ -89,6 +89,7 @@ public class World : MonoBehaviour
 
     public void SetTemperatures ()
     {
+        if (TemperatureController.Instance == null) return;
         TemperatureController.Instance.SetAverageTemperate ( worldData.temperatureMin, worldData.temperatureMax );
     }
 

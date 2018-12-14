@@ -81,7 +81,7 @@ public class GameTime : MonoBehaviour
             currentGameTickInterval = 0.0f;
             currentRelativeTick++;
 
-            if (currentRelativeTick > 19)
+            if (currentRelativeTick > 999)
                 currentRelativeTick = 0;
 
             if (OnGameTick != null) OnGameTick (currentRelativeTick);

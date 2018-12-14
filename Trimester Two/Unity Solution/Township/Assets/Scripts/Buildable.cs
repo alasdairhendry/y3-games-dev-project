@@ -8,7 +8,7 @@ public class Buildable : MonoBehaviour {
     private float constructionPercent = 0.0f;
     public float ConstructionPercent { get { return constructionPercent; } }
 
-    public bool IsComplete { get { return constructionPercent >= 100.0f ? true : false; } }
+    public bool IsComplete { get; protected set; }
 
     private int currentStage = 0;
     private int stageCount = 0;
@@ -40,6 +40,7 @@ public class Buildable : MonoBehaviour {
         hasBegun = true;
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
+        inventory.RegisterOnResourceAdded ( AddMaterial );
 
         stageCount = transform.Find ( "Graphics" ).Find ( "Stages" ).childCount;
         if (stageCount <= 0) { Complete (); return this; }
@@ -59,9 +60,7 @@ public class Buildable : MonoBehaviour {
     {
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
-            GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, this );
-            //Job_Haul job = new Job_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, this);
-            //JobController.QueueJob ( job );
+            GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, 5.0f, null, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, prop, inventory );      
         }
     }
 
@@ -75,7 +74,7 @@ public class Buildable : MonoBehaviour {
 
     public void AddMaterial (int resourceID, float quantity)
     {
-        inventory.AddItemQuantity ( resourceID, quantity );
+        //inventory.AddItemQuantity ( resourceID, quantity );
         SpawnMaterialGraphic ();
         CheckMaterials ();
     }
@@ -125,9 +124,7 @@ public class Buildable : MonoBehaviour {
 
     private void OnMaterialsMet ()
     {
-        GetComponent<JobEntity> ().CreateJob_Build ( "Build Object " + prop.data.name, true, 5.0f, this );
-        //Job_Build job = new Job_Build ( "Build object " + prop.data.name, true, 5.0f, this );
-        //JobController.QueueJob ( job );
+        GetComponent<JobEntity> ().CreateJob_Build ( "Build Object " + prop.data.name, true, 5.0f, null, 5.0f, this );
     }
 
     float targetPercent = 0;
@@ -158,13 +155,34 @@ public class Buildable : MonoBehaviour {
         t.gameObject.SetActive ( true );
 
     }
-
+    
     private void Complete ()
     {
+        if (IsComplete) return;
+        IsComplete = true;
+
         DestroyMaterialGraphics ();
         transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
         transform.Find ( "Graphics" ).Find ( "Stage_Complete" ).gameObject.SetActive ( true );
         PropManager.Instance.OnPropBuilt ( this.gameObject );
+        inventory.UnregisterOnResourceAdded ( AddMaterial );
+        prop.OnBuilt ();
+        if (onComplete != null) onComplete ();
+    }
+
+    [ContextMenu ( "Complete" )]
+    public void CompleteInspectorDEBUG ()
+    {
+        if (IsComplete) return;
+        IsComplete = true;
+
+        DestroyMaterialGraphics ();
+        transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
+        transform.Find ( "Graphics" ).Find ( "Stage_Complete" ).gameObject.SetActive ( true );
+        PropManager.Instance.OnPropBuilt ( this.gameObject );
+        inventory.UnregisterOnResourceAdded ( AddMaterial );
+        GetComponent<JobEntity> ().DestroyJobs ();
+        prop.OnBuilt ();
         if (onComplete != null) onComplete ();
     }
 
@@ -175,6 +193,11 @@ public class Buildable : MonoBehaviour {
             Gizmos.color = new Color ( 1.0f, 0.5f, 0.0f );
             Gizmos.DrawWireCube ( transform.localPosition + materialPoints[i].localPosition, Vector3.one );
         }
+    }
+
+    private void OnDestroy ()
+    {
+        inventory.UnregisterOnResourceAdded ( AddMaterial );
     }
 
     [System.Serializable]

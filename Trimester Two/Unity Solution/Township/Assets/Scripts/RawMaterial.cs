@@ -11,7 +11,7 @@ public class RawMaterial : MonoBehaviour
     public void CreateRemovalJob ()
     {
         if (GetComponent<JobEntity> ().HasNonNullJob ()) return;
-        GetComponent<JobEntity> ().CreateJob_GatherResource ( "Gather Resource", true, resourceProvided, quantityProvided, 10.0f, this );
+        GetComponent<JobEntity> ().CreateJob_GatherResource ( "Gather Resource", true, 10.0f, null, resourceProvided, quantityProvided, this );
     }
 
     private void Start ()
