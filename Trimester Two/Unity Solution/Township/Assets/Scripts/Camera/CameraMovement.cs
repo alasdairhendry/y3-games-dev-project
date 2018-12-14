@@ -28,6 +28,14 @@ public class CameraMovement : MonoBehaviour {
 
     [SerializeField] private LayerMask layerMask;
 
+    public static bool CameraPanned { get; protected set; }
+    //public static bool CameraZoomed { get; protected set; }
+    public static bool CameraRotated { get; protected set; }
+    public static bool CameraMoved { get; protected set; }
+
+    private Vector3 previousPosition = new Vector3 ();
+    private Vector3 previousEuler = new Vector3 ();
+
     private void Start()
     {        
         targetPosition = transform.position;            
@@ -43,12 +51,49 @@ public class CameraMovement : MonoBehaviour {
         Pan();
         Zoom();
         Rotate ();
+        CheckMovement ();
 
         if (isLocked && lockTarget != null)
         {
             FollowTarget ();
         }
 	}
+
+    private void CheckMovement ()
+    {
+        int moveFlag = 0;
+        if(previousPosition != transform.position)
+        {
+            CameraPanned = true;
+            moveFlag++;
+        }
+        else
+        {
+            CameraPanned = false;
+        }
+
+        if(previousEuler != transform.eulerAngles)
+        {
+            CameraRotated = true;
+            moveFlag++;
+        }
+        else
+        {
+            CameraRotated = false;
+        }
+
+        if (moveFlag > 0)
+        {
+            CameraMoved = true;
+        }
+        else
+        {
+            CameraMoved = false;
+        }
+
+        previousPosition = transform.position;
+        previousEuler = transform.eulerAngles;
+    }
 
     private void LateUpdate()
     {
@@ -59,13 +104,6 @@ public class CameraMovement : MonoBehaviour {
 
     private void Pan()
     {
-        //if (Input.GetMouseButton(2) || Input.GetMouseButton(0) && Input.GetKey(KeyCode.LeftControl))
-        //{
-        //    isLocked = false;
-        //    targetPosition += transform.right * Time.deltaTime * panSpeed * (Input.mousePosition.x - Screen.width * 0.5f) / (Screen.width * 0.5f) * currentZoomDistance;
-        //    targetPosition += (transform.forward - new Vector3(0.0f, transform.forward.y, 0.0f)) * Time.deltaTime * panSpeed * (Input.mousePosition.y - Screen.height * 0.5f) / (Screen.height * 0.5f) * currentZoomDistance;   
-        //}
-
         if (Hotkey.GetKey(Hotkey.Function.CameraPan) ||( Input.GetKey(KeyCode.Mouse0) && Input.GetKey( KeyCode.LeftControl)))
         {
             isLocked = false;

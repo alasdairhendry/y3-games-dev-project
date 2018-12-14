@@ -9,9 +9,12 @@ public class BuildMode : ModeBase {
 
     private PropData currentPropData;
     private GameObject currentPropOutline;
-    private float outlineYRotation;
+    private float outlineYRotation = 180.0f;
+    private float outlineYIncrementRotation = 180.0f;
 
     [SerializeField] private Material[] outlineMaterials;
+
+    [SerializeField] private bool axisSnap = false;
 
     protected override void Awake ()
     {
@@ -59,6 +62,8 @@ public class BuildMode : ModeBase {
 
         currentPropOutline.transform.rotation = Quaternion.identity;
         outlineYRotation = 180.0f;
+        outlineYIncrementRotation = 180.0f;
+        CheckMoving ();
     }
 
     protected override void Update ()
@@ -68,6 +73,14 @@ public class BuildMode : ModeBase {
         if (!isActive) return;
         if (currentPropOutline == null) return;
 
+        RotationHandle ();
+        CheckClicking ();
+        if (!Hotkey.MouseMoved && !CameraMovement.CameraMoved) return;
+        CheckMoving ();
+    }
+
+    private void CheckMoving ()
+    {
         Ray ray = Camera.main.ScreenPointToRay ( Input.mousePosition );
         RaycastHit hit;
         int mask = 1 << 9;
@@ -76,12 +89,22 @@ public class BuildMode : ModeBase {
         {
             MovementHandle ( hit.point );
             GraphicsHandle ( hit.point );
-
-            if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftControl))
-                PlaceHandle (hit.point);
         }
+    }
 
-        RotationHandle ();
+    private void CheckClicking ()
+    {
+        if (Input.GetMouseButtonDown ( 0 ) && !Input.GetKey ( KeyCode.LeftControl ))
+        {
+            Ray ray = Camera.main.ScreenPointToRay ( Input.mousePosition );
+            RaycastHit hit;
+            int mask = 1 << 9;
+
+            if (Physics.Raycast ( ray, out hit, 10000, mask ))
+            {
+                PlaceHandle ( hit.point );
+            }
+        }
     }
 
     private void MovementHandle (Vector3 point)
@@ -89,16 +112,53 @@ public class BuildMode : ModeBase {
         currentPropOutline.transform.position = point;
     }
 
+    bool hasRotatedIncrementally = false;
+
     private void RotationHandle ()
     {
         Vector3 r = currentPropOutline.transform.localEulerAngles;
-        if (Input.GetKey ( KeyCode.LeftShift ))
-            outlineYRotation -= (Input.GetKey ( KeyCode.R ) ? 1 : 0) * Time.deltaTime * 75.0f;
-        else outlineYRotation += (Input.GetKey ( KeyCode.R ) ? 1 : 0) * Time.deltaTime * 75.0f;
+
+        if (Hotkey.GetKeyDown ( Hotkey.Function.PropRotateIncrementClockwise ))
+        {
+            if (outlineYRotation % 45.0f == 0)
+            {
+                outlineYRotation += 45.0f;
+            }
+            else
+            {
+                outlineYRotation = Mathf.CeilToInt ( outlineYRotation / 45.0f );
+                outlineYRotation = outlineYRotation * 45.0f;
+            }
+            hasRotatedIncrementally = true;
+        }
+        else if (Hotkey.GetKeyDown ( Hotkey.Function.PropRotateIncrementAntiClockwise ))
+        {
+            if (outlineYRotation % 45.0f == 0)
+            {
+                outlineYRotation -= 45.0f;
+            }
+            else
+            {
+                outlineYRotation = Mathf.FloorToInt ( outlineYRotation / 45.0f );
+                outlineYRotation = outlineYRotation * 45.0f;
+            }
+            hasRotatedIncrementally = true;
+        }
+
+        if (!hasRotatedIncrementally)
+        {
+            if (Hotkey.GetKey ( Hotkey.Function.PropRotateClockwise ))
+                outlineYRotation += Time.deltaTime * 75.0f;
+            else if (Hotkey.GetKey ( Hotkey.Function.PropRotateAntiClockwise ))
+                outlineYRotation -= Time.deltaTime * 75.0f;
+        }
+
+        if (Hotkey.GetKeyUp ( Hotkey.Function.PropRotateIncrementAntiClockwise ) || Hotkey.GetKeyUp ( Hotkey.Function.PropRotateIncrementClockwise )) hasRotatedIncrementally = false;
+
         r.y = outlineYRotation;
 
         currentPropOutline.transform.rotation = Quaternion.Slerp ( currentPropOutline.transform.rotation, Quaternion.Euler ( r ), Time.deltaTime * 20 );
-    }    
+    }
 
     private void GraphicsHandle (Vector3 point)
     {
