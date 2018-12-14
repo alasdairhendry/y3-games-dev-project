@@ -13,7 +13,7 @@ public class SunController : MonoBehaviour {
     }
 
     public enum Time { Day, Night }
-    private Time time;
+    public Time time { get; protected set; }
     [SerializeField] private int dayTimeStarts = 1;
     [SerializeField] private int dayTimeEnds = 21;
 

@@ -35,6 +35,7 @@ public class CitizenGraphics : MonoBehaviour {
 
         animator = GetComponent<Animator> ();
         lanternLight = lanternGraphics.GetComponentInChildren<Light> ();
+        SetUsingLantern ( SunController.Instance.time );
         SunController.Instance.onSwitch += SetUsingLantern;
     }
 
