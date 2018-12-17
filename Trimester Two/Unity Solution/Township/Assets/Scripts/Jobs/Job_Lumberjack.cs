@@ -5,9 +5,6 @@ using UnityEngine;
 public class Job_Lumberjack : Job_Profession
 {
     private bool givenDestination = false;
-    //private Vector3 destination = new Vector3 ();
-
-    //private Prop_LumberjackHut lumberJackProp;
 
     private GameObject stump;
     private List<GameObject> trees = new List<GameObject> ();
@@ -15,26 +12,18 @@ public class Job_Lumberjack : Job_Profession
     public enum JobState { Chopping, Splitting }
     private JobState jobState = JobState.Splitting;
 
-    public Job_Lumberjack (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete, Prop_LumberjackHut prop, List<GameObject> trees, GameObject stump) : base ( entity, name, open, timeRequired, onComplete )
+    public Job_Lumberjack (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete, Prop_LumberjackHut prop, List<GameObject> trees, GameObject stump) : base ( entity, name, open, timeRequired, onComplete, prop )
     {
         this.professionTypes.Add ( ProfessionType.Lumberjack );
-        //this.lumberJackProp = prop;
         this.trees = trees;
         this.stump = stump;        
-
-        provideResourceDelay = 10.0f;
-        this.targetProp = prop;
-        this.targetInventory = prop.inventory;
-        this.resourceIDToGive = 0;
-
-        CheckJobs ();
     }
 
     public override void DoJob (float deltaGameTime)
     {
         base.DoJob ( deltaGameTime );
 
-        if (targetInventory.CheckIsFull ( resourceIDToGive ))
+        if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
             OnCharacterLeave ( "Storage is full. Send a market cart!", true );
             IsCompletable = false;
@@ -78,12 +67,6 @@ public class Job_Lumberjack : Job_Profession
         LookAtTarget ( stump.transform.GetChild ( 0 ).transform.position );
     }
 
-    private void LookAtTarget(Vector3 target)
-    {
-        Quaternion lookRot = Quaternion.LookRotation ( target - this.cBase.transform.position, Vector3.up );
-        this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
-    }
-
     public override void OnCharacterLeave (string reason, bool setOpenToTrue)
     {
         if (this.cBase != null)
@@ -100,9 +83,8 @@ public class Job_Lumberjack : Job_Profession
     {
         if (targetProp.HaltProduction) { IsCompletable = false; yield break; }
 
-        if (targetInventory.CheckIsFull ( resourceIDToGive ))
+        if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
-            CheckJobs ();
             IsCompletable = false;
             yield break;
         }

@@ -38,14 +38,14 @@ public class Prop_Warehouse : Prop {
 
             }, "Add 10 Brick", "Inventory" );
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 if (inventory == null) return "0.00";
                 if (inventory.inventoryOverall == null) return "0.00";
                 return inventory.inventoryOverall[0].ToString ( "0.00" );
             }, "Wood", "Inventory" );
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 if (inventory == null) return "0.00";
                 if (inventory.inventoryOverall == null) return "0.00";

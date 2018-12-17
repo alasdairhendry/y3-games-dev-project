@@ -38,6 +38,15 @@ public class JobEntity : MonoBehaviour
         return job;
     }
 
+    public Job_QuarryWorker CreateJob_QuarryWorker (string name, bool open, float timeRequired, System.Action onComplete, Prop_Quarry prop, GameObject rock, GameObject wellPoint)
+    {
+        Job_QuarryWorker job = new Job_QuarryWorker ( this, name, open, timeRequired, onComplete, prop, rock, wellPoint );
+        DisplayJobWaitingIcon ();
+        job.OnCharacterChanged += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        return job;
+    }
+
     public Job_MarketCart CreateJob_MarketCart(string name, bool open, float timeRequired, System.Action onComplete, Prop targetProp, ResourceInventory propInventory, int resourceID, int maxSupplyQuantity, bool supply)
     {
         Job_MarketCart job = new Job_MarketCart ( this, name, open, timeRequired, onComplete, targetProp, propInventory, resourceID, maxSupplyQuantity, supply );
@@ -45,7 +54,7 @@ public class JobEntity : MonoBehaviour
         job.OnCharacterChanged += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
         return job;
-    }
+    }  
 
     public bool HasNonNullJob ()
     {

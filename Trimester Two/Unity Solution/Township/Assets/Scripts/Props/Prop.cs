@@ -65,7 +65,8 @@ public class Prop : MonoBehaviour {
         NavMeshObstacle[] obstacles = GetComponentsInChildren<NavMeshObstacle> ( true );
         NavMeshObstacle obstacle = GetComponent<NavMeshObstacle> ();
 
-        obstacle.enabled = state;
+        if (obstacle != null)
+            obstacle.enabled = state;
 
         for (int i = 0; i < obstacles.Length; i++)
         {

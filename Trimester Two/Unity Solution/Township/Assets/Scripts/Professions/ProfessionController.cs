@@ -27,6 +27,8 @@ public class ProfessionController : MonoBehaviour {
         professions.Add ( new Profession ( ProfessionType.Student, 3, 6 ) );
         professions.Add ( new Profession ( ProfessionType.Worker ) );
         professions.Add ( new Profession ( ProfessionType.Lumberjack ) );
+        professions.Add ( new Profession ( ProfessionType.Quarryman ) );
+        
     }
 
     public void SetProfession (CitizenJob citizen, ProfessionType type)

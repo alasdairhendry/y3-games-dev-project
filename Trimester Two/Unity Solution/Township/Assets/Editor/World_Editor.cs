@@ -28,7 +28,8 @@ public class World_Editor : Editor {
 
         if(Input.GetKey(KeyCode.LeftShift) && Input.GetKey ( KeyCode.A )) { world.DEBUG_UpdateShaderParams (); }
 
-        if(GUILayout.Button("Update Shader Params" )) { world.DEBUG_UpdateShaderParams (); }
+        if (GUILayout.Button ( "Update NavMesh" )) { world.DEBUG_UpdateNavMesh (); }
+        if (GUILayout.Button ( "Update Shader Params" )) { world.DEBUG_UpdateShaderParams (); }
 
         if (GUILayout.Button ( "Generate" )) { world.Create (); }        
     }

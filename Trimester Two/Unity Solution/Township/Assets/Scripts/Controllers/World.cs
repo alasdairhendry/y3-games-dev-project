@@ -237,6 +237,23 @@ public class World : MonoBehaviour
 
         DEBUG_UpdateShaderParams ();
     }
+
+    public bool IsUpdatingNavMesh { get; protected set; }
+    public void DEBUG_UpdateNavMesh ()
+    {
+        if (IsUpdatingNavMesh) return;
+        StartCoroutine ( DEBUG_UpdateNavMeshCO () );
+    }
+
+    private IEnumerator DEBUG_UpdateNavMeshCO ()
+    {
+        if (IsUpdatingNavMesh) yield break;
+        Debug.Log ( "Nav mesh update started" );
+        IsUpdatingNavMesh = true;
+        yield return GetComponent<NavMeshSurface> ().UpdateNavMesh ( GetComponent<NavMeshSurface> ().navMeshData );
+        IsUpdatingNavMesh = false;
+        Debug.Log ( "Nav mesh update finished" );
+    }
   
     public void DEBUG_UpdateShaderParams ()
     {
@@ -265,6 +282,14 @@ public class World : MonoBehaviour
             i.transform.position = hit.point - new Vector3(0.0f, 0.5f, 0.0f);
         }
 
+    }
+
+    private void OnGUI ()
+    {
+        if (IsUpdatingNavMesh)
+        {
+            GUI.Label ( new Rect ( 16, 16, 512, 512 ), "Updating Nav Mesh" );
+        }
     }
 }
 

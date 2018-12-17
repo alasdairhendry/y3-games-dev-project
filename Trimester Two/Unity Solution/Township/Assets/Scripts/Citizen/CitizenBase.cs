@@ -101,8 +101,9 @@ public class CitizenBase : MonoBehaviour {
 
             }, "Kill Citizen", "Any" );
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
+                
                 if (this == null) { return "None"; }
 
                 if (this.CitizenJob.GetCurrentJob == null) return "None";
@@ -110,7 +111,7 @@ public class CitizenBase : MonoBehaviour {
 
             }, "Job", "Overview" );
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 if (this == null) return "Idling";
 

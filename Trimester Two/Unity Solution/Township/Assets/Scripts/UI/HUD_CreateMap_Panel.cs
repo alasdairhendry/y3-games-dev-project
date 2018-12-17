@@ -86,6 +86,7 @@ public class HUD_CreateMap_Panel : UIPanel
     {
         Hide ();
         FindObjectOfType<World> ().DEBUG_UpdateShaderParams ();
+        FindObjectOfType<World> ().DEBUG_UpdateNavMesh ();
         FindObjectOfType<HUD_LoadingOverlay_Panel> ().Hide ();
         FindObjectOfType<HUD_Toolbar_Panel> ().Show ();
         FindObjectOfType<HUD_GameTime_Panel> ().Show ();

@@ -87,7 +87,7 @@ public class BuildMode : ModeBase {
 
         if (Physics.Raycast ( ray, out hit, 10000, mask ))
         {
-            MovementHandle ( hit.point );
+            MovementHandle ( hit );
             GraphicsHandle ( hit.point );
         }
     }
@@ -107,9 +107,9 @@ public class BuildMode : ModeBase {
         }
     }
 
-    private void MovementHandle (Vector3 point)
+    private void MovementHandle (RaycastHit hit)
     {        
-        currentPropOutline.transform.position = point;
+        currentPropOutline.transform.position = hit.point;    
     }
 
     bool hasRotatedIncrementally = false;

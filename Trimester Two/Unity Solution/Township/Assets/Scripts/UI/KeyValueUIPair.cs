@@ -9,15 +9,18 @@ public class KeyValueUIPair : MonoBehaviour {
     public enum Type { Text, Dropdown }
     private Type type;
 
-    private System.Func<string> GetValueFoo;
+    private System.Func<KeyValueUIPair, string> GetValueFoo;
     private string key;
     private string value;
 
-    public GameObject SetData(System.Func<string> GetValueFoo, string key )
+    public bool Display = true;
+
+    public GameObject SetData(System.Func<KeyValueUIPair, string> GetValueFoo, string key )
     {
         this.key = key;
         this.GetValueFoo = GetValueFoo;
 
+        Display = true;
         GetValue (0);
         SetData (0);
 
@@ -35,12 +38,15 @@ public class KeyValueUIPair : MonoBehaviour {
     private void GetValue (int relativeTick)
     {
         if (this == null) return;
-        value = GetValueFoo ();
+        value = GetValueFoo (this);
+
+        //this.gameObject.SetActive ( Display );
     }
 
     private void SetData (int relativeTick)
     {
         if (this == null) return;
+        if (!Display) return;
         GetComponentsInChildren<Text> ()[0].text = key;
 
         if (type == Type.Text)

@@ -143,4 +143,10 @@ public class Job {
     {
         yield return null;
     }
+
+    protected void LookAtTarget (Vector3 target)
+    {
+        Quaternion lookRot = Quaternion.LookRotation ( target - this.cBase.transform.position, Vector3.up );
+        this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
+    }
 }

@@ -4,15 +4,24 @@ using UnityEngine;
 
 public class Prop_LumberjackHut : Prop_Profession {
 
-    public ResourceInventory inventory;
     [SerializeField] private List<GameObjectList> trees = new List<GameObjectList> ();
     [SerializeField] private List<GameObject> stumps = new List<GameObject> ();
 
     protected override void OnPlaced ()
     {
-        SetInspectable ();
-        SetInventory ();
-    }    
+        base.OnPlaced ();
+    }
+
+    protected override void SetResources ()
+    {
+        resourceIDToGive = 0;
+        resourceIDToConsume = -1;
+
+        giveAmount = 1;
+        consumeAmount = 0;
+
+        ProductionRequired = 20.0f;
+    }
 
     // Called from Prop_Profession on built "MaxJobs" times
     protected override void CreateProfessionJobs (int index)
@@ -26,57 +35,52 @@ public class Prop_LumberjackHut : Prop_Profession {
     {
         base.SetInspectable ();
 
-        GetComponent<Inspectable> ().SetAdditiveAction ( () =>
-        {
-            HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
+        //GetComponent<Inspectable> ().SetAdditiveAction ( () =>
+        //{
+        //    HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
-            panel.AddButtonData ( () =>
-            {
-                if (this == null) return;
-                if (this.gameObject == null) return;
+        //    panel.AddButtonData ( () =>
+        //    {
+        //        if (this == null) return;
+        //        if (this.gameObject == null) return;
 
-                ToggleProduction ();
+        //        ToggleProduction ();
 
-            }, "Halt Production", "Overview" );
+        //    }, "Halt Production", "Overview" );
 
-            panel.AddButtonData ( () =>
-            {
-                if (this.gameObject == null) return;
-                if (this.inventory == null) return;
+        //    panel.AddButtonData ( () =>
+        //    {
+        //        if (this.gameObject == null) return;
+        //        if (this.inventory == null) return;
 
-                inventory.AddItemQuantity ( 0, 10 );
+        //        inventory.AddItemQuantity ( 0, 10 );
 
-            }, "Add 10 Wood", "Overview" );
+        //    }, "Add 10 Wood", "Overview" );
 
-            panel.AddButtonData ( () =>
-            {
-                if (this.gameObject == null) return;
-                if (this.inventory == null) return;
+        //    panel.AddButtonData ( () =>
+        //    {
+        //        if (this.gameObject == null) return;
+        //        if (this.inventory == null) return;
 
-                inventory.RemoveItemQuantity ( 0, 10 );
+        //        inventory.RemoveItemQuantity ( 0, 10 );
 
-            }, "Remove 10 Wood", "Overview" );
+        //    }, "Remove 10 Wood", "Overview" );
 
 
-            panel.AddTextData ( () =>
-            {
-                if (inventory == null) return "0.00";
-                if (inventory.inventoryOverall == null) return "0.00";
-                return inventory.inventoryOverall[0].ToString ( "0.00" );
-            }, "Wood", "Overview" );
+        //    panel.AddTextData ( () =>
+        //    {
+        //        if (inventory == null) return "0.00";
+        //        if (inventory.inventoryOverall == null) return "0.00";
+        //        return inventory.inventoryOverall[0].ToString ( "0.00" );
+        //    }, "Wood", "Overview" );
 
-            panel.AddTextData ( () =>
-            {
-                if (inventory == null) return "0.00";
-                if (inventory.inventoryOverall == null) return "0.00";
-                return inventory.inventoryOverall[1].ToString ( "0.00" );
-            }, "Brick", "Overview" );
-        } );
-    }
-
-    private void SetInventory ()
-    {
-        inventory = new ResourceInventory (10);
+        //    panel.AddTextData ( () =>
+        //    {
+        //        if (inventory == null) return "0.00";
+        //        if (inventory.inventoryOverall == null) return "0.00";
+        //        return inventory.inventoryOverall[1].ToString ( "0.00" );
+        //    }, "Brick", "Overview" );
+        //} );
     }
 }
 

@@ -23,6 +23,8 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     private string currentTabName = "Default";
     private Dictionary<string, GameObject> tabs = new Dictionary<string, GameObject> ();
 
+    private List<KeyValueUIPair> keyValueUIPairs = new List<KeyValueUIPair> ();
+
     public void ShowPanel (GameObject target)
     {
         this.target = target;
@@ -33,7 +35,12 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     {
         base.Show ();
         ClearPanel ();
-        GameTime.RegisterGameTick ( Tick_ValidityCheck );
+        GameTime.RegisterGameTick ( Tick );
+    }
+
+    protected virtual void Tick(int relativeTick)
+    {
+        Tick_ValidityCheck ();
     }
 
     protected override void SetAnchoredPosition ()
@@ -79,13 +86,15 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
         displayAction = action;
     }
 
-    public void AddTextData(System.Func<string> action, string key, string tabName)
+    public void AddTextData(System.Func<KeyValueUIPair, string> action, string key, string tabName)
     {
         AddTab ( tabName );
 
         if (currentTabName == tabName || tabName == "Any")
         {
-            UIController.Instance.SpawnUI ( UIController.UIEnumValue.Type.KeyValueText, leftHorizontalView ).GetComponent<KeyValueUIPair> ().SetData ( action, key );
+            KeyValueUIPair pair = UIController.Instance.SpawnUI ( UIController.UIEnumValue.Type.KeyValueText, leftHorizontalView ).GetComponent<KeyValueUIPair> ();
+            pair.SetData ( action, key );
+            keyValueUIPairs.Add ( pair );
         }
     }
 
@@ -101,7 +110,7 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
         }
     }
 
-    public void AddButtonTextData (System.Action clickAction, System.Func<string> textAction, string key, string tabName)
+    public void AddButtonTextData (System.Action clickAction, System.Func<KeyValueUIPair, string> textAction, string key, string tabName)
     {
         AddTab ( tabName );
 
@@ -113,7 +122,7 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
         }
     }
 
-    public void AddDropdownData (System.Action<int, List<Dropdown.OptionData>> valueChanged, System.Func<string> textAction, string key, string tabName, params string[] options)
+    public void AddDropdownData (System.Action<int, List<Dropdown.OptionData>> valueChanged, System.Func<KeyValueUIPair, string> textAction, string key, string tabName, params string[] options)
     {
         AddTab ( tabName );
 
@@ -161,7 +170,7 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
         ClearTabs ();
     }
 
-    private void Tick_ValidityCheck (int relativeTick)
+    private void Tick_ValidityCheck ()
     {
         if (target == null) { ClearPanel (); Hide (); return; }
         if (tickActions != null) tickActions ();
@@ -178,6 +187,6 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
         onCloseActions = null;
 
         tickActions = null;
-        GameTime.UnRegisterGameTick ( Tick_ValidityCheck );
+        GameTime.UnRegisterGameTick ( Tick );
     }
 }

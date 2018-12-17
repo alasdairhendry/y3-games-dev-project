@@ -85,7 +85,7 @@ public class Prop_Campfire : Prop {
 
             }, "Add 1 Wood", "Inventory" );
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 if (inventory == null) return "0.00";
                 if (inventory.inventoryOverall == null) return "0.00";

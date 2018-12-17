@@ -97,7 +97,7 @@ public class CitizenHousing : MonoBehaviour {
                 if (!hasHouse) return;
                 FindObjectOfType<CameraMovement> ().LockTo ( house.transform );
                 house.GetComponentInChildren<Inspectable> ().Inspect ();
-            }, () =>
+            }, (pair) =>
             {
                 if (!hasHouse) return "None";
 

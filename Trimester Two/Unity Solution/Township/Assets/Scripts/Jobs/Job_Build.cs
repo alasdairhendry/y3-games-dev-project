@@ -22,7 +22,6 @@ public class Job_Build : Job {
         {
             this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
             base.OnComplete ();            
-            Debug.Log ( "a" );
             return;
         }
 

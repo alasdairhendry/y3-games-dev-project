@@ -113,7 +113,7 @@ public class CitizenFamily : MonoBehaviour {
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 if (thisMember == null) return "None";
                 string s = "";
@@ -125,7 +125,7 @@ public class CitizenFamily : MonoBehaviour {
 
             if (cBase.CitizenJob.profession == ProfessionType.None || cBase.CitizenJob.profession == ProfessionType.Student)
             {
-                panel.AddTextData ( () =>
+                panel.AddTextData ( (pair) =>
                   {
                       return cBase.CitizenJob.profession.ToString ();
                   }, "Profession", "Overview" );
@@ -135,20 +135,21 @@ public class CitizenFamily : MonoBehaviour {
                 panel.AddDropdownData ( (index, options) =>
                 {
                     ProfessionController.Instance.SetProfession ( cBase.CitizenJob, options[index].text );
-                }, () =>
+                }, (pair) =>
                 {
                     return cBase.CitizenJob.profession.ToString ();
                 }, "Profession", "Overview",
-                ProfessionType.Worker.ToString (), 
-                ProfessionType.Lumberjack.ToString () );
+                ProfessionType.Worker.ToString (),
+                ProfessionType.Lumberjack.ToString (),
+                ProfessionType.Quarryman.ToString () );
             }
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 return gender.ToString ();
             }, "Gender", "Overview" );
 
-            panel.AddTextData ( () =>
+            panel.AddTextData ( (pair) =>
             {
                 return cBase.CitizenAge.Age.ToString ();
             }, "Age", "Overview" );
@@ -169,7 +170,7 @@ public class CitizenFamily : MonoBehaviour {
                     FindObjectOfType<CameraMovement> ().LockTo ( Father.citizenBase.transform );
                     Father.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                 }
-            }, () =>
+            }, (pair) =>
             {
                 if (Father == null) return "None";
                 if (string.IsNullOrEmpty ( Father.firstName )) return "None";
@@ -191,7 +192,7 @@ public class CitizenFamily : MonoBehaviour {
                      FindObjectOfType<CameraMovement> ().LockTo ( Mother.citizenBase.transform );
                      Mother.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                  }
-             }, () =>
+             }, (pair) =>
              {
                  if (Mother == null) return "None";
                  if (string.IsNullOrEmpty ( Mother.firstName )) return "None";
@@ -217,7 +218,7 @@ public class CitizenFamily : MonoBehaviour {
                         FindObjectOfType<CameraMovement> ().LockTo ( Children[x].citizenBase.transform );
                         Children[x].citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                     }
-                }, () =>
+                }, (pair) =>
                 {
                     if (x < 0 || x >= Children.Count) return "None";
                     if (Children[x] == null) return "None";
@@ -241,7 +242,7 @@ public class CitizenFamily : MonoBehaviour {
                     FindObjectOfType<CameraMovement> ().LockTo ( Partner.citizenBase.transform );
                     Partner.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                 }
-            }, () =>
+            }, (pair) =>
             {
                 if (Partner == null) return "None";
                 if (string.IsNullOrEmpty ( Partner.firstName )) return "None";
