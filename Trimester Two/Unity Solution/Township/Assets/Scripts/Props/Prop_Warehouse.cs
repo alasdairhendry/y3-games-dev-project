@@ -4,12 +4,9 @@ using UnityEngine;
 
 public class Prop_Warehouse : Prop {
 
-    public ResourceInventory inventory;
-
     protected override void OnPlaced ()
     {
         SetInspectable ();
-        SetInventory ();        
     }
 
     protected override void SetInspectable ()
@@ -38,6 +35,15 @@ public class Prop_Warehouse : Prop {
 
             }, "Add 10 Brick", "Inventory" );
 
+            panel.AddButtonData ( () =>
+            {
+                if (this.gameObject == null) return;
+                if (this.inventory == null) return;
+
+                inventory.AddItemQuantity ( 2, 10 );
+
+            }, "Add 10 Stone", "Inventory" );
+
             panel.AddTextData ( (pair) =>
             {
                 if (inventory == null) return "0.00";
@@ -51,11 +57,18 @@ public class Prop_Warehouse : Prop {
                 if (inventory.inventoryOverall == null) return "0.00";
                 return inventory.inventoryOverall[1].ToString ( "0.00" );
             }, "Brick", "Inventory" );
+
+            panel.AddTextData ( (pair) =>
+            {
+                if (inventory == null) return "0.00";
+                if (inventory.inventoryOverall == null) return "0.00";
+                return inventory.inventoryOverall[2].ToString ( "0.00" );
+            }, "Stone", "Inventory" );
         } );
     }
 
-    private void SetInventory ()
-    {
+    protected override void SetInventory ()
+    {        
         inventory = new ResourceInventory (float.MaxValue);
         inventory.AddItemQuantity ( 0, 6 );
         inventory.AddItemQuantity ( 1, 2 );

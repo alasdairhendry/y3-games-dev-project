@@ -15,23 +15,23 @@ public class BuildableDisplayer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (buildable == null) return;
-        if (buildable.GetInventory == null) return;
-        if (buildable.GetPropData == null) return;
+        //if (buildable == null) return;
+        //if (buildable.GetInventory == null) return;
+        //if (buildable.GetPropData == null) return;
 
-        string text = "";
-        text += "Build Percent: " + buildable.ConstructionPercent.ToString ( "00.00" );
-        text += "\n\n";
+        //string text = "";
+        //text += "Build Percent: " + buildable.ConstructionPercent.ToString ( "00.00" );
+        //text += "\n\n";
 
-        for (int i = 0; i < buildable.GetPropData.data.requiredMaterials.Count; i++)
-        {
-            float amount = buildable.GetInventory.inventoryOverall[buildable.GetPropData.data.requiredMaterials[i].id];
+        //for (int i = 0; i < buildable.GetPropData.data.requiredMaterials.Count; i++)
+        //{
+        //    float amount = buildable.GetInventory.inventoryOverall[buildable.GetPropData.data.requiredMaterials[i].id];
 
-            text += ResourceManager.Instance.GetResourceByID ( buildable.GetPropData.data.requiredMaterials[i].id ).name + ": ";
-            text += amount + " / " + buildable.GetPropData.data.requiredMaterials[i].amount;
-            text += "\n";
-        }
+        //    text += ResourceManager.Instance.GetResourceByID ( buildable.GetPropData.data.requiredMaterials[i].id ).name + ": ";
+        //    text += amount + " / " + buildable.GetPropData.data.requiredMaterials[i].amount;
+        //    text += "\n";
+        //}
 
-        textMesh.text = text;
+        //textMesh.text = text;
     }
 }

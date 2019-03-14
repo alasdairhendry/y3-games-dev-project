@@ -16,8 +16,10 @@ public class Job_Build : Job {
         this.professionTypes.Add ( ProfessionType.Worker );
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
+        base.DoJob ();
+
         if (buildableTarget.IsComplete)
         {
             this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
@@ -28,13 +30,14 @@ public class Job_Build : Job {
         if (!assignedCharacterDestination)
         {
             assignedCharacterDestination = true;
-            this.cBase.CitizenMovement.SetDestination ( buildableTarget.gameObject, buildableTarget.GetPropData.CitizenInteractionPointGlobal );
+            targetPosition = buildableTarget.Prop.CitizenInteractionPointGlobal;
+            SetDestination ( buildableTarget.gameObject );
         }
 
-        if (!this.cBase.CitizenMovement.ReachedPath ()) return;
+        if (!citizenReachedPath) return;        
 
         this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( true, CitizenAnimation.AxeUseAnimation.Chopping );
-        buildableTarget.AddConstructionPercentage ( deltaGameTime * buildSpeed );
+        buildableTarget.AddConstructionPercentage ( GameTime.DeltaGameTime * buildSpeed );
 
         Quaternion lookRot = Quaternion.LookRotation ( this.buildableTarget.transform.position - this.cBase.transform.position, Vector3.up );
         this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );

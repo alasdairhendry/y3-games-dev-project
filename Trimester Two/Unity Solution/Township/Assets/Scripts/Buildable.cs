@@ -1,56 +1,105 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Buildable : MonoBehaviour {
 
+    public ResourceInventory inventory;
+
     private Prop prop;
-    public Prop GetPropData { get { return prop; } }
+    public Prop Prop { get { return prop; } }
 
     private float constructionPercent = 0.0f;
     public float ConstructionPercent { get { return constructionPercent; } }
 
     public bool IsComplete { get; protected set; }
 
-    private int currentStage = 0;
+    public int currentStage { get; protected set; }
     private int stageCount = 0;
 
-    public System.Action onComplete;
+    private Dictionary<int, List<GameObject>> stages = new Dictionary<int, List<GameObject>> ();
 
-    private bool hasBegun = false;
+    public System.Action onComplete;
 
     [SerializeField] private bool stackedStages = true;
     [SerializeField] private MaterialPoint[] materialPoints;
     [SerializeField] private GameObject materialGraphic;
-    [SerializeField] private ResourceInventory inventory;
-    public ResourceInventory GetInventory { get { return inventory; } }
 
-    private void Start ()
+    private void Awake ()
     {
-        if (hasBegun) return;
+        BuildableStage[] _stages = GetComponentsInChildren<BuildableStage> ();
 
-        inventory = new ResourceInventory ();
-        stageCount = transform.Find ( "Graphics" ).Find ( "Stages" ).childCount;
-        for (int i = 0; i < stageCount; i++)
+        for (int i = 0; i < _stages.Length; i++)
         {
-            transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( i ).gameObject.SetActive ( false );
+            if (stageCount < _stages[i].Stage) stageCount = _stages[i].Stage;
+
+            if (stages.ContainsKey(_stages[i].Stage))
+            {
+                stages[_stages[i].Stage].Add ( _stages[i].gameObject );
+            }
+            else
+            {
+                stages.Add ( _stages[i].Stage, new List<GameObject> () { _stages[i].gameObject } );
+            }
         }
     }
    
-    public Buildable Begin ()
+    public Buildable OnPropPlaced ()
     {        
-        hasBegun = true;
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
         inventory.RegisterOnResourceAdded ( AddMaterial );
 
-        stageCount = transform.Find ( "Graphics" ).Find ( "Stages" ).childCount;
         if (stageCount <= 0) { Complete (); return this; }
 
-        for (int i = 0; i < stageCount; i++)
+        for (int i = 1; i < stageCount + 1; i++)
         {
-            transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( i ).gameObject.SetActive ( false );
+            SetStageActive ( i, false );
         }
 
-        transform.Find ( "Graphics" ).Find ( "Stage_Complete" ).gameObject.SetActive ( false );        
+        SetStage ();
+        CreateJobs ();
+        return this;
+    }
+
+    public Buildable LOAD_OnPropPlaced(PersistentData.PropData data)
+    {
+        prop = GetComponent<Prop> ();
+        inventory = new ResourceInventory ();
+        inventory.RegisterOnResourceAdded ( AddMaterial );
+
+        for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
+        {
+            if (data.BuildableResourceIDs.Contains ( prop.data.requiredMaterials[i].id ))
+            {
+                int index = data.BuildableResourceIDs.IndexOf ( prop.data.requiredMaterials[i].id );
+
+                if (data.BuildableResourceQuantities[index] > 0)
+                {
+                    inventory.AddItemQuantity ( data.BuildableResourceIDs[index], data.BuildableResourceQuantities[index] );
+                }
+            }
+        }
+
+        if (stageCount <= 0) { Complete (); return this; }
+
+        for (int i = 1; i < stageCount + 1; i++)
+        {
+            SetStageActive ( i, false );
+        }
+
+        currentStage = data.BuildableStage;
+
+        if(data.ConstructionPercent < 100.0f)
+        {
+            for (int i = 0; i < currentStage + 1; i++)
+            {
+                SetStageActive ( i, true );
+            }
+        }
+
+        AddConstructionPercentage ( data.ConstructionPercent );
+        if (IsComplete) return this;
+
         SetStage ();
         CreateJobs ();
         return this;
@@ -60,7 +109,8 @@ public class Buildable : MonoBehaviour {
     {
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
-            GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, 5.0f, null, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, prop, inventory );      
+            if (!inventory.CheckHasQuantityAvailable ( prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount ))
+                GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, 5.0f, null, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, prop, inventory );
         }
     }
 
@@ -74,7 +124,6 @@ public class Buildable : MonoBehaviour {
 
     public void AddMaterial (int resourceID, float quantity)
     {
-        //inventory.AddItemQuantity ( resourceID, quantity );
         SpawnMaterialGraphic ();
         CheckMaterials ();
     }
@@ -148,12 +197,22 @@ public class Buildable : MonoBehaviour {
         if (currentStage >= 1)
         {
             if (!stackedStages)
-                transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( currentStage - 1 ).gameObject.SetActive ( false );          
+            {
+                SetStageActive ( currentStage - 1, false );
+            }
         }
 
-        Transform t = transform.Find ( "Graphics" ).Find ( "Stages" ).GetChild ( currentStage );        
-        t.gameObject.SetActive ( true );
+        SetStageActive ( currentStage, true );
+    }
 
+    private void SetStageActive (int stage, bool state)
+    {
+        if (!stages.ContainsKey ( stage )) { Debug.LogError ( "Why does " + Prop.data.name + " have invalid stuffs " + stage ); return; }        
+
+        for (int x = 0; x < stages[stage].Count; x++)
+        {
+            stages[stage][x].SetActive ( state );
+        }
     }
     
     private void Complete ()
@@ -161,25 +220,30 @@ public class Buildable : MonoBehaviour {
         if (IsComplete) return;
         IsComplete = true;
 
+        constructionPercent = 100.0f;
+
         DestroyMaterialGraphics ();
-        transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
-        transform.Find ( "Graphics" ).Find ( "Stage_Complete" ).gameObject.SetActive ( true );
-        PropManager.Instance.OnPropBuilt ( this.gameObject );
+        for (int i = 0; i < stageCount + 1; i++)
+        {
+            SetStageActive ( i, true );
+        }
         inventory.UnregisterOnResourceAdded ( AddMaterial );
         prop.OnBuilt ();
         if (onComplete != null) onComplete ();
     }
-
-    [ContextMenu ( "Complete" )]
+    
     public void CompleteInspectorDEBUG ()
     {
         if (IsComplete) return;
         IsComplete = true;
 
+        constructionPercent = 100.0f;
+
         DestroyMaterialGraphics ();
-        transform.Find ( "Graphics" ).Find ( "Stages" ).gameObject.SetActive ( false );
-        transform.Find ( "Graphics" ).Find ( "Stage_Complete" ).gameObject.SetActive ( true );
-        PropManager.Instance.OnPropBuilt ( this.gameObject );
+        for (int i = 0; i < stageCount + 1; i++)
+        {
+            SetStageActive ( i, true );
+        }
         inventory.UnregisterOnResourceAdded ( AddMaterial );
         GetComponent<JobEntity> ().DestroyJobs ();
         prop.OnBuilt ();
@@ -197,7 +261,8 @@ public class Buildable : MonoBehaviour {
 
     private void OnDestroy ()
     {
-        inventory.UnregisterOnResourceAdded ( AddMaterial );
+        if (inventory != null)
+            inventory.UnregisterOnResourceAdded ( AddMaterial );
     }
 
     [System.Serializable]

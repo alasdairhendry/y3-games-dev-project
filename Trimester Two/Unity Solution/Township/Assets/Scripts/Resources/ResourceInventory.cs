@@ -12,11 +12,11 @@ public class ResourceInventory {
     private System.Action<ResourceInventory> OnInventoryChanged;
     private System.Action<int, float> onResourceAdded;
 
-    private float entryCapacity = 32.0f;
+    public float EntryCapacity { get; protected set; }
 
     public ResourceInventory (float entryCapacity = 32.0f)
     {
-        this.entryCapacity = entryCapacity;
+        this.EntryCapacity = entryCapacity;
         inventoryOverall = new Dictionary<int, float> ();
         inventoryAvailable = new Dictionary<int, float> ();
         inventoryReserved = new Dictionary<int, float> ();
@@ -34,7 +34,7 @@ public class ResourceInventory {
     public bool CheckIsFull(int itemID)
     {
         if (!inventoryOverall.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return true; }
-        return inventoryOverall[itemID] >= entryCapacity ? true : false;
+        return inventoryOverall[itemID] >= EntryCapacity ? true : false;
     }
 
     public bool CheckIsEmpty(int itemID)
@@ -47,7 +47,7 @@ public class ResourceInventory {
     {
         if (!inventoryOverall.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return false; }
 
-        if (inventoryOverall[itemID] + quantity > entryCapacity) return false;
+        if (inventoryOverall[itemID] + quantity > EntryCapacity) return false;
         else return true;
     }
 
@@ -55,6 +55,12 @@ public class ResourceInventory {
     {
         if (!inventoryAvailable.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return -1; }
         return inventoryAvailable[itemID];
+    }
+
+    public float GetAvailableSpace(int itemID)
+    {
+        if (!inventoryOverall.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return -1; }
+        return EntryCapacity - inventoryOverall[itemID];
     }
 
     public bool CheckHasQuantityAvailable(int itemID, float quantity)
@@ -67,7 +73,7 @@ public class ResourceInventory {
     public float AddItemQuantity(int itemID, float quantity)
     {
         if (!inventoryAvailable.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return quantity; }
-        float spaceAvailable = entryCapacity - inventoryAvailable[itemID];
+        float spaceAvailable = EntryCapacity - inventoryAvailable[itemID];
         float quantityToAdd = 0.0f;
 
         if(spaceAvailable >= quantity)

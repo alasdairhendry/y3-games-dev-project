@@ -5,10 +5,8 @@ using UnityEngine;
 
 public class IdleJob_StandByCampfire : IdleJob
 {
-
     private bool toldToAnimate = false;
     private bool givenPosition = false;
-    private Vector3 targetPosition = new Vector3 ();
     GameObject targetCampfire;
 
     public IdleJob_StandByCampfire (JobEntity entity, string name)
@@ -22,20 +20,28 @@ public class IdleJob_StandByCampfire : IdleJob
         this.averageIdleTime = 25.0f;
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
-        base.DoJob ( deltaGameTime );
+        base.DoJob ();
 
         if (cBase == null) { OnCharacterLeave ( "Citizen is null", true ); return; }
 
         if (!givenPosition)
         {
-            List<GameObject> campfires = PropManager.Instance.GetWorldPropsByType ( typeof ( Prop_Campfire ) );
+            List<GameObject> campfires = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Campfire ) );
 
             if (campfires == null)
             {
                 OnCharacterLeave ( "No campfires", true );
                 return;
+            }
+
+            for (int i = 0; i < campfires.Count; i++)
+            {
+                Prop_Campfire campfire = campfires[i].GetComponent<Prop_Campfire> ();
+                if (campfire == null) campfires.RemoveAt ( i );
+                if (campfire.buildable == null) campfires.RemoveAt ( i );
+                if (campfire.buildable.IsComplete == false) campfires.RemoveAt ( i );
             }
 
             if (campfires.Count <= 0)
@@ -57,7 +63,8 @@ public class IdleJob_StandByCampfire : IdleJob
                 return;
             }
 
-            cBase.CitizenMovement.SetDestination (campfires[0], offsetPosition );
+            targetPosition = offsetPosition;
+            SetDestination ( campfires[0] );
 
             givenPosition = true;
             AgentJobStatus = "Walking To Campfire";
@@ -66,7 +73,7 @@ public class IdleJob_StandByCampfire : IdleJob
 
         if(targetCampfire == null) { OnCharacterLeave ( "Campfire was destroyed", true ); return; }
 
-        if (cBase.CitizenMovement.ReachedPath ())
+        if (citizenReachedPath)
         {
             if (!toldToAnimate)
             {
@@ -82,7 +89,7 @@ public class IdleJob_StandByCampfire : IdleJob
 
     public override void OnCharacterAccept (CitizenBase citizen)
     {
-        base.OnCharacterAccept ( citizen );
+        base.OnCharacterAccept ( citizen );       
     }
 
     public override void OnCharacterLeave (string reason, bool setOpenToTrue)

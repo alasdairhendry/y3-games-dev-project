@@ -47,6 +47,15 @@ public class JobEntity : MonoBehaviour
         return job;
     }
 
+    public Job_Stonemason CreateJob_StoneMason(string name, bool open, float timeRequired, System.Action onComplete, Prop_StonemasonHut prop, GameObject plinth, GameObject plinthPoint)
+    {
+        Job_Stonemason job = new Job_Stonemason ( this, name, open, timeRequired, onComplete, prop, plinth, plinthPoint );
+        DisplayJobWaitingIcon ();
+        job.OnCharacterChanged += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        return job;
+    }
+
     public Job_MarketCart CreateJob_MarketCart(string name, bool open, float timeRequired, System.Action onComplete, Prop targetProp, ResourceInventory propInventory, int resourceID, int maxSupplyQuantity, bool supply)
     {
         Job_MarketCart job = new Job_MarketCart ( this, name, open, timeRequired, onComplete, targetProp, propInventory, resourceID, maxSupplyQuantity, supply );

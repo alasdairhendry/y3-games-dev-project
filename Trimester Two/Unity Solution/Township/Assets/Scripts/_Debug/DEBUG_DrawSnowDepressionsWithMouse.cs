@@ -28,8 +28,7 @@ public class DEBUG_DrawSnowDepressionsWithMouse : MonoBehaviour {
     [SerializeField] private Vector2 offset;
 
     public void DrawDepression(float brushSize, float strength, Vector3 position)
-    {
-        
+    {        
         LayerMask layer = LayerMask.NameToLayer ( "Terrain" );
         if (Physics.Raycast ( position - new Vector3 ( 0.0f, 0.0f, 0.0f ), Vector3.down, out hit ))
         {            

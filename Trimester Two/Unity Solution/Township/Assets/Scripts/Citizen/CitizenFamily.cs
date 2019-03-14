@@ -24,6 +24,8 @@ public class CitizenFamily : MonoBehaviour {
     public string familyName { get; protected set; }
 
     public bool isPregnant { get; protected set; }
+
+    private PersistentData.CitizenData loadedData;
     
     public void SetFromNew (string firstName, string familyName, int familyID, Gender gender)
     {
@@ -41,7 +43,7 @@ public class CitizenFamily : MonoBehaviour {
 
         cBase.CitizenAge.SetInitialAge ( Random.Range ( 18, 30 ) );
 
-        CalculateSkinColour ();
+        SetSkinColour ();
 
         ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.Worker );
 
@@ -64,14 +66,120 @@ public class CitizenFamily : MonoBehaviour {
 
         cBase.CitizenAge.SetInitialAge ( 0 );
 
-        CalculateSkinColour ();
+        SetSkinColour ();
 
         ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.None );
 
+        if (Mother.citizenBase != null) { Mother.citizenBase.CitizenFamily.AddChild ( thisMember ); this.familyID = mother.citizenBase.CitizenFamily.familyID; }
         if (Father.citizenBase != null) { Father.citizenBase.CitizenFamily.AddChild ( thisMember ); this.familyID = father.citizenBase.CitizenFamily.familyID; }
-        if (Mother.citizenBase != null) Mother.citizenBase.CitizenFamily.AddChild ( thisMember );
 
         SetSelectable ();
+    }
+
+    public void SetFromLoaded(PersistentData.CitizenData data)
+    {
+        loadedData = data;
+        cBase = GetComponent<CitizenBase> ();
+        this.Children = new List<CitizenFamilyMember> ();
+
+        this.Father = new CitizenFamilyMember ();
+        this.Mother = new CitizenFamilyMember ();
+        this.Partner = new CitizenFamilyMember ();
+
+        this.gender = (Gender)data.Gender;
+        this.familyName = data.FamilyName;
+        this.familyID = data.FamilyID;
+
+        this.gameObject.name = "Citizen-" + data.FirstName + " " + familyName;
+
+        thisMember = new CitizenFamilyMember () { firstName = data.FirstName, citizenBase = cBase };
+        SetSkinColour ( data.SkinColour );
+
+        this.cBase.CitizenAge.SetInitialAge ( data.Age, data.Birthday );
+        ProfessionController.Instance.SetProfession ( this.cBase.CitizenJob, (ProfessionType)data.Profession );
+
+        SetSelectable ();
+    }
+
+    public void SetFamilyFromLoaded ()
+    {
+        if (loadedData == null) { Debug.LogError ( "No loaded data found." ); return; }
+
+        if(loadedData.FatherID == -1)
+        {
+            Father = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
+        }
+        else
+        {
+            CitizenBase father = EntityManager.Instance.GetCitizenBaseByID ( loadedData.FatherID );
+            if (father == null) { Debug.LogError ( "Father was null at ID: " + loadedData.FatherID ); }
+            else
+            {
+                Father = new CitizenFamilyMember ();
+                Father.citizenBase = father;
+                Father.firstName = father.CitizenFamily.thisMember.firstName;
+                Father.skinColour = father.CitizenFamily.thisMember.skinColour;
+            }
+        }
+
+        if (loadedData.MotherID == -1)
+        {
+            Mother = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
+        }
+        else
+        {
+            CitizenBase mother = EntityManager.Instance.GetCitizenBaseByID ( loadedData.MotherID );
+            if (mother == null) { Debug.LogError ( "Mother was null at ID: " + loadedData.MotherID ); }
+            else
+            {
+                Mother = new CitizenFamilyMember ();
+                Mother.citizenBase = mother;
+                Mother.firstName = mother.CitizenFamily.thisMember.firstName;
+                Mother.skinColour = mother.CitizenFamily.thisMember.skinColour;
+            }
+        }
+
+        if (loadedData.PartnerID == -1)
+        {
+            Partner = null;
+        }
+        else
+        {
+            CitizenBase partner = EntityManager.Instance.GetCitizenBaseByID ( loadedData.PartnerID );
+            if (partner == null) { Debug.LogError ( "Partner was null at ID: " + loadedData.PartnerID ); }
+            else
+            {
+                Partner = new CitizenFamilyMember ();
+                Partner.citizenBase = partner;
+                Partner.firstName = partner.CitizenFamily.thisMember.firstName;
+                Partner.skinColour = partner.CitizenFamily.thisMember.skinColour;
+            }
+        }
+
+        if(loadedData.ChildrenIDs.Count<= 0)
+        {
+            Children = new List<CitizenFamilyMember> ();
+        }
+        else
+        {
+            Children = new List<CitizenFamilyMember> ();
+
+            for (int i = 0; i < loadedData.ChildrenIDs.Count; i++)
+            {
+                CitizenBase childBase = EntityManager.Instance.GetCitizenBaseByID ( loadedData.ChildrenIDs[i] );
+                if (childBase == null) { Debug.LogError ( "Child was null at ID: " + loadedData.ChildrenIDs[i] ); }
+                else
+                {
+                    CitizenFamilyMember child = new CitizenFamilyMember ();
+                    child.citizenBase = childBase;
+                    child.firstName = childBase.CitizenFamily.thisMember.firstName;
+                    child.skinColour = childBase.CitizenFamily.thisMember.skinColour;
+
+                    AddChild ( child );
+                }
+            }
+        }
+
     }
 
     public void AddChild(CitizenFamilyMember child)
@@ -141,7 +249,8 @@ public class CitizenFamily : MonoBehaviour {
                 }, "Profession", "Overview",
                 ProfessionType.Worker.ToString (),
                 ProfessionType.Lumberjack.ToString (),
-                ProfessionType.Quarryman.ToString () );
+                ProfessionType.Quarryman.ToString (),
+                ProfessionType.Stonemason.ToString () );
             }
 
             panel.AddTextData ( (pair) =>
@@ -260,19 +369,26 @@ public class CitizenFamily : MonoBehaviour {
         } );
     }
 
-    private void CalculateSkinColour ()
+    private void SetSkinColour (int skinColour = -1)
     {
-        int x = Father.skinColour;
-        int y = Mother.skinColour;
+        if (skinColour == -1)
+        {
+            int x = Father.skinColour;
+            int y = Mother.skinColour;
 
-        if (x == 0 & y == 0)
-            thisMember.skinColour = 0;
-        else if ((x == 1 && y == 0) || (x == 0 && y == 1))
-            thisMember.skinColour = 0;
-        else if ((x == 2 && y == 0) || (x == 0 && y == 2))
-            thisMember.skinColour = 1;
-        else if ((x == 2 && y == 1) || (x == 1 && y == 2))
-            thisMember.skinColour = 2;
+            if (x == 0 & y == 0)
+                thisMember.skinColour = 0;
+            else if ((x == 1 && y == 0) || (x == 0 && y == 1))
+                thisMember.skinColour = 0;
+            else if ((x == 2 && y == 0) || (x == 0 && y == 2))
+                thisMember.skinColour = 1;
+            else if ((x == 2 && y == 1) || (x == 1 && y == 2))
+                thisMember.skinColour = 2;
+        }
+        else
+        {
+            thisMember.skinColour = skinColour;
+        }
 
         cBase.CitizenGraphics.SetCitizenMaterialSpecific ( thisMember.skinColour );
     }

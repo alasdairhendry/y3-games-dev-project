@@ -41,8 +41,10 @@ public class Job_MarketCart : Job {
         GameTime.RegisterGameTick ( Tick_CheckCompletable );
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
+        base.DoJob ();
+
         if (supply)
         {
             switch (stage)
@@ -96,7 +98,8 @@ public class Job_MarketCart : Job {
     {
         if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            cBase.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            targetPosition = targetWarehouse.CitizenInteractionPointGlobal;
+            SetDestination ( targetWarehouse.gameObject );
             agentGivenDestination = true;
             return;
         }
@@ -107,41 +110,40 @@ public class Job_MarketCart : Job {
             return;
         }
 
-        if (this.cBase.CitizenMovement.ReachedPath ())
-        {
-            targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
-            cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        if (!citizenReachedPath) return;
 
-            resourcesTakenFromWarehouse = true;
-            resourcesGivenToCitizen = true;
+        targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
+        cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
-            stage = Stage.Transport;
-            agentGivenDestination = false;
-        }
+        resourcesTakenFromWarehouse = true;
+        resourcesGivenToCitizen = true;
+
+        stage = Stage.Transport;
+        agentGivenDestination = false;
     }
 
     private void DoJob_Supply_Stage_Transport ()
     {
         if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            cBase.CitizenMovement.SetDestination ( targetProp.gameObject, targetProp.CitizenInteractionPointGlobal );
+            targetPosition = targetProp.CitizenInteractionPointGlobal;
+            SetDestination ( targetProp.gameObject );
             agentGivenDestination = true;
             cBase.CitizenGraphics.SetUsingCart ( true );
             return;
         }
 
-        if (this.cBase.CitizenMovement.ReachedPath ())
-        {
-            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
-            resourcesGivenToCitizen = false;
-            agentGivenDestination = false;
+        if (!citizenReachedPath) return;
 
-            propInventory.AddItemQuantity ( resourceID, resourceQuantity );
+        cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+        resourcesGivenToCitizen = false;
+        agentGivenDestination = false;
 
-            cBase.CitizenGraphics.SetUsingCart ( false );
+        propInventory.AddItemQuantity ( resourceID, resourceQuantity );
 
-            base.OnComplete ();
-        }
+        cBase.CitizenGraphics.SetUsingCart ( false );
+
+        base.OnComplete ();
     }
 
     private void DoJob_Collect_Stage_Collect ()
@@ -154,24 +156,24 @@ public class Job_MarketCart : Job {
 
         if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            cBase.CitizenMovement.SetDestination ( targetProp.gameObject, targetProp.CitizenInteractionPointGlobal );
+            targetPosition = targetProp.CitizenInteractionPointGlobal;
+            SetDestination ( targetProp.gameObject );
             agentGivenDestination = true;
             return;
         }
 
-        if (this.cBase.CitizenMovement.ReachedPath ())
-        {
-            resourceQuantity = propInventory.GetAvailableQuantity ( resourceID );
-            resourceQuantity = propInventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+        if (!citizenReachedPath) return;
 
-            cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        resourceQuantity = propInventory.GetAvailableQuantity ( resourceID );
+        resourceQuantity = propInventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
-            resourcesTakenFromWarehouse = true;
-            resourcesGivenToCitizen = true;
+        cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
-            stage = Stage.Find;
-            agentGivenDestination = false;
-        }
+        resourcesTakenFromWarehouse = true;
+        resourcesGivenToCitizen = true;
+
+        stage = Stage.Find;
+        agentGivenDestination = false;
     }
 
     private void DoJob_Collect_Stage_Find ()
@@ -184,31 +186,31 @@ public class Job_MarketCart : Job {
 
     private void DoJob_Collect_Stage_Transport ()
     {
-        if(targetWarehouse == null)
+        if (targetWarehouse == null)
         {
             OnCharacterLeave ( "Warehouse may have been destroyed.", true ); return;
         }
 
         if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            cBase.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            targetPosition = targetWarehouse.CitizenInteractionPointGlobal;
+            SetDestination ( targetWarehouse.gameObject );
             agentGivenDestination = true;
             cBase.CitizenGraphics.SetUsingCart ( true );
             return;
         }
 
-        if (this.cBase.CitizenMovement.ReachedPath ())
-        {
-            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
-            resourcesGivenToCitizen = false;
-            agentGivenDestination = false;
+        if (!citizenReachedPath) return;
 
-            targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+        resourcesGivenToCitizen = false;
+        agentGivenDestination = false;
 
-            cBase.CitizenGraphics.SetUsingCart ( false );
+        targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
-            base.OnComplete ();
-        }
+        cBase.CitizenGraphics.SetUsingCart ( false );
+
+        base.OnComplete ();
     }
 
     public override void OnCharacterLeave (string reason, bool setOpenToTrue)
@@ -257,7 +259,7 @@ public class Job_MarketCart : Job {
 
     private Prop_Warehouse FindWarehouse_Supply ()
     {
-        List<GameObject> GOs = PropManager.Instance.worldProps;
+        List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
         if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
 
@@ -271,6 +273,7 @@ public class Job_MarketCart : Job {
 
             if (w == null) { continue; }
             if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+            if (w.buildable.IsComplete == false) { continue; }
 
             float availableQuantity = w.inventory.GetAvailableQuantity ( resourceID );
 
@@ -314,13 +317,19 @@ public class Job_MarketCart : Job {
 
         if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
-        resourceQuantity = eligibleWarehouses[fastestPath].inventory.GetAvailableQuantity ( resourceID );
+        float availableQuantityInWarehouse = eligibleWarehouses[fastestPath].inventory.GetAvailableQuantity ( resourceID );
+        float spaceAvailable = propInventory.GetAvailableSpace ( resourceID );
+
+        if (availableQuantityInWarehouse > spaceAvailable)
+            resourceQuantity = spaceAvailable;
+        else resourceQuantity = availableQuantityInWarehouse;
+
         return eligibleWarehouses[fastestPath];
     }
 
     private Prop_Warehouse FindWarehouse_Collect ()
     {
-        List<GameObject> GOs = PropManager.Instance.worldProps;
+        List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
         if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
 
@@ -333,6 +342,7 @@ public class Job_MarketCart : Job {
 
             if (w == null) { continue; }
             if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+            if (w.buildable.IsComplete == false) { continue; }
 
             if (w.inventory.CheckCanHold ( resourceID, resourceQuantity ))
             {
@@ -376,7 +386,7 @@ public class Job_MarketCart : Job {
     {
         if (supply)
         {
-            List<GameObject> GOs = PropManager.Instance.GetWorldPropsByType ( typeof ( Prop_Warehouse ) );
+            List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
             if (GOs == null)
             {
@@ -394,6 +404,7 @@ public class Job_MarketCart : Job {
 
                 if (w == null) { continue; }
                 if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+                if (w.buildable.IsComplete == false) { continue; }
 
                 float availableQuantity = w.inventory.GetAvailableQuantity ( resourceID );
 
@@ -419,7 +430,7 @@ public class Job_MarketCart : Job {
         }
         else
         {
-            List<GameObject> GOs = PropManager.Instance.GetWorldPropsByType ( typeof ( Prop_Warehouse ) );
+            List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
             if (GOs == null)
             {
@@ -437,6 +448,7 @@ public class Job_MarketCart : Job {
 
                 if (w == null) { continue; }
                 if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+                if (w.buildable.IsComplete == false) { continue; }
 
                 if (w.inventory.CheckCanHold ( resourceID, resourceQuantity ))
                 {           

@@ -15,8 +15,10 @@ public class Job_Profession : Job {
         this.targetInventory = targetProp.inventory;
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
+        base.DoJob ();
+
         if (!provideResources) return;
         if (targetProp == null) return;
         if (targetProp.HaltProduction) return;
@@ -36,6 +38,7 @@ public class Job_Profession : Job {
         {
             this.cBase.CitizenMovement.ClearDestination ();
             this.cBase.CitizenJob.OnJob_Leave ();
+            this.cBase.CitizenMovement.onReachedPath -= OnCitizenPathComplete;
             this.cBase = null;
         }
 

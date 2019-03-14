@@ -5,11 +5,13 @@ using UnityEngine.AI;
 
 public class CitizenBase : MonoBehaviour {
 
+    public int ID { get; protected set; }
     public CitizenMovement CitizenMovement { get; protected set; }
     public CitizenAnimation CitizenAnimation { get; protected set; }
     public CitizenGraphics CitizenGraphics { get; protected set; }
     public CitizenJob CitizenJob { get; protected set; }
     public CitizenIdleJob CitizenIdleJob { get; protected set; }
+    public CitizenNeeds CitizenNeeds { get; protected set; }
     public CitizenAge CitizenAge { get; protected set; }
     public CitizenFamily CitizenFamily { get; protected set; }
     public CitizenHousing CitizenHousing { get; protected set; }
@@ -19,8 +21,6 @@ public class CitizenBase : MonoBehaviour {
 
     [SerializeField] private LayerMask layerMask;
     
-    //public bool MoveToRandomLocation { get; set; }
-
     public System.Action<CitizenBase> OnCitizenDied;
 
     private void Awake ()
@@ -30,46 +30,20 @@ public class CitizenBase : MonoBehaviour {
         CitizenGraphics = GetComponent<CitizenGraphics> ();
         CitizenJob = GetComponent<CitizenJob> ();
         CitizenIdleJob = GetComponent<CitizenIdleJob> ();
+        CitizenNeeds = GetComponent<CitizenNeeds> ();
         CitizenAge = GetComponent<CitizenAge> ();
         CitizenFamily = GetComponent<CitizenFamily> ();
         CitizenHousing = GetComponent<CitizenHousing> ();
 
         Inventory = new ResourceInventory ();
         agent = GetComponent<NavMeshAgent> ();
+        EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
     }
 
-    void Start ()
+    private void Start ()
     {
-        //GameTime.RegisterGameTick ( OnGameTick );
-
-        //MoveToRandomLocation = false;
-
         SetInspection ();
     }
-
-    //private void OnGameTick (int relativeTick)
-    //{        
-    //    Tick_CheckRandomMovement ();
-    //}
-
-    //private void Tick_CheckRandomMovement ()
-    //{
-    //    if (!MoveToRandomLocation) return;
-    //    if (agent == null) return;
-    //    if (!agent.isOnNavMesh) return;
-
-    //    if (!agent.pathPending)
-    //    {
-    //        if (agent.remainingDistance <= agent.stoppingDistance)
-    //        {
-    //            if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
-    //            {
-    //                CitizenJob.ClearPreviousJobs ();
-    //                MoveToRandomLocation = false;
-    //            }
-    //        }
-    //    }
-    //}
 
     private void SetInspection ()
     {
@@ -118,7 +92,40 @@ public class CitizenBase : MonoBehaviour {
                 if (this.CitizenJob.GetCurrentJob == null) return "Idling";
                 else return this.CitizenJob.GetCurrentJob.AgentJobStatus;
 
-            }, "Status", "Overview" );           
+            }, "Status", "Overview" );
+
+            panel.AddTextData ( (pair) =>
+            {
+                if (this == null) return "-1.0f";
+                if (this.CitizenNeeds == null) return "-1.0";
+                return CitizenNeeds.Needs[0].currentValue.ToString ( "0.00" );
+
+            }, CitizenNeeds.Needs[0].type.ToString (), "Needs" );
+
+            panel.AddTextData ( (pair) =>
+            {
+                if (this == null) return "-1.0f";
+                if (this.CitizenNeeds == null) return "-1.0";
+                return CitizenNeeds.Needs[1].currentValue.ToString ( "0.00" );
+
+            }, CitizenNeeds.Needs[1].type.ToString (), "Needs" );
+
+            panel.AddTextData ( (pair) =>
+            {
+                if (this == null) return "-1.0f";
+                if (this.CitizenNeeds == null) return "-1.0";
+                return CitizenNeeds.Needs[2].currentValue.ToString ( "0.00" );
+
+            }, CitizenNeeds.Needs[2].type.ToString (), "Needs" );
+
+            panel.AddTextData ( (pair) =>
+            {
+                if (this == null) return "-1.0f";
+                if (this.CitizenNeeds == null) return "-1.0";
+                return CitizenNeeds.Needs[3].currentValue.ToString ( "0.00" );
+
+            }, CitizenNeeds.Needs[3].type.ToString (), "Needs" );
+
 
             panel.AddTickActionData ( () =>
             {
@@ -128,7 +135,7 @@ public class CitizenBase : MonoBehaviour {
 
                 if (this.CitizenMovement.HasPath)
                 {
-                    NavMeshPath path = this.CitizenMovement.GetPath;
+                    NavMeshPath path = this.CitizenMovement.GetAgentPath;
                     lr.positionCount = path.corners.Length;
 
                     for (int i = 0; i < path.corners.Length; i++)
@@ -150,11 +157,32 @@ public class CitizenBase : MonoBehaviour {
         } );
     }
 
+    public void SetID(int id)
+    {
+        this.ID = id;
+    }
+
     private void KillCitizen ()
     {
         if (OnCitizenDied != null) OnCitizenDied (this);
         if (this.CitizenJob.GetCurrentJob != null) this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "Citizen Died", true );
         Destroy ( this.gameObject );
+    }
+
+    public KeyValuePair<bool, Vector3> GetNavMeshPoint(float x, float z)
+    {
+        Ray ray = new Ray ( new Vector3(x, 150.0f, z), Vector3.down );
+        RaycastHit hit;
+
+        if (Physics.Raycast ( ray, out hit, 1000, layerMask ))
+        {
+            if (SampleNavMesh ( hit.point, 1 )) return new KeyValuePair<bool, Vector3> ( true, hit.point );
+            else return new KeyValuePair<bool, Vector3> ( false, Vector3.zero );
+        }
+        else
+        {
+            return new KeyValuePair<bool, Vector3> ( false, Vector3.zero );
+        }
     }
 
     public Vector3 GetRandomNavMeshCirclePosition (Vector3 from, float dist)
@@ -209,5 +237,10 @@ public class CitizenBase : MonoBehaviour {
         {
             return false;
         }
+    }
+
+    private void OnDestroy ()
+    {
+        EntityManager.Instance.OnEntityDestroyed ( this.gameObject, this.GetType () );
     }
 }

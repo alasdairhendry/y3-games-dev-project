@@ -9,6 +9,7 @@ public class BuildMode : ModeBase {
 
     private PropData currentPropData;
     private GameObject currentPropOutline;
+
     private float outlineYRotation = 180.0f;
     private float outlineYIncrementRotation = 180.0f;
 
@@ -63,6 +64,7 @@ public class BuildMode : ModeBase {
         currentPropOutline.transform.rotation = Quaternion.identity;
         outlineYRotation = 180.0f;
         outlineYIncrementRotation = 180.0f;
+        FindObjectOfType<HUD_Tooltip_Panel> ().AddTooltip ( "£300.00", HUD_Tooltip_Panel.Tooltip.Preset.Warning );
         CheckMoving ();
     }
 
@@ -201,9 +203,46 @@ public class BuildMode : ModeBase {
             if (colliders[i] == null) continue;
             colliders[i].GetComponentInParent<RawMaterial> ().RemoveOnBuildingPlaced ();
         }
+    }    
+
+    private bool SampleCollider ()
+    {
+        if (currentPropOutline.GetComponentInChildren<SpatialCollider> () == null) return false;
+        return !currentPropOutline.GetComponentInChildren<SpatialCollider> ().IsColliding;
     }
 
-    private bool SampleNavMesh (Vector3 point, int mask)
+    private bool SampleEligibility (Vector3 point, int mask)
+    {
+        if (SamplePropOnNavMesh ( point ) && SampleCollider ())
+        {
+            return true;
+        }
+        else return false;
+    }
+
+    private bool SamplePropOnNavMesh (Vector3 point)
+    {
+        return currentPropOutline.GetComponentInChildren<Prop> ().SampleSurface ();
+        //if (currentPropData.placementArea == PlacementArea.Waterside)
+        //{
+        //    bool valid = false;
+        //    Transform navMesh = currentPropOutline.transform.GetChild(0).Find ( "NavMesh" );
+        //    if (navMesh == null) { Debug.LogError ( "NavMesh Child not found" );  return false; }
+
+        //    valid = SampleNavMesh ( navMesh.Find ( "Ground" ).position, 1 );
+        //    if (!valid) return valid;
+
+        //    valid = SampleNavMesh ( navMesh.Find ( "Water" ).position, 8, true );
+
+        //    return valid;
+        //}
+        //else
+        //{
+        //    return SampleNavMesh ( point, 1 );
+        //}
+    }
+
+    public bool SampleNavMesh (Vector3 point, int mask)
     {
         NavMeshHit hit;
 
@@ -224,26 +263,11 @@ public class BuildMode : ModeBase {
         }
     }
 
-    private bool SampleCollider ()
-    {
-        if (currentPropOutline.GetComponentInChildren<SpatialCollider> () == null) return false;
-        return !currentPropOutline.GetComponentInChildren<SpatialCollider> ().IsColliding;
-    }
-
-    private bool SampleEligibility (Vector3 point, int mask)
-    {
-        if (SampleNavMesh ( point, 1 ) && SampleCollider ())
-        {
-            return true;
-        }
-        else return false;
-    }
-
     private void TriggerCallback ()
     {
         //if (isActive) if (OnActivate != null) OnActivate ();
         //if (!isActive) if (OnDeactivate != null) OnDeactivate ();        
-
+        FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( "£300.00" );
         DestroyPropOutline ();
     }   
     

@@ -24,6 +24,11 @@ public class HUD_Toolbar_Panel : UIPanel {
         base.Hide ();
     }
 
+    public void OnClick_Save ()
+    {
+        SaveLoad.Instance.Save ("");
+    }
+
     public void OnClick_Quit ()
     {
 

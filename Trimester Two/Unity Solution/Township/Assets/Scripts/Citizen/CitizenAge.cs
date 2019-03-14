@@ -13,13 +13,17 @@ public class CitizenAge : MonoBehaviour {
         cBase = GetComponent<CitizenBase> ();
     }
 
-    public void SetInitialAge(int age)
+    public void SetInitialAge (int age, int birthday = -1)
     {
         Age = age;
-        Birthday = GameTime.currentOverallDay;
+
+        if (birthday == -1)
+            Birthday = GameTime.currentOverallDay;
+        else Birthday = birthday;
+
         if (Age < 3) cBase.CitizenAnimation.SetWalkClip ( false );
         SetSize ();
-        GameTime.onDayChanged -= OnDayChanged;
+        GameTime.onDayChanged += OnDayChanged;
     }
 
     public void OnDayChanged(int previous, int current)

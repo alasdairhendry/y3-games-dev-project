@@ -4,21 +4,18 @@ using UnityEngine;
 
 public class Prop_Campfire : Prop {
 
-    public ResourceInventory inventory;
     public bool isLit { get; protected set; }
 
     [SerializeField] private Light fireLight;
     private JobEntity jobEntity;
 
-    private DEBUG_DrawSnowDepressionsWithMouse snowDepressions;
+    //private DEBUG_DrawSnowDepressionsWithMouse snowDepressions;
 
     protected override void OnPlaced ()
     {
         jobEntity = GetComponent<JobEntity> ();
-        snowDepressions = FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ();
 
         SetInspectable ();
-        SetInventory ();
         Tick_CheckWood ( 0 );
         GameTime.RegisterGameTick ( Tick_CheckWood );        
     }
@@ -26,8 +23,7 @@ public class Prop_Campfire : Prop {
     protected override void Update ()
     {
         if (isLit)
-            if (snowDepressions != null)
-                snowDepressions.DrawDepression ( 1000, 0.1f, transform.position );
+            SnowController.Instance.DrawDepression ( 1000, 0.1f, transform.position );
     }
 
     private void Tick_CheckWood (int relativeTick)
@@ -92,11 +88,6 @@ public class Prop_Campfire : Prop {
                 return inventory.inventoryOverall[0].ToString ( "0.00" );
             }, "Wood", "Inventory" );
         } );
-    }
-
-    private void SetInventory ()
-    {
-        inventory = new ResourceInventory ();
     }
 
     private void OnDestroy ()

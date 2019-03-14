@@ -24,9 +24,21 @@ public class ResourceManager : MonoBehaviour {
 
     private void CreateResources ()
     {
-        CreateResource ( "Wood", "A lightweight, durable building material" );
-        CreateResource ( "Brick", "A heavy, strong building material" );
-        CreateResource ( "Wine", "Keeps any party going in the pub. Increases citizen happiness" );
+        CreateResource ( "Wood", "A lightweight building material." );
+        CreateResource ( "Brick", "A heavy building material." );
+
+        CreateResource ( "Stone", "A decorative building." );
+
+        CreateResource ( "Iron Ore", "A strong mineral that can be harvested from the dirt." );
+        CreateResource ( "Iron Bar", "A durable building material." );
+        CreateResource ( "Charcoal", "Used in advanced metal production." );
+
+        CreateResource ( "Apples", "Can be fermented into alcohol." );
+        CreateResource ( "Cider", "Increase happiness for citizens." );
+
+        CreateResource ( "Tool", "Increases production for many professions." );
+
+        CreateResource ( "Meat", "Increases production for many professions." );
     }
 
     private void CreateResource(string name, string description)

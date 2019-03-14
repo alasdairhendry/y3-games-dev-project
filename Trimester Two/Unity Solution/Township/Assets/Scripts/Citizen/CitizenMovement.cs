@@ -6,47 +6,58 @@ using UnityEngine.AI;
 public class CitizenMovement : MonoBehaviour {
 
     public CitizenBase cBase { get; protected set; }
+    private NavMeshAgent agent;
 
     public enum MovementState { Idle, Moving }
     private MovementState movementState = MovementState.Idle;
 
-    public NavMeshAgent agent { get; protected set; }    
-
-    public bool HasPath { get { return agent.hasPath; } }
-    public NavMeshPath GetPath { get { return agent.path; } }
-
-    private float agentSpeed = 1.0f;
-    private float agentAcceleration = 2.0f;
-    private float agentAngularSpeed = 20.0f;
-
-    [SerializeField] [Range ( 0, 2 )] private float agentSpeedModifer = 1;
-    [SerializeField] [Range ( 0, 2 )] private float agentAccelerationModifier = 1;
-    [SerializeField] [Range ( 0, 2 )] private float agentAngularSpeedModifier = 1;
-
+    private float agentSpeed = 0.0f;
+    private float agentAngularSpeed = 0.0f;
+    private float agentAcceleration = 0.0f;
     public int AvoidancePriority { get; set; }
+    
+    [SerializeField] [Range ( 0, 2 )] private float agentSpeedModifer = 1;
+    [SerializeField] [Range ( 0, 2 )] private float agentAngularSpeedModifier = 1;
+    [SerializeField] [Range ( 0, 2 )] private float agentAccelerationModifier = 1;
 
-    //private GameObject destinationObject;
     public GameObject DestinationObject { get; protected set; }
-
     private Vector3 destinationPosition;
 
-    private System.Action<MovementState> onMovementStateChanged;
+    private NavMeshPath Path;
+    public NavMeshPath GetAgentPath { get { return agent.path; } }
+    public bool HasPath { get; protected set; }
 
-    private DEBUG_DrawSnowDepressionsWithMouse snowDepressions;
+    public System.Action<Vector3> onReachedPath;
+    private System.Action<MovementState> onMovementStateChanged;
 
     private void Awake ()
     {
         cBase = GetComponent<CitizenBase> ();
         agent = GetComponent<NavMeshAgent> ();
-        snowDepressions = FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ();
         DestinationObject = null;
-        GameTime.RegisterGameTick ( Tick_SetSpeeds );
+        SetupAgent ();
+        GameTime.RegisterGameTick ( Tick );
     }
 
     void Start () {
-        onMovementStateChanged += OnMovementStateChanged;
-        SetupAgent ();
-        WarpAgentToNavMesh ();
+        onMovementStateChanged += OnMovementStateChanged;       
+        WarpAgentToNavMesh ();       
+    }
+
+    private void Update ()
+    {
+        if (!agent.isOnNavMesh) { Debug.LogError ( "Agent not on navmesh", this.gameObject ); }
+
+        if (HasPath)
+            CheckCurrentPath ();
+    }
+
+    private void Tick (int relativeTick)
+    {
+        SnowController.Instance.DrawDepression ( 4500, 0.75f, transform.position + (transform.forward * 0.5f) );
+        agent.speed = agentSpeed * agentSpeedModifer * GameTime.GameTimeModifier;
+        agent.acceleration = agentAcceleration * agentAccelerationModifier * GameTime.GameTimeModifier;
+        agent.angularSpeed = agentAngularSpeed * agentAngularSpeedModifier * GameTime.GameTimeModifier;
     }
 
     private void SetupAgent ()
@@ -66,33 +77,6 @@ public class CitizenMovement : MonoBehaviour {
         }
     }
 
-    private void Tick_SetSpeeds (int relativeTick)
-    {
-        //snowDepressions.DrawDepression ( 5500, 0.5f, transform.position + (transform.forward * 0.5f) );
-        snowDepressions.DrawDepression ( 4500, 0.75f, transform.position + (transform.forward * 0.5f) );
-
-        if (agent.velocity == Vector3.zero)
-        {
-            if (movementState == MovementState.Moving)
-            {                
-                movementState = MovementState.Idle;
-                agent.avoidancePriority = 100;
-                onMovementStateChanged ( movementState );
-            }
-            return;
-        }
-
-        agent.speed = agentSpeed * agentSpeedModifer * GameTime.GameTimeModifier;
-        agent.acceleration = agentAcceleration * agentAccelerationModifier * GameTime.GameTimeModifier;
-        agent.angularSpeed = agentAngularSpeed * agentAngularSpeedModifier * GameTime.GameTimeModifier;        
-
-        if (movementState == MovementState.Idle)
-        {            
-            movementState = MovementState.Moving;
-            onMovementStateChanged ( movementState );
-        }        
-    }
-
     private void OnMovementStateChanged(MovementState currentState)
     {
         if(currentState == MovementState.Idle)
@@ -105,35 +89,75 @@ public class CitizenMovement : MonoBehaviour {
         }
     }
 
-    public void SetDestination(GameObject target, Vector3 targetPosition)
+    public bool SetDestination(GameObject target, Vector3 targetPosition)
     {
         DestinationObject = target;
         destinationPosition = targetPosition;
 
-        agent.SetDestination ( destinationPosition );
+        NavMeshPath newPath = new NavMeshPath ();
+        agent.CalculatePath ( destinationPosition, newPath );
+
+        if(newPath.status == NavMeshPathStatus.PathComplete)
+        {
+            OnPathConfirmed ( newPath );
+            return true;
+        }
+        else
+        {
+            Debug.LogError ( "Path " + newPath.status );
+            return false;
+        }
+    }
+
+    private void OnPathConfirmed (NavMeshPath newPath)
+    {
+        Path = newPath;
 
         movementState = MovementState.Moving;
         onMovementStateChanged ( movementState );
         agent.avoidancePriority = AvoidancePriority;
+        HasPath = true;
+        agent.SetDestination ( destinationPosition );
+
+        if (movementState == MovementState.Idle)
+        {
+            movementState = MovementState.Moving;
+            onMovementStateChanged ( movementState );
+        }
+    }
+
+    private void CheckCurrentPath ()
+    {
+        if (agent.pathPending) { return; }
+        if (agent.remainingDistance > agent.stoppingDistance) { return; }
+        //if (agent.hasPath) { Debug.Log ( "hasPath" ); return; }
+        if (!HasPath) { return; }
+        OnReachedPath ();
+    }
+
+    private void OnReachedPath ()
+    {
+        if (movementState == MovementState.Moving)
+        {
+            movementState = MovementState.Idle;
+            agent.avoidancePriority = 100;
+            onMovementStateChanged ( movementState );
+        }
+
+        if (onReachedPath != null) onReachedPath ( destinationPosition );
+        ClearDestination ();
     }
 
     public void ClearDestination ()
     {
         destinationPosition = Vector3.zero;
         DestinationObject = null;
+        HasPath = false;
         agent.ResetPath ();
-    }
-
-    public bool ReachedPath ()
-    {
-        if (agent.pathPending) { return false; }
-        if (agent.remainingDistance > agent.stoppingDistance) { return false; }
-        if (agent.hasPath) { return false; }
-        return true;
     }
 
     private void OnDestroy ()
     {
-        GameTime.UnRegisterGameTick ( Tick_SetSpeeds );
+        GameTime.UnRegisterGameTick ( Tick );
     }
 }

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Prop_Profession : Prop {
-
-    public ResourceInventory inventory;
+public class Prop_Profession : Prop {    
 
     [SerializeField] protected int MaxJobs = 2;
     protected int UserDefinedNumberJobs = 2;
@@ -35,10 +33,9 @@ public class Prop_Profession : Prop {
     }
 
     protected override void OnPlaced ()
-    {
+    {        
         SetResources ();
         SetInspectable ();
-        SetInventory ();
 
         GameTime.RegisterGameTick ( Tick );
     }
@@ -133,13 +130,10 @@ public class Prop_Profession : Prop {
         } );
     }
 
-    protected virtual void SetInventory ()
-    {
-        inventory = new ResourceInventory ( 10 );
-    }
-
     protected virtual void Tick (int relativeTick)
     {
+        if (buildable == null) return;
+        if (!buildable.IsComplete) return;
         if (HaltProduction) return;
         CheckJobs ();
     }
@@ -159,12 +153,12 @@ public class Prop_Profession : Prop {
 
         if (resourceIDToConsume >= 0)
         {
-            if (inventory.CheckIsEmpty ( resourceIDToConsume ))
+            if (!inventory.CheckIsFull ( resourceIDToConsume ))
             {
                 if (!createdSupplyJob)
                 {
                     GetComponent<JobEntity> ().CreateJob_MarketCart ( "Supply " + resourceIDToConsume + " to " + this.name, true,
-                        5.0f, () => { createdSupplyJob = false; }, this, inventory, resourceIDToConsume, 5, true );
+                        5.0f, () => { createdSupplyJob = false; }, this, inventory, resourceIDToConsume, (int)inventory.EntryCapacity, true );
                     createdSupplyJob = true;
                 }
             }
@@ -172,12 +166,12 @@ public class Prop_Profession : Prop {
 
         if (resourceIDToGive >= 0)
         {
-            if (inventory.CheckIsFull ( resourceIDToGive ))
+            if (!inventory.CheckIsEmpty ( resourceIDToGive ))
             {
                 if (!createdCollectJob)
                 {
                     GetComponent<JobEntity> ().CreateJob_MarketCart ( "Collect " + resourceIDToGive + " from " + this.name, true,
-                        5.0f, () => { createdCollectJob = false; }, this, inventory, resourceIDToGive, 5, false );
+                        5.0f, () => { createdCollectJob = false; }, this, inventory, resourceIDToGive, (int)inventory.EntryCapacity, false );
                     createdCollectJob = true;
                 }
             }

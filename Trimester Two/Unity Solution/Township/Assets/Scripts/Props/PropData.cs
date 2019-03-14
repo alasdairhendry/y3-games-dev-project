@@ -12,6 +12,7 @@ public class PropData {
     public Sprite sprite;
     public PropCategory category;
     public PlacementType placementType;
+    public PlacementArea placementArea;
     public List<RequiredBuildMaterial> requiredMaterials = new List<RequiredBuildMaterial> ();
 	
     public GameObject Prefab { get { string path = "Props/" + category.ToString() + "/" + prefabName + "_Prefab"; return Resources.Load<GameObject> ( path ) as GameObject; } }

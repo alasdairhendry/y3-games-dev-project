@@ -21,7 +21,9 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
     [SerializeField] private List<string> familyNames = new List<string> ();
 
     private int familyIDCounter = 0;
-    private int spawnCounter = 1;
+    private int citizenIDCounter = 0;
+
+    private List<CitizenBase> loadedCitizens = new List<CitizenBase> ();
 
     //public void SpawnCharacter ()
     //{
@@ -32,6 +34,26 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
 
     //    if (spawnCounter > 100) spawnCounter = 1;
     //}
+
+    public void LOAD_Citizen (PersistentData.CitizenData citizen)
+    {
+        GameObject go = Instantiate ( prefab, citizen.Position.ToVector3 () + new Vector3 ( 0.0f, 150.0f, 0.0f ), Quaternion.identity );
+        loadedCitizens.Add ( go.GetComponent<CitizenBase> () );
+        go.GetComponent<CitizenBase> ().SetID ( citizenIDCounter );
+        go.GetComponent<CitizenFamily> ().SetFromLoaded ( citizen );
+        go.GetComponent<CitizenMovement> ().AvoidancePriority = citizenIDCounter % 100;
+        citizenIDCounter++;
+
+        if (citizen.FamilyID > familyIDCounter) familyIDCounter = citizen.FamilyID;
+    }
+
+    public void LOAD_CitizenFamilies ()
+    {
+        for (int i = 0; i < loadedCitizens.Count; i++)
+        {
+            loadedCitizens[i].CitizenFamily.SetFamilyFromLoaded ();
+        }
+    }
 
     public void CreateSingleCitizen ()
     {
@@ -49,14 +71,13 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
 
     public GameObject CreateCitizen (int gender)
     {
-        GameObject go = Instantiate ( prefab, spawnPosition, Quaternion.identity );
+        GameObject go = Instantiate ( prefab, spawnPosition + (Random.insideUnitSphere * 5), Quaternion.identity );
+        go.GetComponent<CitizenBase> ().SetID ( citizenIDCounter );
 
         go.GetComponent<CitizenFamily> ().SetFromNew ( GetGenderedName ( (CitizenFamily.Gender)gender ), GetFamilyName (), familyIDCounter, (CitizenFamily.Gender)gender );
 
-        go.GetComponent<CitizenMovement> ().AvoidancePriority = spawnCounter;
-        spawnCounter++;
-        if (spawnCounter > 100) spawnCounter = 1;
-
+        go.GetComponent<CitizenMovement> ().AvoidancePriority = citizenIDCounter % 100;
+        citizenIDCounter++;
         familyIDCounter++;
 
         return go;
@@ -64,14 +85,14 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
 
     public GameObject CreateBabyCitizen (CitizenFamily.CitizenFamilyMember Father, CitizenFamily.CitizenFamilyMember Mother)
     {
-        GameObject go = Instantiate ( prefab, spawnPosition, Quaternion.identity );
+        GameObject go = Instantiate ( prefab, spawnPosition + (Random.insideUnitSphere * 5), Quaternion.identity );
+        go.GetComponent<CitizenBase> ().SetID ( citizenIDCounter );
 
         CitizenFamily.Gender gender = (CitizenFamily.Gender)Random.Range ( 0, 2 );
         go.GetComponent<CitizenFamily> ().SetFromParents ( GetGenderedName ( gender ), gender, Father, Mother );
 
-        go.GetComponent<NavMeshAgent> ().avoidancePriority = spawnCounter;
-        spawnCounter++;
-        if (spawnCounter > 100) spawnCounter = 1;
+        go.GetComponent<CitizenMovement> ().AvoidancePriority = citizenIDCounter % 100;
+        citizenIDCounter++;
 
         return go;
     }

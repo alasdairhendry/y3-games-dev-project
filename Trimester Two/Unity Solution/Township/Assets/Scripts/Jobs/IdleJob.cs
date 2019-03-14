@@ -9,9 +9,11 @@ public class IdleJob : Job
     protected float targetIdleTime = 7.5f;
     protected float currentIdleTime = 0.0f;
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
-        currentIdleTime += deltaGameTime;
+        cBase.CitizenNeeds.NeedsDictionary[Need.Type.Energy].IncreaseValue ();
+
+        currentIdleTime += GameTime.DeltaGameTime;
 
         if(currentIdleTime >= targetIdleTime)
         {
@@ -36,12 +38,12 @@ public class IdleJob : Job
         {
             this.cBase.CitizenMovement.ClearDestination ();
             this.cBase.CitizenJob.OnJob_Leave ();
+            this.cBase.CitizenMovement.onReachedPath -= OnCitizenPathComplete;
             this.cBase = null;
         }
 
         if (setOpenToTrue)
-            this.Open = true;
-        //this.onComplete = null;
+            this.Open = true;        
         if (OnCharacterLeaveAction != null) OnCharacterLeaveAction ();
         if (OnCharacterChanged != null) OnCharacterChanged ();
     }

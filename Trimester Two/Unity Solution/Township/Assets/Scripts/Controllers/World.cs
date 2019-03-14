@@ -248,11 +248,9 @@ public class World : MonoBehaviour
     private IEnumerator DEBUG_UpdateNavMeshCO ()
     {
         if (IsUpdatingNavMesh) yield break;
-        Debug.Log ( "Nav mesh update started" );
         IsUpdatingNavMesh = true;
         yield return GetComponent<NavMeshSurface> ().UpdateNavMesh ( GetComponent<NavMeshSurface> ().navMeshData );
         IsUpdatingNavMesh = false;
-        Debug.Log ( "Nav mesh update finished" );
     }
   
     public void DEBUG_UpdateShaderParams ()

@@ -18,6 +18,8 @@ public class GameTime : MonoBehaviour
     private static System.Action<int> OnGameTick;
 
     private static float secondsPerDay = 10.0f;
+    public static float SecondsPerDay { get { return secondsPerDay; } }
+
     private static float currentSeconds = 0.0f;
     public static float GetCurrentSecondsPercent { get { return currentSeconds / secondsPerDay; } }
 
@@ -39,7 +41,7 @@ public class GameTime : MonoBehaviour
 
     // Range between 0 - 1 to determine which part of the year the game starts in.
     //private static float gameTimeStart = 0.95f; // Winter
-    private static float gameTimeStart = 0.15f; // Summer
+    private static float gameTimeStart = 0.4f; // Summer
 
     private void Start ()
     {

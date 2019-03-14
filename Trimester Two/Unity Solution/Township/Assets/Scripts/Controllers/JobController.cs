@@ -14,16 +14,25 @@ public static class JobController
         return job;
     }
 
+    // Obtain the next job in the queue, if any.
     public static Job GetNext (CitizenBase cBase, List<Job> previouslyAttemptedJobs)
     {
+        // Loop through available jobs
         for (int i = 0; i < jobs.Count; i++)
         {
+            // Ensure job was not attempted within recent job checks
             if (previouslyAttemptedJobs.Contains ( jobs[i] )) { continue; }
+
+            // Ensure the job meets the profession of the citizen
             if (!jobs[i].professionTypes.Contains ( cBase.CitizenJob.profession ) && jobs[i].professionTypes.Count > 0) continue;
+
+            // Ensure job is not classed as "Idle" (i.e, dancing, wandering about)
             if (jobs[i].IdleJob) continue;
 
+            // Ensure job is open and can be completed. Completion checked locally by job.
             if (jobs[i].Open && jobs[i].IsCompletable)
             {
+                // Job is compatible with citizen, assign it.
                 Job job = jobs[i];
                 job.OnCharacterAccept ( cBase );
 

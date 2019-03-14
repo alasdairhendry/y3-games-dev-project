@@ -3,11 +3,8 @@
 		_Tess("Tessellation", Range(1,32)) = 4
 		_Splat("Splat Map", 2D) = "black" {}
 		_Displacement("Displacement", Range(0, 1.0)) = 0.3
-
 		_SnowColor("Snow Color", Color) = (1.0,1.0,1.0,1.0)
 		_RecordHeights("RecordHeights", Float) = 1
-		testTexture("Texture", 2D) = "white"{}
-		testScale("Scale", Float) = 1
 	}
 		SubShader{
 			Tags { "RenderType" = "Opaque" }
@@ -70,9 +67,6 @@
 
 			float minHeight;
 			float maxHeight;
-
-			sampler2D testTexture;
-			float testScale;
 
 			UNITY_DECLARE_TEX2DARRAY(baseTextures);
 

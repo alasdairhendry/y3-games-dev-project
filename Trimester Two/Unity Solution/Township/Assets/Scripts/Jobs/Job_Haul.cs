@@ -34,8 +34,10 @@ public class Job_Haul : Job
         Tick_CheckCompletable ( 0 );
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
+        base.DoJob ();
+
         switch (stage)
         {
             case Stage.Find:
@@ -68,54 +70,54 @@ public class Job_Haul : Job
     {
         if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            cBase.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            targetPosition = targetWarehouse.CitizenInteractionPointGlobal;
+            SetDestination ( targetWarehouse.gameObject );
             agentGivenDestination = true;
             return;
         }
 
-        if(targetWarehouse == null)
+        if (targetWarehouse == null)
         {
             OnCharacterLeave ( "Warehouse was destroyed", true );
             return;
         }
 
-        if (this.cBase.CitizenMovement.ReachedPath ())
-        {
-            targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
-            cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        if (!citizenReachedPath) return;
 
-            resourcesTakenFromWarehouse = true;
-            resourcesGivenToCitizen = true;
+        targetWarehouse.inventory.TakeReservedItemQuantity ( resourceID, resourceQuantity );
+        cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
-            stage = Stage.Transport;
-            agentGivenDestination = false;            
-        }
+        resourcesTakenFromWarehouse = true;
+        resourcesGivenToCitizen = true;
+
+        stage = Stage.Transport;
+        agentGivenDestination = false;
+
     }
 
     private void DoJob_Stage_Transport ()
     {
         if (!cBase.CitizenMovement.HasPath && !agentGivenDestination)
         {
-            cBase.CitizenMovement.SetDestination ( targetProp.gameObject, targetProp.CitizenInteractionPointGlobal );
+            targetPosition = targetProp.CitizenInteractionPointGlobal;
+            SetDestination ( targetProp.gameObject );
             agentGivenDestination = true;
             cBase.CitizenGraphics.SetUsingCrate ( true );
             return;
         }
 
-        if (this.cBase.CitizenMovement.ReachedPath ())
-        {
-            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
-            resourcesGivenToCitizen = false;
-            agentGivenDestination = false;
+        if (!citizenReachedPath) return;
 
-            //targetBuildable.AddMaterial ( resourceID, resourceQuantity );
-            targetInventory.AddItemQuantity ( resourceID, resourceQuantity );
+        cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+        resourcesGivenToCitizen = false;
+        agentGivenDestination = false;
+        
+        targetInventory.AddItemQuantity ( resourceID, resourceQuantity );
 
-            cBase.CitizenGraphics.SetUsingCrate ( false );
+        cBase.CitizenGraphics.SetUsingCrate ( false );
 
-            base.OnComplete ();
-        }
-    }
+        base.OnComplete ();
+    }    
 
     public override void OnCharacterLeave (string reason, bool setOpenToTrue)
     {
@@ -146,7 +148,7 @@ public class Job_Haul : Job
 
     private Prop_Warehouse FindResource ()
     {
-        List<GameObject> GOs = PropManager.Instance.worldProps;
+        List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
         if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
 
@@ -159,6 +161,7 @@ public class Job_Haul : Job
 
             if(w == null) { continue; }
             if(w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+            if (w.buildable.IsComplete == false) { continue; }
 
             if (w.inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity ))
             {
@@ -233,7 +236,7 @@ public class Job_Haul : Job
     {        
         isCheckingCompletable = true;
 
-        List<GameObject> GOs = PropManager.Instance.worldProps;
+        List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
         if (GOs == null)
         {
@@ -252,6 +255,7 @@ public class Job_Haul : Job
 
             if (w == null) { continue; }
             if (w.inventory == null) { continue; }
+            if (w.buildable.IsComplete == false) { continue; }
 
             if (w.inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity ))
             {

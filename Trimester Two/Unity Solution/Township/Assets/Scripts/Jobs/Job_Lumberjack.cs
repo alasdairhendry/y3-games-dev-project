@@ -19,9 +19,15 @@ public class Job_Lumberjack : Job_Profession
         this.stump = stump;        
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
-        base.DoJob ( deltaGameTime );
+        base.DoJob ();
+
+        if(targetInventory == null)
+        {
+            Debug.Log ( "Target Inventory Is null" );
+            return;
+        }
 
         if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
@@ -54,11 +60,13 @@ public class Job_Lumberjack : Job_Profession
         if (!givenDestination)
         {
             givenDestination = true;
-            cBase.CitizenMovement.SetDestination ( stump, stump.transform.GetChild ( 0 ).transform.position + (stump.transform.GetChild ( 0 ).transform.right * 2.0f) );
+            targetPosition = stump.transform.GetChild ( 0 ).transform.position + (stump.transform.GetChild ( 0 ).transform.right * 2.0f);
+            SetDestination ( stump );
             provideResources = false;
+            return;
         }
 
-        if (!cBase.CitizenMovement.ReachedPath ()) return;
+        if (!citizenReachedPath) return;
 
         if (!provideResources) provideResources = true;
 

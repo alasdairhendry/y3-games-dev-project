@@ -16,9 +16,9 @@ public class IdleJob_Dance : IdleJob {
         this.professionTypes = new List<ProfessionType> ();
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
-        base.DoJob ( deltaGameTime );
+        base.DoJob ();
 
         if (!toldToDance)
         {

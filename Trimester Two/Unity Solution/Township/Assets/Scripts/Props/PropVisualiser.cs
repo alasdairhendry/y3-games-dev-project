@@ -57,6 +57,28 @@ public class PropVisualiser : MonoBehaviour {
         }
     }
 
+    public void VisualiseUsing (System.Func<PropVisualiser, Material, Material> MaterialCheck)
+    {
+        for (int i = 0; i < renderers.Count; i++)
+        {
+            if (renderers[i] == null) continue;
+            if (renderers[i].meshRenderer == null) continue;
+
+            Material[] newMaterials = new Material[renderers[i].materials.Length];
+
+            for (int x = 0; x < newMaterials.Length; x++)
+            {
+                newMaterials[x] = MaterialCheck ( this, renderers[i].meshRenderer.materials[x] );
+            }
+
+            renderers[i].meshRenderer.materials = newMaterials;
+        }
+
+        //Material m = MaterialCheck ( this, material );
+
+        //Visualise ( m );
+    }
+
     public void TurnOff ()
     {
         if (currentMaterial == null) return;

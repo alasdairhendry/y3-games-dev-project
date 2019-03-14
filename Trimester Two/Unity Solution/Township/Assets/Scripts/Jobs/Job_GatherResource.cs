@@ -28,8 +28,10 @@ public class Job_GatherResource : Job {
         this.professionTypes.Add ( ProfessionType.Worker );
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
+        base.DoJob ();
+
         switch (stage)
         {
             case Stage.TravelTo:
@@ -37,7 +39,7 @@ public class Job_GatherResource : Job {
                 break;
 
             case Stage.Remove:
-                DoJob_Stage_Remove ( deltaGameTime );
+                DoJob_Stage_Remove ();
                 break;
 
             case Stage.FindWarehouse:
@@ -83,19 +85,21 @@ public class Job_GatherResource : Job {
     private void DoJob_Stage_TravelTo ()
     {
         if(!destinationProvided)
-        {                 
-            base.cBase.CitizenMovement.SetDestination ( rawMaterial.gameObject, rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f ) );
-            destinationProvided = true;
+        {
+            targetPosition = rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f );
+            SetDestination ( rawMaterial.gameObject );
+            destinationProvided = true;              
+            return;
         }
 
-        if (!this.cBase.CitizenMovement.ReachedPath ()) return;
+        if (!citizenReachedPath) return;
 
         destinationProvided = false;
 
         stage = Stage.Remove;
     }
 
-    private void DoJob_Stage_Remove (float deltaGameTime)
+    private void DoJob_Stage_Remove ()
     {
         this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( true , CitizenAnimation.AxeUseAnimation.Chopping);
 
@@ -105,7 +109,7 @@ public class Job_GatherResource : Job {
         Quaternion lookRot = Quaternion.LookRotation ( this.rawMaterial.transform.position - this.cBase.transform.position, Vector3.up );
         this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
 
-        currentTime += deltaGameTime;
+        currentTime += GameTime.DeltaGameTime;
 
         if(currentTime>= base.TimeRequired)
         {            
@@ -140,8 +144,10 @@ public class Job_GatherResource : Job {
     {
         if (!destinationProvided)
         {
-            base.cBase.CitizenMovement.SetDestination ( targetWarehouse.gameObject, targetWarehouse.CitizenInteractionPointGlobal );
+            targetPosition = targetWarehouse.CitizenInteractionPointGlobal;
+            SetDestination ( targetWarehouse.gameObject );
             destinationProvided = true;
+            return;
         }
 
         if (targetWarehouse == null)
@@ -150,7 +156,7 @@ public class Job_GatherResource : Job {
             return;
         }
 
-        if (!this.cBase.CitizenMovement.ReachedPath ()) return;
+        if (!citizenReachedPath) return;
 
         targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
 
@@ -172,7 +178,7 @@ public class Job_GatherResource : Job {
 
     private Prop_Warehouse FindEligibleWarehouse ()
     {
-        List<GameObject> GOs = PropManager.Instance.worldProps;
+        List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
         if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
 
@@ -185,6 +191,7 @@ public class Job_GatherResource : Job {
 
             if (w == null) { continue; }
             if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+            if (w.buildable.IsComplete == false) { continue; }
 
             if (w.inventory.CheckCanHold ( resourceID, resourceQuantity ))
             {

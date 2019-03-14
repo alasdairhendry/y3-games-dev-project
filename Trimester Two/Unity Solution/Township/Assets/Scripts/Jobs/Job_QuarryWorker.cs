@@ -17,9 +17,9 @@ public class Job_QuarryWorker : Job_Profession {
         this.rock = rock;
     }
 
-    public override void DoJob (float deltaGameTime)
+    public override void DoJob ()
     {
-        base.DoJob ( deltaGameTime );
+        base.DoJob ();
 
         if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
@@ -47,11 +47,12 @@ public class Job_QuarryWorker : Job_Profession {
         if (!givenDestination)
         {
             givenDestination = true;
-            cBase.CitizenMovement.SetDestination ( rock, rock.transform.GetChild ( 0 ).transform.position );
+            targetPosition = rock.transform.GetChild ( 0 ).transform.position;
+            SetDestination ( rock );
             provideResources = false;
         }
 
-        if (!cBase.CitizenMovement.ReachedPath ()) return;
+        if (!citizenReachedPath) return;
 
         if (!provideResources) provideResources = true;
 

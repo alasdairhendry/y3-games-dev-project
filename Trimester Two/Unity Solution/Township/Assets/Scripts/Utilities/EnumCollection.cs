@@ -5,7 +5,8 @@ using UnityEngine;
 public enum Richness { Sparse, Abundant, Plentiful }
 public enum PropCategory { Housing, Paths, Food, Entertainment, Production, Storage, Misc, Gathering }
 public enum PlacementType { Plopable, Draggable }
-public enum ProfessionType { None, Student, Worker, Lumberjack, Quarryman }
+public enum PlacementArea { Ground, Waterside, Water }
+public enum ProfessionType { None, Student, Worker, Lumberjack, Quarryman, Stonemason }
 
 public static class EnumCollection {
 

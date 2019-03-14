@@ -12,8 +12,12 @@ public class CitizenJob : MonoBehaviour {
 
     private List<Job> previouslyAttemptedJobs = new List<Job> ();
 
+    private bool allowWork = true;
+
     public ProfessionType profession { get; protected set; }
     public System.Action<ProfessionType> onProfessionChanged;
+
+    public bool RegainingEnergy { get; protected set; }
 
     private void Awake ()
     {
@@ -32,13 +36,33 @@ public class CitizenJob : MonoBehaviour {
 
     private void OnGameTick (int relativeTick)
     {
-        Tick_CheckJob ();        
+        CheckEnergy ();
+        Tick_CheckJob ();
+    }
+
+    private void CheckEnergy ()
+    {
+        if (cBase.CitizenNeeds.NeedsDictionary[Need.Type.Energy].currentValue <= 0.30f)
+        {
+            if (currentJob != null)
+            {
+                if (!currentJob.IdleJob)
+                {
+                    currentJob.OnCharacterLeave ( "Character has no energy left", true );
+                    RegainingEnergy = true;
+                }
+            }
+        }
+        else if (cBase.CitizenNeeds.NeedsDictionary[Need.Type.Energy].currentValue >= 1.0f && RegainingEnergy)
+        {
+            RegainingEnergy = false;
+        }
     }
 
     private void DoJob ()
     {
         if (currentJob != null)
-            currentJob.DoJob ( GameTime.DeltaGameTime );
+            currentJob.DoJob ();
     }
 
     private void Tick_CheckJob ()
@@ -51,16 +75,21 @@ public class CitizenJob : MonoBehaviour {
                 return;
             }
 
-            //Debug.Log ( "Attempt get normal job" );
-            currentJob = JobController.GetNext ( cBase, previouslyAttemptedJobs );
-
-            if (currentJob == null) { GetIdleJob (); }
+            if (ShouldSeekNonIdle ())
+            {
+                currentJob = JobController.GetNext ( cBase, previouslyAttemptedJobs );
+                if (currentJob == null) { GetIdleJob (); }
+            }
+            else
+            {
+                GetIdleJob ();
+            }
 
             GetComponent<CitizenGraphics> ().OnInventoryChanged ( cBase.Inventory );        
         } 
         else if(currentJob != null)
         {
-            if (currentJob.IdleJob)
+            if (currentJob.IdleJob && ShouldSeekNonIdle())
             {                
                 Job newJob = JobController.GetNext ( cBase, previouslyAttemptedJobs );
 
@@ -117,6 +146,26 @@ public class CitizenJob : MonoBehaviour {
     public void ClearPreviousJobs ()
     {
         previouslyAttemptedJobs.Clear ();
+    }
+
+    private bool ShouldSeekNonIdle ()
+    {
+        if (cBase.CitizenNeeds.NeedsDictionary[Need.Type.Energy].currentValue <= 0.30f)
+        {
+            return false;
+        }
+
+        if (!allowWork)
+        {
+            return false;
+        }
+
+        if (RegainingEnergy)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public void UpdateProfession(ProfessionType profession)

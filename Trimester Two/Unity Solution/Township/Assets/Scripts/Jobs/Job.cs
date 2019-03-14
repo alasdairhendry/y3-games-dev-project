@@ -27,6 +27,9 @@ public class Job {
 
     protected bool isCheckingCompletable = false;
 
+    protected bool citizenReachedPath = false;
+    protected Vector3 targetPosition;
+
     public Job () { }
 
     public Job (JobEntity entity, string name, bool open, float timeRequired, System.Action onComplete)
@@ -45,13 +48,14 @@ public class Job {
     }
 
     // Called from the job controller when a character accepts a job from the job queue.
-    public virtual void OnCharacterAccept (CitizenBase character)
+    public virtual void OnCharacterAccept (CitizenBase citizen)
     {
         GameTime.UnRegisterGameTick ( Tick_CheckCompletable );
-        this.cBase = character;
+        this.cBase = citizen;
         if (this.cBase != null)
-            if (character.GetComponent<NavMeshAgent> ().isOnNavMesh)
-                character.GetComponent<NavMeshAgent> ().ResetPath ();
+        {
+            this.cBase.CitizenMovement.onReachedPath += OnCitizenPathComplete;
+        }
 
         Open = false;
         if (OnCharacterAcceptAction != null) OnCharacterAcceptAction ();
@@ -74,6 +78,7 @@ public class Job {
         {
             this.cBase.CitizenMovement.ClearDestination ();
             this.cBase.CitizenJob.OnJob_Leave ();
+            this.cBase.CitizenMovement.onReachedPath -= OnCitizenPathComplete;
             this.cBase = null;
         }
 
@@ -85,7 +90,10 @@ public class Job {
     }
 
     // Called by the character that this job is assigned to, to invoke the core logic of this job
-    public virtual void DoJob (float deltaGameTime) { }    
+    public virtual void DoJob ()
+    {
+        cBase.CitizenNeeds.NeedsDictionary[Need.Type.Energy].DecreaseValue ();
+    }    
 
     // Called by the job itself when the core logic is finished.
     protected virtual void OnComplete ()
@@ -114,6 +122,23 @@ public class Job {
         if (!open)
         {
             OnCharacterLeave ( "Job status changed to not open" , false);
+        }
+    }
+
+    protected virtual void OnCitizenPathComplete(Vector3 targetDestination)
+    {
+        if(targetPosition == targetDestination)
+        {
+            citizenReachedPath = true;
+        }
+    }
+
+    protected virtual void SetDestination (GameObject destinationObject)
+    {
+        if (cBase != null)
+        {
+            cBase.CitizenMovement.SetDestination ( destinationObject, targetPosition );
+            citizenReachedPath = false;
         }
     }
 

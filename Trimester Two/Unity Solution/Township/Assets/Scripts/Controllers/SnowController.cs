@@ -12,6 +12,8 @@ public class SnowController : MonoBehaviour
         else if (Instance != this) Destroy ( this.gameObject );
     }
 
+    private DEBUG_DrawSnowDepressionsWithMouse snowDepressions;
+
     [SerializeField] private GameObject terrainObject;
     private Material terrainMaterial;
 
@@ -47,6 +49,7 @@ public class SnowController : MonoBehaviour
     {
         terrainMaterial = terrainObject.GetComponent<MeshRenderer> ().material;
         _removeDepressionsMaterial = new Material ( _removeDepressionsShader );
+        snowDepressions = FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ();
     }
 
     private void Update ()
@@ -131,7 +134,9 @@ public class SnowController : MonoBehaviour
                 objectSnowLevel += GameTime.DeltaGameTime * objectSnowLevelDamp;
                 for (int i = 0; i < objectMaterials.Count; i++)
                 {
-                    objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                    if (objectMaterials[i] != null)
+                        objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                    else objectMaterials.RemoveAt ( i );
                 }
             }
             else objectSnowLevel = 0.33f;
@@ -144,10 +149,20 @@ public class SnowController : MonoBehaviour
 
                 for (int i = 0; i < objectMaterials.Count; i++)
                 {
-                    objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                    if (objectMaterials[i] != null)
+                        objectMaterials[i].material.SetFloat ( "_Snow", objectSnowLevel );
+                    else objectMaterials.RemoveAt ( i );
                 }
             }
             else objectSnowLevel = 0;
+        }
+    }
+
+    public void DrawDepression (float brushSize, float strength, Vector3 position)
+    {
+        if (shouldTerrainSnow)
+        {
+            snowDepressions.DrawDepression ( brushSize, strength, position );
         }
     }
 
@@ -173,6 +188,8 @@ public class SnowController : MonoBehaviour
         {
             for (int i = 0; i < m.Length; i++)
             {
+                if (m[i] == null) continue;
+
                 objectMaterials.Add ( m[i] );                
                 m[i].material.SetFloat ( "_Snow", objectSnowLevel );
                 
@@ -182,6 +199,8 @@ public class SnowController : MonoBehaviour
         {
             for (int i = 0; i < m.Length; i++)
             {
+                if (m[i] == null) continue;
+
                 if (objectMaterials.Contains ( m[i] ))
                     objectMaterials.Remove ( m[i] );
             }

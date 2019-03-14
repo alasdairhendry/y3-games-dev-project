@@ -15,15 +15,15 @@ public class RawMaterial : MonoBehaviour
     }
 
     private void Start ()
-    {        
-        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), false );
+    {
+        SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), false );
     }
 
     public virtual void OnGathered ()
     {
         GetComponent<Wobblable> ().Break (DestroyOnGathered);
-        FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ().DrawDepression ( 1000, 3, transform.position );
-        FindObjectOfType<SnowController> ().SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );              
+        SnowController.Instance.DrawDepression ( 1000, 3, transform.position );
+        SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), true );              
     }
 
     protected virtual void DestroyOnGathered ()

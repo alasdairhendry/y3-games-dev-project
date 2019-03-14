@@ -11,7 +11,7 @@ public class CameraMovement : MonoBehaviour {
 
     [SerializeField] private float rotateSpeed;
     [SerializeField] private float rotateDamp;
-    private float currentRotation = 0;
+    public float currentRotation { get; protected set; }
 
     [SerializeField] private float zoomSpeed;
     [SerializeField] private float zoomNearClamp;
@@ -39,6 +39,12 @@ public class CameraMovement : MonoBehaviour {
     private void Start()
     {        
         targetPosition = transform.position;            
+    }
+
+    public void LOAD_Position (PersistentData.SaveData data)
+    {
+        targetPosition = data.CameraPosition.ToVector3 ();
+        currentRotation = data.CameraRotation;
     }
 
     private void Update () {
@@ -131,6 +137,11 @@ public class CameraMovement : MonoBehaviour {
         if (!EventSystem.current.IsPointerOverGameObject ())
             targetZoomPosition += transform.forward * Input.GetAxis ( "Mouse ScrollWheel" ) * zoomSpeed * currentZoomDistance * Time.deltaTime;
 
+        if (isLocked)
+        {
+            if (Input.GetAxis ( "Mouse ScrollWheel" ) != 0.0f) isLocked = false;
+        }
+
         targetPosition = targetZoomPosition;
     }
 
@@ -158,9 +169,8 @@ public class CameraMovement : MonoBehaviour {
 
     private void FollowTarget ()
     {
-        Vector3 targetZoomPosition = lockTarget.position;
-        targetZoomPosition += transform.forward * Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * currentZoomDistance * Time.deltaTime;
-        targetPosition = targetZoomPosition;
+        Vector3 targetFollowPosition = lockTarget.position;
+        targetPosition = targetFollowPosition;
         Zoom ();
     }
 
