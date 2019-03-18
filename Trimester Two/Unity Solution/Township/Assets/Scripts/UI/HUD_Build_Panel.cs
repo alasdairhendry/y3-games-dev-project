@@ -15,7 +15,7 @@ public class HUD_Build_Panel : UIPanel {
     {
         //buildMode = FindObjectOfType<BuildMode> ();
         propManager = FindObjectOfType<PropManager> ();
-        optionsContent = transform.Find ( "Content" ).Find ( "ScrollRect" ).Find ( "Options" );
+        optionsContent = transform.Find ( "Content_Blurred" ).Find( "Content_Tint" ).Find ( "ScrollRect" ).Find ( "Options" );
         toolbarPanel = FindObjectOfType<HUD_Toolbar_Panel> ();
         base.Start ();
     }
@@ -68,7 +68,7 @@ public class HUD_Build_Panel : UIPanel {
             PropData pd = props[i];
             GameObject go = Instantiate ( propOptionPrefab );
             go.transform.SetParent ( optionsContent );
-            go.GetComponentInChildren<Image> ().sprite = props[i].sprite;
+            go.GetComponentsInChildren<Image> ()[2].sprite = props[i].buildModeSprite;
             go.GetComponentInChildren<Text> ().text = props[i].name;
             go.GetComponent<Button> ().onClick.AddListener ( () => { FindObjectOfType<BuildMode> ().SetPropData ( pd ); } );
         }

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler {
 
     [Header ( "Panel Group" )]
     [SerializeField] protected int groupID;
@@ -15,6 +15,10 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
     [SerializeField] private bool showOnAwake;
     [SerializeField] private bool blockRaycasts;
     [SerializeField] private bool isStatic = true;
+    [SerializeField] private bool isDraggable = false;
+    [SerializeField] private RectTransform draggableTransform;
+    private bool isDragging = false;
+    private Vector2 dragOffset = new Vector2 ();
     [SerializeField] private bool clampToScreen = true;
 
     protected CanvasGroup cGroup;
@@ -35,6 +39,10 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
             SetAnchoredPosition ();
             MovePanel ();
         }
+        if (isDraggable)
+        {
+            DragPanel ();
+        }
     }
 
     protected virtual void SetAnchoredPosition () { Debug.LogError ( "This panel is not static, but nothing is setting its target position" ); }
@@ -51,6 +59,14 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
         }
 
         rectTransform.anchoredPosition = Vector3.Slerp ( rectTransform.anchoredPosition, targetPosition, Time.deltaTime * 5.0f );
+    }
+
+    private void DragPanel ()
+    {
+        if (!isDragging) return;
+
+        Vector2 targetPosition = new Vector2 ( Input.mousePosition.x, Input.mousePosition.y ) - dragOffset;      
+        rectTransform.anchoredPosition = Vector3.Slerp ( rectTransform.anchoredPosition, targetPosition, Time.deltaTime * 15.0f );
     }
 
     protected virtual void Start ()
@@ -97,5 +113,28 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
     void IPointerExitHandler.OnPointerExit (PointerEventData eventData)
     {
         mouseIsOver = false;
+    }
+
+    void IPointerDownHandler.OnPointerDown (PointerEventData eventData)
+    {
+        if (!isDraggable) return;
+
+        dragOffset = new Vector2 ( Input.mousePosition.x, Input.mousePosition.y ) - rectTransform.anchoredPosition;
+        isDragging = true;        
+    }
+
+    void IPointerUpHandler.OnPointerUp (PointerEventData eventData)
+    {
+        if (clampToScreen)
+        {
+            Vector2 targetPosition = rectTransform.anchoredPosition;
+            targetPosition.x = Mathf.Clamp ( targetPosition.x, 0, 1920.0f - rectTransform.sizeDelta.x );
+            targetPosition.y = Mathf.Clamp ( targetPosition.y, 0, 1080.0f - rectTransform.sizeDelta.y - 64);
+            rectTransform.anchoredPosition = targetPosition;
+        }
+
+
+        isDragging = false;
+        dragOffset = Vector2.zero;
     }
 }

@@ -10,7 +10,7 @@ public class ResourceManager : MonoBehaviour {
     private Dictionary<int, Resource> indexDictionary = new Dictionary<int, Resource> ();
     private Dictionary<string, Resource> nameDictionary = new Dictionary<string, Resource> ();
     [SerializeField] private List<Resource> resourceList = new List<Resource> ();
-    private int currentCreateIndex = 0;
+    //private int currentCreateIndex = 0;
 
     private void Awake ()
     {
@@ -24,32 +24,35 @@ public class ResourceManager : MonoBehaviour {
 
     private void CreateResources ()
     {
-        CreateResource ( "Wood", "A lightweight building material." );
-        CreateResource ( "Brick", "A heavy building material." );
+        /// DO NOT CHANGE THE ORDER
 
-        CreateResource ( "Stone", "A decorative building." );
+        CreateResource ( 0, "Wood", "A lightweight building material" );
+        CreateResource ( 1, "Brick", "A heavy building material" );
 
-        CreateResource ( "Iron Ore", "A strong mineral that can be harvested from the dirt." );
-        CreateResource ( "Iron Bar", "A durable building material." );
-        CreateResource ( "Charcoal", "Used in advanced metal production." );
+        CreateResource ( 2, "Stone", "A decorative building" );
 
-        CreateResource ( "Apples", "Can be fermented into alcohol." );
-        CreateResource ( "Cider", "Increase happiness for citizens." );
+        CreateResource ( 3, "Iron Ore", "A strong mineral that can be harvested from the dirt" );
+        CreateResource ( 4, "Iron Bar", "A durable building material" );
+        CreateResource ( 5, "Charcoal", "Used in advanced metal production" );
 
-        CreateResource ( "Tool", "Increases production for many professions." );
+        CreateResource ( 6, "Apple", "Can be fermented into alcohol" );
+        CreateResource ( 7, "Cider", "Increase happiness for citizens" );
 
-        CreateResource ( "Meat", "Increases production for many professions." );
+        CreateResource ( 8, "Tool", "Increases production for many professions" );
+
+        CreateResource ( 9, "Meat", "Provides energy to your citizens" );
+        CreateResource ( 10, "Fish", "Provides energy to your citizens" );
     }
 
-    private void CreateResource(string name, string description)
+    private void CreateResource(int id, string name, string description)
     {
-        Resource r = new Resource ( currentCreateIndex, name, description );
+        Resource r = new Resource ( id, name, description );
 
-        indexDictionary.Add ( currentCreateIndex, r );
+        indexDictionary.Add ( id, r );
         nameDictionary.Add ( r.name, r );
         resourceList.Add ( r );
 
-        currentCreateIndex++;
+        //currentCreateIndex++;
     }
 
     public Resource GetResourceByID(int id)

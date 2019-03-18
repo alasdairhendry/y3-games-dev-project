@@ -32,6 +32,7 @@ public class Need {
     public float DecreaseValue(float amount = float.MaxValue)
     {
         if (amount == float.MaxValue) amount = GameTime.DeltaGameTime / GameTime.SecondsPerDay * 0.075f;
+        
 
         baseValue -= amount;
         baseValue = Mathf.Clamp01 ( baseValue );

@@ -11,6 +11,7 @@ public class ResourceInventory {
 
     private System.Action<ResourceInventory> OnInventoryChanged;
     private System.Action<int, float> onResourceAdded;
+    private System.Action<int, float> onResourceRemoved;
 
     public float EntryCapacity { get; protected set; }
 
@@ -70,7 +71,7 @@ public class ResourceInventory {
     }
 
     // Return however much quantity we cannot store
-    public float AddItemQuantity(int itemID, float quantity)
+    public float AddItemQuantity(int itemID, float quantity, Transform target = null, float yOffset = 0.0f)
     {
         if (!inventoryAvailable.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return quantity; }
         float spaceAvailable = EntryCapacity - inventoryAvailable[itemID];
@@ -90,33 +91,44 @@ public class ResourceInventory {
         inventoryAvailable[itemID] += quantityToAdd;
         if (onResourceAdded != null) onResourceAdded ( itemID, quantityToAdd );
 
+        if(target != null && quantityToAdd > 0.0f)
+        {
+            PopoutNotification.Instance.AddPopout ( "+" + quantityToAdd.ToString ( "00" ), 18, FontStyle.Bold, ColourGroupController.Instance.GetColour ( "UI_TextGreen" ), target, yOffset, ResourceManager.Instance.GetResourceByID ( itemID ).image, 40 );
+        }
+
         SetOverallInventory ();
 
         return quantity;
     }
 
     // Return however much we have available, up to a maximum of the quantity requested
-    public float RemoveItemQuantity(int itemID, float quantity)
+    public float RemoveItemQuantity (int itemID, float quantity, Transform target = null, float yOffset = 0.0f)
     {
         if (!inventoryAvailable.ContainsKey ( itemID )) { Debug.LogError ( "Item does not exist" ); return 0.0f; }
         float quantityAvailable = inventoryAvailable[itemID];
 
-        if(quantityAvailable >= quantity)
+        if (quantityAvailable >= quantity)
         {
             quantityAvailable -= quantity;
         }
-        else if(quantityAvailable < quantity)
+        else if (quantityAvailable < quantity)
         {
             quantity = quantityAvailable;
             quantityAvailable = 0.0f;
         }
 
         inventoryAvailable[itemID] -= quantity;
+        if (onResourceRemoved != null) onResourceRemoved ( itemID, quantity );
+
+        if (target != null && quantity > 0.0f)
+        {
+            PopoutNotification.Instance.AddPopout ( "-" + quantity.ToString ( "00" ), 18, FontStyle.Bold, ColourGroupController.Instance.GetColour( "UI_TextRed"), target, yOffset, ResourceManager.Instance.GetResourceByID ( itemID ).image, 40 );
+        }
 
         SetOverallInventory ();
 
         return quantity;
-    }	
+    }
 
     public bool ReserveItemQuantity(int itemID, float quantity)
     {
@@ -244,5 +256,15 @@ public class ResourceInventory {
     public void UnregisterOnResourceAdded (System.Action<int, float> action)
     {
         onResourceAdded -= action;
+    }
+
+    public void RegisterOnResourceRemoved (System.Action<int, float> action)
+    {
+        onResourceRemoved += action;
+    }
+
+    public void UnregisterOnResourceRemoved (System.Action<int, float> action)
+    {
+        onResourceRemoved -= action;
     }
 }

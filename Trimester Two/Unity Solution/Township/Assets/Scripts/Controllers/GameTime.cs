@@ -41,15 +41,24 @@ public class GameTime : MonoBehaviour
 
     // Range between 0 - 1 to determine which part of the year the game starts in.
     //private static float gameTimeStart = 0.95f; // Winter
-    private static float gameTimeStart = 0.4f; // Summer
+    private static float gameTimeStart = 0.3f; // Summer
 
-    private void Start ()
+    private void Awake ()
     {
         currentDay = 1;
         currentMonth = 1;
         currentYear = 1;
 
         SetStartTime ();
+    }
+
+    private void Start ()
+    {
+        //currentDay = 1;
+        //currentMonth = 1;
+        //currentYear = 1;
+
+        //SetStartTime ();
     }
 
     private void SetStartTime ()

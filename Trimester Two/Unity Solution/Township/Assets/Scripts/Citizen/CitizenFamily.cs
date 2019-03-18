@@ -250,7 +250,8 @@ public class CitizenFamily : MonoBehaviour {
                 ProfessionType.Worker.ToString (),
                 ProfessionType.Lumberjack.ToString (),
                 ProfessionType.Quarryman.ToString (),
-                ProfessionType.Stonemason.ToString () );
+                ProfessionType.Stonemason.ToString (),
+                ProfessionType.Fisherman.ToString () );
             }
 
             panel.AddTextData ( (pair) =>

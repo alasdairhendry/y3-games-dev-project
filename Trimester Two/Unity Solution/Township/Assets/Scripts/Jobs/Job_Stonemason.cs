@@ -28,15 +28,15 @@ public class Job_Stonemason : Job_Profession {
 
         if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
-            OnCharacterLeave ( "Storage is full. Send a market cart!", true );
-            IsCompletable = false;
+            OnCharacterLeave ( "Storage is full. Send a market cart!", true, GetCompletableParams ( CompleteIdentifier.PropStorageFull ) );
+            //IsCompletable = false;
             return;
         }
 
         if (targetInventory.CheckIsEmpty ( targetProp.resourceIDToConsume ))
         {
-            OnCharacterLeave ( "Stock is empty. Send a market cart!", true );
-            IsCompletable = false;
+            OnCharacterLeave ( "Stock is empty. Send a market cart!", true, GetCompletableParams ( CompleteIdentifier.PropNoConsumables, targetProp.resourceIDToConsume, targetProp.consumeAmount ) );
+            //IsCompletable = false;
             return;
         }
 
@@ -61,7 +61,7 @@ public class Job_Stonemason : Job_Profession {
         LookAtTarget ( plinth.transform.position );
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
         if (this.cBase != null)
         {
@@ -69,27 +69,27 @@ public class Job_Stonemason : Job_Profession {
         }
         givenDestination = false;
 
-        base.OnCharacterLeave ( reason, setOpenToTrue );
+        base.OnCharacterLeave ( reason, setOpenToTrue, isCompletable );
     }
 
-    protected override IEnumerator CheckIsCompletable ()
-    {
-        if (targetProp.HaltProduction) { IsCompletable = false; yield break; }
+    //protected override IEnumerator CheckIsCompletable ()
+    //{
+    //    if (targetProp.HaltProduction) { IsCompletable = false; yield break; }
 
-        if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
-        {
-            IsCompletable = false;
-            yield break;
-        }
-        else if (targetInventory.CheckIsEmpty ( targetProp.resourceIDToConsume ))
-        {
-            IsCompletable = false;
-            yield break;
-        }
-        else
-        {
-            IsCompletable = true;
-            yield break;
-        }
-    }
+    //    if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
+    //    {
+    //        IsCompletable = false;
+    //        yield break;
+    //    }
+    //    else if (targetInventory.CheckIsEmpty ( targetProp.resourceIDToConsume ))
+    //    {
+    //        IsCompletable = false;
+    //        yield break;
+    //    }
+    //    else
+    //    {
+    //        IsCompletable = true;
+    //        yield break;
+    //    }
+    //}
 }

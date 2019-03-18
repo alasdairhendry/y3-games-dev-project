@@ -23,7 +23,8 @@ public class CitizenMovement : MonoBehaviour {
     public GameObject DestinationObject { get; protected set; }
     private Vector3 destinationPosition;
 
-    private NavMeshPath Path;
+    private NavMeshPath path;
+    public NavMeshPath Path { get { return path; } }
     public NavMeshPath GetAgentPath { get { return agent.path; } }
     public bool HasPath { get; protected set; }
 
@@ -97,21 +98,21 @@ public class CitizenMovement : MonoBehaviour {
         NavMeshPath newPath = new NavMeshPath ();
         agent.CalculatePath ( destinationPosition, newPath );
 
-        if(newPath.status == NavMeshPathStatus.PathComplete)
+        if (newPath.status == NavMeshPathStatus.PathComplete)
         {
             OnPathConfirmed ( newPath );
             return true;
         }
         else
-        {
-            Debug.LogError ( "Path " + newPath.status );
+        {          
+            OnPathInvalid ( newPath );
             return false;
         }
     }
 
     private void OnPathConfirmed (NavMeshPath newPath)
     {
-        Path = newPath;
+        path = newPath;
 
         movementState = MovementState.Moving;
         onMovementStateChanged ( movementState );
@@ -124,11 +125,20 @@ public class CitizenMovement : MonoBehaviour {
             movementState = MovementState.Moving;
             onMovementStateChanged ( movementState );
         }
+
+        //Debug.Log ( "OnPathConfirmed" );
+    }
+
+    private void OnPathInvalid(NavMeshPath newPath)
+    {
+        path = newPath;  
+        //Debug.Log ( "OnPathInvalid" );
     }
 
     private void CheckCurrentPath ()
     {
         if (agent.pathPending) { return; }
+        if (agent.pathStatus != NavMeshPathStatus.PathComplete) return;
         if (agent.remainingDistance > agent.stoppingDistance) { return; }
         //if (agent.hasPath) { Debug.Log ( "hasPath" ); return; }
         if (!HasPath) { return; }
@@ -137,6 +147,7 @@ public class CitizenMovement : MonoBehaviour {
 
     private void OnReachedPath ()
     {
+        Debug.Log ( "OnReachedPath" );
         if (movementState == MovementState.Moving)
         {
             movementState = MovementState.Idle;
@@ -152,6 +163,7 @@ public class CitizenMovement : MonoBehaviour {
     {
         destinationPosition = Vector3.zero;
         DestinationObject = null;
+        path = null;
         HasPath = false;
         agent.ResetPath ();
     }

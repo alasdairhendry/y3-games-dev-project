@@ -29,6 +29,7 @@ public class ProfessionController : MonoBehaviour {
         professions.Add ( new Profession ( ProfessionType.Lumberjack ) );
         professions.Add ( new Profession ( ProfessionType.Quarryman ) );
         professions.Add ( new Profession ( ProfessionType.Stonemason ) );
+        professions.Add ( new Profession ( ProfessionType.Fisherman ) );
         
     }
 

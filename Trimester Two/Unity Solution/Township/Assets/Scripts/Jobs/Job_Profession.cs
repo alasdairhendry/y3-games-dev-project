@@ -13,6 +13,7 @@ public class Job_Profession : Job {
     {
         this.targetProp = targetProp;
         this.targetInventory = targetProp.inventory;
+        BreakForEnergy = true;
     }
 
     public override void DoJob ()
@@ -26,9 +27,9 @@ public class Job_Profession : Job {
         targetProp.AddProduction ();       
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
-        GameTime.RegisterGameTick ( Tick_CheckCompletable );
+        //GameTime.RegisterGameTick ( Tick_CheckCompletable );
         if (this.cBase == null)
         {
             if (setOpenToTrue) this.Open = true;
@@ -43,8 +44,54 @@ public class Job_Profession : Job {
         }
 
         if (setOpenToTrue)
+        {
             this.Open = true;
+            Debug.Log ( "Job " + Name + " has been set to open" );
+        }
+        else
+        {
+            Debug.Log ( "Job " + Name + " has been set to NOT open" );
+        }
+
+        base.IsCompletable = isCompletable.Key;
+        base.IsCompletableReason = isCompletable.Value;
+
+        if (!this.IsCompletable)
+        {
+            if (!completableListenersAdded)
+            {
+                AddCompletableListeners ();
+            }
+
+            Debug.Log ( "Job " + Name + " has been set to NOT completable" );
+        }
+
         if (OnCharacterLeaveAction != null) OnCharacterLeaveAction ();
         if (OnCharacterChanged != null) OnCharacterChanged ();
+    }
+
+    protected override void AddCompletableListeners ()
+    {
+        targetInventory.RegisterOnInventoryChanged ( OnInventoryChanged );
+
+        base.AddCompletableListeners ();
+    }
+
+    private void OnInventoryChanged (ResourceInventory inv)
+    {
+        if (inv.CheckIsFull ( targetProp.resourceIDToGive )) return;
+        if (targetProp.consumeAmount > 0)
+        {
+            if (inv.CheckIsEmpty ( targetProp.resourceIDToConsume )) return;
+        }
+
+        base.SetIsCompletable ();
+    }
+
+    protected override void RemoveCompletableListeners ()
+    {
+        targetInventory.UnregisterOnInventoryChanged ( OnInventoryChanged );
+
+        base.RemoveCompletableListeners ();
     }
 }

@@ -201,7 +201,10 @@ public class BuildMode : ModeBase {
         for (int i = 0; i < colliders.Count; i++)
         {
             if (colliders[i] == null) continue;
-            colliders[i].GetComponentInParent<RawMaterial> ().RemoveOnBuildingPlaced ();
+            RawMaterial rm = colliders[i].GetComponentInParent<RawMaterial> ();
+
+            //if (rm.RemovableByBuilding)
+                rm.RemoveOnBuildingPlaced ();
         }
     }    
 

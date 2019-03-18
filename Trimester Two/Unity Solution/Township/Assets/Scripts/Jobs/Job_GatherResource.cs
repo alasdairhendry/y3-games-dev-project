@@ -26,6 +26,7 @@ public class Job_GatherResource : Job {
         this.resourceQuantity = resourceQuantity;
         this.rawMaterial = rawMaterial;
         this.professionTypes.Add ( ProfessionType.Worker );
+        BreakForEnergy = false;
     }
 
     public override void DoJob ()
@@ -58,14 +59,25 @@ public class Job_GatherResource : Job {
 
         if (!base.cBase.Inventory.CheckCanHold(resourceID, resourceQuantity ))
         {
-            OnCharacterLeave ( "Citizen can't hold that many resources", true );
+            OnCharacterLeave ( "Citizen can't hold that many resources", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
         }
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
+        Debug.Log ( reason );
         this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
-        this.cBase.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
+        ResourceManager.Instance.GetResourceByID ( resourceID ).HoldItem ( this.cBase.GetComponent<CitizenGraphics> (), false );
+        //this.cBase.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
+
+        if (givenResourceToCitizen)
+        {
+            if (base.cBase != null)
+                base.cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity, cBase.transform, 2.0f );
+
+            givenResourceToCitizen = false;
+            Resource.DropResource ( resourceID, resourceQuantity, base.cBase.transform.position + (base.cBase.transform.forward), base.cBase.transform.eulerAngles );
+        }
 
         if (stage == Stage.FindWarehouse || stage == Stage.TravelFrom)
         {
@@ -79,14 +91,15 @@ public class Job_GatherResource : Job {
         targetWarehouse = null;
         givenResourceToCitizen = false;
 
-        base.OnCharacterLeave ( reason, setOpenToTrue );
+
+        base.OnCharacterLeave ( reason, setOpenToTrue , isCompletable);
     }
 
     private void DoJob_Stage_TravelTo ()
     {
         if(!destinationProvided)
         {
-            targetPosition = rawMaterial.transform.position + new Vector3 ( 0.0f, 0.0f, -3.0f );
+            targetPosition = rawMaterial.transform.Find ( "InteractionPoint" ).position;
             SetDestination ( rawMaterial.gameObject );
             destinationProvided = true;              
             return;
@@ -103,8 +116,16 @@ public class Job_GatherResource : Job {
     {
         this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( true , CitizenAnimation.AxeUseAnimation.Chopping);
 
-        if (this.rawMaterial == null) { OnCharacterLeave ( "Material Was Destroyed", false ); return; }
-        if (this.rawMaterial.gameObject == null) { OnCharacterLeave ( "Material Was Destroyed", false ); return; }
+        if (this.rawMaterial == null)
+        {
+            OnCharacterLeave ( "Material Was Destroyed", false, Job.GetCompletableParams ( Job.CompleteIdentifier.ResourceDestroyed ) );
+            return;
+        }
+        if (this.rawMaterial.gameObject == null)
+        {
+            OnCharacterLeave ( "Material Was Destroyed", false, Job.GetCompletableParams ( Job.CompleteIdentifier.ResourceDestroyed ) );
+            return;
+        }
 
         Quaternion lookRot = Quaternion.LookRotation ( this.rawMaterial.transform.position - this.cBase.transform.position, Vector3.up );
         this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
@@ -115,7 +136,7 @@ public class Job_GatherResource : Job {
         {            
             stage = Stage.FindWarehouse;
             this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
-            base.cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity );
+            base.cBase.Inventory.AddItemQuantity ( resourceID, resourceQuantity, cBase.transform, 2.0f );
             rawMaterial.OnGathered ();
             givenResourceToCitizen = true;
         }
@@ -123,7 +144,9 @@ public class Job_GatherResource : Job {
 
     private void DoJob_Stage_FindWarehouse ()
     {
-        targetWarehouse = FindEligibleWarehouse ();
+        Debug.Log ( "DoJob_Stage_FindWarehouse" );
+        targetWarehouse = WarehouseController.Instance.FindWarehouseToStore ( base.cBase.transform, resourceID, resourceQuantity );
+        //targetWarehouse = FindEligibleWarehouse ();
 
         if (targetWarehouse == null)
         {
@@ -131,12 +154,20 @@ public class Job_GatherResource : Job {
             //if (givenResourceToCitizen)
             //    character.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
 
+            if (givenResourceToCitizen)
+            {
+                givenResourceToCitizen = false;
+                base.cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity, base.cBase.transform, 2.0f );
+                Resource.DropResource ( resourceID, resourceQuantity, base.cBase.transform.position + (base.cBase.transform.forward), base.cBase.transform.eulerAngles );
+            }
+
             OnComplete ();
         }
         else
         {
             stage = Stage.TravelFrom;
-            this.cBase.GetComponent<CitizenGraphics> ().SetUsingLogs ( true );
+            ResourceManager.Instance.GetResourceByID ( resourceID ).HoldItem ( this.cBase.GetComponent<CitizenGraphics> (), true );
+            //this.cBase.GetComponent<CitizenGraphics> ().SetUsingLogs ( true );
         }
     }
 
@@ -152,16 +183,20 @@ public class Job_GatherResource : Job {
 
         if (targetWarehouse == null)
         {
-            OnCharacterLeave ( "Warehouse was destroyed", true );
+            destinationProvided = false;
+            stage = Stage.FindWarehouse;            
+            //OnCharacterLeave ( "Warehouse was destroyed", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
             return;
         }
 
         if (!citizenReachedPath) return;
 
-        targetWarehouse.inventory.AddItemQuantity ( resourceID, resourceQuantity );
+        ResourceManager.Instance.GetResourceByID ( resourceID ).HoldItem ( this.cBase.GetComponent<CitizenGraphics> (), false );
+
+        WarehouseController.Instance.Inventory.AddItemQuantity ( resourceID, resourceQuantity, targetWarehouse.transform, targetWarehouse.data.UIOffsetY );
 
         if (givenResourceToCitizen)
-            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity );
+            cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity, cBase.transform, 2.0f );
 
         givenResourceToCitizen = false;
         destinationProvided = false;
@@ -171,63 +206,64 @@ public class Job_GatherResource : Job {
 
     protected override void OnComplete ()
     {
-        this.cBase.GetComponent<CitizenGraphics> ().SetUsingCart ( false );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
+        ResourceManager.Instance.GetResourceByID ( resourceID ).HoldItem ( this.cBase.GetComponent<CitizenGraphics> (), false );
 
         base.OnComplete ();
     }
 
-    private Prop_Warehouse FindEligibleWarehouse ()
-    {
-        List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
+    //private Prop_Warehouse FindEligibleWarehouse ()
+    //{
+    //    List<GameObject> GOs = EntityManager.Instance.GetEntitiesByType ( typeof ( Prop_Warehouse ) );
 
-        if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
+    //    if (GOs == null) { Debug.LogError ( "No Warehouses found. We shouldnt run this every frame" ); return null; }
 
-        List<Prop_Warehouse> eligibleWarehouses = new List<Prop_Warehouse> ();
+    //    List<Prop_Warehouse> eligibleWarehouses = new List<Prop_Warehouse> ();
 
-        for (int i = 0; i < GOs.Count; i++)
-        {
-            if (GOs[i] == null) continue;
-            Prop_Warehouse w = GOs[i].GetComponent<Prop_Warehouse> ();
+    //    for (int i = 0; i < GOs.Count; i++)
+    //    {
+    //        if (GOs[i] == null) continue;
+    //        Prop_Warehouse w = GOs[i].GetComponent<Prop_Warehouse> ();
 
-            if (w == null) { continue; }
-            if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
-            if (w.buildable.IsComplete == false) { continue; }
+    //        if (w == null) { continue; }
+    //        if (w.inventory == null) { Debug.LogError ( "Warehouse inventory is null" ); continue; }
+    //        if (w.buildable.IsComplete == false) { continue; }
 
-            if (w.inventory.CheckCanHold ( resourceID, resourceQuantity ))
-            {
-                eligibleWarehouses.Add ( w );
-            }
-            else
-            {
-                Debug.LogError ( "Warehouse inventory can't hold that many resources" ); continue;
-            }
-        }
+    //        if (w.inventory.CheckCanHold ( resourceID, resourceQuantity ))
+    //        {
+    //            eligibleWarehouses.Add ( w );
+    //        }
+    //        else
+    //        {
+    //            Debug.LogError ( "Warehouse inventory can't hold that many resources" ); continue;
+    //        }
+    //    }
 
-        // TODO: Maybe add some sort of tick system so this doesnt clog up the players client
-        if (eligibleWarehouses.Count <= 0) { Debug.LogError ( "No Eligible Warehouses. We shouldnt run this every frame" ); return null; }
+    //    // TODO: Maybe add some sort of tick system so this doesnt clog up the players client
+    //    if (eligibleWarehouses.Count <= 0) { Debug.LogError ( "No Eligible Warehouses. We shouldnt run this every frame" ); return null; }
 
-        int fastestPath = -1;
-        float bestDistance = float.MaxValue;
+    //    int fastestPath = -1;
+    //    float bestDistance = float.MaxValue;
 
-        for (int i = 0; i < eligibleWarehouses.Count; i++)
-        {
-            NavMeshPath path = new NavMeshPath ();
+    //    for (int i = 0; i < eligibleWarehouses.Count; i++)
+    //    {
+    //        NavMeshPath path = new NavMeshPath ();
 
-            if (base.cBase == null) continue;
-            if (eligibleWarehouses[i] == null) continue;
+    //        if (base.cBase == null) continue;
+    //        if (eligibleWarehouses[i] == null) continue;
 
-            NavMesh.CalculatePath ( base.cBase.transform.position, eligibleWarehouses[i].transform.position, 0, path );
+    //        NavMesh.CalculatePath ( base.cBase.transform.position, eligibleWarehouses[i].transform.position, 0, path );
 
-            float f = GetPathLength ( path );
-            if (f <= bestDistance)
-            {
-                bestDistance = f;
-                fastestPath = i;
-            }
-        }
+    //        float f = GetPathLength ( path );
+    //        if (f <= bestDistance)
+    //        {
+    //            bestDistance = f;
+    //            fastestPath = i;
+    //        }
+    //    }
 
-        if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
+    //    if (fastestPath == -1) { Debug.LogError ( "No Eligible Path. We also shouldnt run this every frame." ); return null; }
 
-        return eligibleWarehouses[fastestPath];
-    }
+    //    return eligibleWarehouses[fastestPath];
+    //}
 }

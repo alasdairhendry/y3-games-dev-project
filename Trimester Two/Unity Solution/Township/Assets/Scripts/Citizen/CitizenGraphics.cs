@@ -13,6 +13,7 @@ public class CitizenGraphics : MonoBehaviour {
     [SerializeField] private GameObject crateGraphics;
     [SerializeField] private GameObject logsGraphics;
     [SerializeField] private GameObject rocksGraphics;
+    [SerializeField] private GameObject rodGraphics;
 
     [SerializeField] private GameObject axeGraphics;
     [SerializeField] private Transform[] axePlaceholders;
@@ -51,7 +52,7 @@ public class CitizenGraphics : MonoBehaviour {
             if (satchelGraphics != null)
                 satchelGraphics.SetActive ( false );
 
-            GetComponent<IconDisplayer> ().RemoveIcon ( IconDisplayer.IconType.Inventory );
+            GetComponent<IconDisplayer> ().RemoveIconByType ( IconDisplayer.IconType.Inventory );
             //cBase.CitizenAnimation.SetAnimationState = CitizenAnimation.AnimationState.Walking;
             //Debug.Log ( "booo" );
         }
@@ -61,7 +62,7 @@ public class CitizenGraphics : MonoBehaviour {
             {
                 //Debug.Log ( "2booo" );
                 //cBase.CitizenAnimation.SetAnimationState = CitizenAnimation.AnimationState.Walking;
-                GetComponent<IconDisplayer> ().AddIcon ( IconDisplayer.IconType.Inventory );         
+                GetComponent<IconDisplayer> ().AddIconGeneric ( IconDisplayer.IconType.Inventory );         
 
                 if (satchelGraphics != null)
                     satchelGraphics.SetActive ( true );
@@ -107,7 +108,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingCart(bool state)
     {
-        DisableGraphics ( crateGraphics, logsGraphics, rocksGraphics );
+        DisableGraphics ( crateGraphics, logsGraphics, rocksGraphics, rodGraphics );
 
         if (marketCartGraphics != null)
             marketCartGraphics.SetActive ( state );
@@ -117,7 +118,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingCrate(bool state)
     {
-        DisableGraphics ( logsGraphics, marketCartGraphics, rocksGraphics );
+        DisableGraphics ( logsGraphics, marketCartGraphics, rocksGraphics, rodGraphics );
 
         if (crateGraphics != null)
             crateGraphics.SetActive ( state );
@@ -127,7 +128,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingLogs (bool state)
     {
-        DisableGraphics ( crateGraphics, marketCartGraphics, rocksGraphics );
+        DisableGraphics ( crateGraphics, marketCartGraphics, rocksGraphics, rodGraphics );
 
         if (logsGraphics != null)
             logsGraphics.SetActive ( state );
@@ -137,12 +138,22 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingRocks (bool state)
     {
-        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics );
+        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rodGraphics );
 
         if (rocksGraphics != null)
             rocksGraphics.SetActive ( state );
 
         cBase.CitizenAnimation.SetAnimationState = state == true ? CitizenAnimation.AnimationState.Carrying : CitizenAnimation.AnimationState.Idle;
+    }
+
+    public void SetUsingRod (bool state)
+    {
+        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rocksGraphics );
+
+        if (rodGraphics != null)
+            rodGraphics.SetActive ( state );
+
+        cBase.CitizenAnimation.SetAnimationState = state == true ? CitizenAnimation.AnimationState.Fishing : CitizenAnimation.AnimationState.Idle;
     }
 
     private void DisableGraphics(params GameObject[] objects)

@@ -67,7 +67,7 @@ public class Prop_Profession : Prop {
                 if (this.gameObject == null) return;
                 if (this.inventory == null) return;
 
-                inventory.AddItemQuantity ( 0, 1 );
+                inventory.AddItemQuantity ( 0, 1, this.transform, data.UIOffsetY );
 
             }, "Add 1 Wood", "Overview" );
 
@@ -76,7 +76,7 @@ public class Prop_Profession : Prop {
                 if (this.gameObject == null) return;
                 if (this.inventory == null) return;
 
-                inventory.RemoveItemQuantity ( 0, 1 );
+                inventory.RemoveItemQuantity ( 0, 1, this.transform, data.UIOffsetY );
 
             }, "Remove 1 Wood", "Overview" );
 
@@ -160,6 +160,7 @@ public class Prop_Profession : Prop {
                     GetComponent<JobEntity> ().CreateJob_MarketCart ( "Supply " + resourceIDToConsume + " to " + this.name, true,
                         5.0f, () => { createdSupplyJob = false; }, this, inventory, resourceIDToConsume, (int)inventory.EntryCapacity, true );
                     createdSupplyJob = true;
+                    Debug.Log ( "Created supply job for " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name );
                 }
             }
         }
@@ -201,14 +202,14 @@ public class Prop_Profession : Prop {
         if (resourceIDToConsume < 0)
         {
             // TODO: - If this returns something, we are full, alert the user
-            inventory.AddItemQuantity ( resourceIDToGive, giveAmount );
+            inventory.AddItemQuantity ( resourceIDToGive, giveAmount, this.transform, data.UIOffsetY );
         }
         else
         {
             if (inventory.CheckHasQuantityAvailable ( resourceIDToConsume, consumeAmount ))
             {
-                inventory.RemoveItemQuantity ( resourceIDToConsume, consumeAmount );
-                inventory.AddItemQuantity ( resourceIDToGive, giveAmount );
+                inventory.RemoveItemQuantity ( resourceIDToConsume, consumeAmount, this.transform, data.UIOffsetY );
+                inventory.AddItemQuantity ( resourceIDToGive, giveAmount, this.transform, data.UIOffsetY );
             }
             else
             {

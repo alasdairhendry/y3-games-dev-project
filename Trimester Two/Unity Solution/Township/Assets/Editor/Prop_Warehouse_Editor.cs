@@ -7,7 +7,7 @@ using UnityEngine;
 public class Prop_Warehouse_Editor : Editor {
 
     Prop_Warehouse t;
-    float f = 0.0f;
+    float f = 1.0f;
 
     private void OnEnable ()
     {
@@ -23,24 +23,24 @@ public class Prop_Warehouse_Editor : Editor {
 
         f = EditorGUILayout.FloatField ( "Amount to add/remove", f );
 
-        if (t.inventory == null) return;
+        if (WarehouseController.Instance.Inventory == null) return;
 
-        List<int> keys = new List<int> ( t.inventory.inventoryOverall.Keys );
+        List<int> keys = new List<int> ( WarehouseController.Instance.Inventory.inventoryOverall.Keys );
 
         foreach (int k in keys)
         {
             EditorGUILayout.BeginHorizontal ();
 
             Resource r = ResourceManager.Instance.GetResourceByID ( k );
-            GUILayout.Label ( r.name + ": " + t.inventory.inventoryOverall[k] );
+            GUILayout.Label ( r.name + ": " + WarehouseController.Instance.Inventory.inventoryOverall[k] );
 
             if (GUILayout.Button ( "Add " + r.name ))
             {
-                t.inventory.AddItemQuantity ( k, f );
+                WarehouseController.Instance.Inventory.AddItemQuantity ( k, f );
             }
             else if (GUILayout.Button ( "Remove " + r.name ))
             {
-                t.inventory.RemoveItemQuantity ( k, f );
+                WarehouseController.Instance.Inventory.RemoveItemQuantity ( k, f );
             }
             EditorGUILayout.EndHorizontal ();
         }                

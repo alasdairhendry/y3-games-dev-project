@@ -77,7 +77,7 @@ public class Prop_Campfire : Prop {
                 if (this.gameObject == null) return;
                 if (this.inventory == null) return;
 
-                inventory.AddItemQuantity ( 0, 1 );
+                inventory.AddItemQuantity ( 0, 1, this.transform, data.UIOffsetY );
 
             }, "Add 1 Wood", "Inventory" );
 

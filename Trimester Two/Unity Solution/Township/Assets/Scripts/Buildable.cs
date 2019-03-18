@@ -24,6 +24,8 @@ public class Buildable : MonoBehaviour {
     [SerializeField] private MaterialPoint[] materialPoints;
     [SerializeField] private GameObject materialGraphic;
 
+    private Dictionary<int, IconDisplayer.TextIcon> materialIcons = new Dictionary<int, IconDisplayer.TextIcon> ();
+
     private void Awake ()
     {
         BuildableStage[] _stages = GetComponentsInChildren<BuildableStage> ();
@@ -47,7 +49,7 @@ public class Buildable : MonoBehaviour {
     {        
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
-        inventory.RegisterOnResourceAdded ( AddMaterial );
+        inventory.RegisterOnResourceAdded ( OnMaterialAdded );
 
         if (stageCount <= 0) { Complete (); return this; }
 
@@ -65,7 +67,7 @@ public class Buildable : MonoBehaviour {
     {
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
-        inventory.RegisterOnResourceAdded ( AddMaterial );
+        inventory.RegisterOnResourceAdded ( OnMaterialAdded );
 
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
@@ -75,7 +77,7 @@ public class Buildable : MonoBehaviour {
 
                 if (data.BuildableResourceQuantities[index] > 0)
                 {
-                    inventory.AddItemQuantity ( data.BuildableResourceIDs[index], data.BuildableResourceQuantities[index] );
+                    inventory.AddItemQuantity ( data.BuildableResourceIDs[index], data.BuildableResourceQuantities[index], transform, prop.data.UIOffsetY );
                 }
             }
         }
@@ -107,10 +109,19 @@ public class Buildable : MonoBehaviour {
 
     private void CreateJobs ()
     {
+        IconDisplayer id = GetComponent<IconDisplayer> ();
+
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
             if (!inventory.CheckHasQuantityAvailable ( prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount ))
                 GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, 5.0f, null, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, prop, inventory );
+
+            if (!materialIcons.ContainsKey ( prop.data.requiredMaterials[i].id ))
+            {
+                IconDisplayer.TextIcon icon = id.AddTextIcon ( ResourceManager.Instance.GetResourceByID ( prop.data.requiredMaterials[i].id ).image, 16 );
+                icon.text.text = "0 / " + prop.data.requiredMaterials[i].amount;
+                materialIcons.Add ( prop.data.requiredMaterials[i].id, icon );
+            }
         }
     }
 
@@ -122,10 +133,15 @@ public class Buildable : MonoBehaviour {
         CheckStages ();
     }
 
-    public void AddMaterial (int resourceID, float quantity)
+    public void OnMaterialAdded (int resourceID, float quantity)
     {
         SpawnMaterialGraphic ();
         CheckMaterials ();
+
+        if (materialIcons.ContainsKey ( resourceID ))
+        {
+            GetComponent<IconDisplayer> ().RemoveIconByObject ( materialIcons[resourceID].go );
+        }
     }
 
     private void SpawnMaterialGraphic ()
@@ -227,7 +243,7 @@ public class Buildable : MonoBehaviour {
         {
             SetStageActive ( i, true );
         }
-        inventory.UnregisterOnResourceAdded ( AddMaterial );
+        inventory.UnregisterOnResourceAdded ( OnMaterialAdded );
         prop.OnBuilt ();
         if (onComplete != null) onComplete ();
     }
@@ -244,7 +260,7 @@ public class Buildable : MonoBehaviour {
         {
             SetStageActive ( i, true );
         }
-        inventory.UnregisterOnResourceAdded ( AddMaterial );
+        inventory.UnregisterOnResourceAdded ( OnMaterialAdded );
         GetComponent<JobEntity> ().DestroyJobs ();
         prop.OnBuilt ();
         if (onComplete != null) onComplete ();
@@ -262,7 +278,25 @@ public class Buildable : MonoBehaviour {
     private void OnDestroy ()
     {
         if (inventory != null)
-            inventory.UnregisterOnResourceAdded ( AddMaterial );
+            inventory.UnregisterOnResourceAdded ( OnMaterialAdded );
+
+        if (inventory != null)
+        {
+            int materialPointID = 0;
+
+            if (!IsComplete)
+            {
+                List<Resource> r = ResourceManager.Instance.GetResourceList ();
+                for (int i = 0; i < r.Count; i++)
+                {
+                    if (!inventory.CheckIsEmpty ( r[i].id ))
+                    {
+                        Resource.DropResource ( r[i].id, inventory.GetAvailableQuantity ( r[i].id ), transform.TransformPoint ( materialPoints[materialPointID].localPosition ), transform.TransformDirection ( Vector3.zero ) );
+                        materialPointID++;
+                    }
+                }
+            }
+        }
     }
 
     [System.Serializable]

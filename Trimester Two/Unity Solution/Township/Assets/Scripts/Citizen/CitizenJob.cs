@@ -48,8 +48,11 @@ public class CitizenJob : MonoBehaviour {
             {
                 if (!currentJob.IdleJob)
                 {
-                    currentJob.OnCharacterLeave ( "Character has no energy left", true );
-                    RegainingEnergy = true;
+                    if (currentJob.BreakForEnergy)
+                    {
+                        currentJob.OnCharacterLeave ( "Character has no energy left", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
+                        RegainingEnergy = true;
+                    }
                 }
             }
         }
@@ -94,7 +97,7 @@ public class CitizenJob : MonoBehaviour {
                 Job newJob = JobController.GetNext ( cBase, previouslyAttemptedJobs );
 
                 if (newJob != null) {
-                    currentJob.OnCharacterLeave ( "Found a non-idle job", true );
+                    currentJob.OnCharacterLeave ( "Found a non-idle job", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
                     currentJob = newJob;
                 }
 
@@ -124,7 +127,7 @@ public class CitizenJob : MonoBehaviour {
             return;
         }
 
-        currentJob.OnCharacterLeave ( "Citizen wants to perform default idle job", true );
+        currentJob.OnCharacterLeave ( "Citizen wants to perform default idle job", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
         currentJob = cBase.CitizenIdleJob.GetDefaultIdleJob ();
     }
 
@@ -177,7 +180,7 @@ public class CitizenJob : MonoBehaviour {
         {
             if (!currentJob.professionTypes.Contains ( profession ))
             {
-                currentJob.OnCharacterLeave ( "Character Changed Profession", true );
+                currentJob.OnCharacterLeave ( "Character Changed Profession", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
             }
         }
     }

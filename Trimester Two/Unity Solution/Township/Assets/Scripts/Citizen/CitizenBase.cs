@@ -35,7 +35,7 @@ public class CitizenBase : MonoBehaviour {
         CitizenFamily = GetComponent<CitizenFamily> ();
         CitizenHousing = GetComponent<CitizenHousing> ();
 
-        Inventory = new ResourceInventory ();
+        Inventory = new ResourceInventory ( float.MaxValue );
         agent = GetComponent<NavMeshAgent> ();
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
     }
@@ -55,6 +55,14 @@ public class CitizenBase : MonoBehaviour {
             {
                 if (this == null) return;
 
+                CitizenNeeds.NeedsDictionary[Need.Type.Energy].SetBase ( 0 );
+
+            }, "Set Energy 0", "Needs" );
+
+            panel.AddButtonData ( () =>
+            {
+                if (this == null) return;
+
                 FindObjectOfType<CameraMovement> ().LockTo ( this.transform );
 
             }, "Follow Citizen", "Any" );
@@ -64,7 +72,7 @@ public class CitizenBase : MonoBehaviour {
                 if (this == null) return;
 
                 if (this.CitizenJob.GetCurrentJob == null) return;
-                else this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "User Left", true );
+                else this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "Citizen Left", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
             }, "Cancel Job", "Any" );
 
             panel.AddButtonData ( () =>
@@ -133,14 +141,23 @@ public class CitizenBase : MonoBehaviour {
 
                 LineRenderer lr = this.GetComponentInChildren<LineRenderer> ();
 
-                if (this.CitizenMovement.HasPath)
+                if (this.CitizenMovement.Path != null)
                 {
-                    NavMeshPath path = this.CitizenMovement.GetAgentPath;
+                    NavMeshPath path = this.CitizenMovement.Path;
                     lr.positionCount = path.corners.Length;
 
                     for (int i = 0; i < path.corners.Length; i++)
                     {
                         lr.SetPosition ( i, path.corners[i] + new Vector3 ( 0.0f, 0.2f + (SnowController.Instance.TerrainSnowLevel / SnowController.Instance.MaxSnowDepth), 0.0f ) );
+                    }
+
+                    if(path.status == NavMeshPathStatus.PathComplete)
+                    {
+                        lr.sharedMaterial.SetColor ( "_TintColor", ColourGroupController.Instance.GetColour ( "UI_TextGreen" ) );
+                    }
+                    else
+                    {
+                        lr.sharedMaterial.SetColor ( "_TintColor", ColourGroupController.Instance.GetColour ( "UI_TextRed" ) );
                     }
 
                 }
@@ -165,7 +182,7 @@ public class CitizenBase : MonoBehaviour {
     private void KillCitizen ()
     {
         if (OnCitizenDied != null) OnCitizenDied (this);
-        if (this.CitizenJob.GetCurrentJob != null) this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "Citizen Died", true );
+        if (this.CitizenJob.GetCurrentJob != null) this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "Citizen Died", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
         Destroy ( this.gameObject );
     }
 

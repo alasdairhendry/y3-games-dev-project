@@ -24,7 +24,7 @@ public class IdleJob_StandByCampfire : IdleJob
     {
         base.DoJob ();
 
-        if (cBase == null) { OnCharacterLeave ( "Citizen is null", true ); return; }
+        if (cBase == null) { OnCharacterLeave ( "Citizen is null", true, GetCompletableParams ( CompleteIdentifier.None ) ); return; }
 
         if (!givenPosition)
         {
@@ -32,7 +32,7 @@ public class IdleJob_StandByCampfire : IdleJob
 
             if (campfires == null)
             {
-                OnCharacterLeave ( "No campfires", true );
+                OnCharacterLeave ( "No campfires", true , GetCompletableParams ( CompleteIdentifier.None ) );
                 return;
             }
 
@@ -46,7 +46,7 @@ public class IdleJob_StandByCampfire : IdleJob
 
             if (campfires.Count <= 0)
             {
-                OnCharacterLeave ( "No campfires", true );
+                OnCharacterLeave ( "No campfires", true, GetCompletableParams ( CompleteIdentifier.None ) );
                 return;
             }
 
@@ -71,7 +71,7 @@ public class IdleJob_StandByCampfire : IdleJob
             return;
         }
 
-        if(targetCampfire == null) { OnCharacterLeave ( "Campfire was destroyed", true ); return; }
+        if(targetCampfire == null) { OnCharacterLeave ( "Campfire was destroyed", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) ); return; }
 
         if (citizenReachedPath)
         {
@@ -92,7 +92,7 @@ public class IdleJob_StandByCampfire : IdleJob
         base.OnCharacterAccept ( citizen );       
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
         if (cBase != null)
             cBase.CitizenAnimation.animator.SetBool ( "KneelByFire", false );
@@ -101,6 +101,6 @@ public class IdleJob_StandByCampfire : IdleJob
         targetPosition = new Vector3 ();
         targetCampfire = null;
 
-        base.OnCharacterLeave ( reason, setOpenToTrue);
+        base.OnCharacterLeave ( reason, setOpenToTrue, isCompletable);
     }
 }

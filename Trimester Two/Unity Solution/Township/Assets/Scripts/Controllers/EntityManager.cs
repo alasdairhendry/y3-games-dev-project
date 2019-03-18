@@ -73,6 +73,11 @@ public class EntityManager : MonoBehaviour {
         {
             if (!propEntities.Contains ( gameObject ))
             {
+                if (gameObject.GetComponent<Prop_Warehouse> () != null)
+                {
+                    WarehouseController.Instance.AddWarehouse ( gameObject.GetComponent<Prop_Warehouse> () );
+                }
+
                 propEntities.Add ( gameObject );
             }
         }
@@ -102,6 +107,11 @@ public class EntityManager : MonoBehaviour {
         {
             if (propEntities.Contains ( gameObject ))
             {
+                if (gameObject.GetComponent<Prop_Warehouse> () != null)
+                {
+                    WarehouseController.Instance.RemoveWarehouse ( gameObject.GetComponent<Prop_Warehouse> () );
+                }
+
                 propEntities.Remove ( gameObject );
             }
         }

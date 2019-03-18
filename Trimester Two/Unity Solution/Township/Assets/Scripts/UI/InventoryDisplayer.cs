@@ -21,7 +21,7 @@ public class InventoryDisplayer : MonoBehaviour {
         }
 
         if (cBase != null) inventory = cBase.Inventory;
-        else if (targetWarehouse != null) inventory = targetWarehouse.inventory;
+        else if (targetWarehouse != null) inventory = WarehouseController.Instance.Inventory;
     }
 
     void Update () {

@@ -17,7 +17,7 @@ public class IdleJob : Job
 
         if(currentIdleTime >= targetIdleTime)
         {
-            OnCharacterLeave ( "Spent too much time idling", true );
+            OnCharacterLeave ( "Spent too much time idling", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
         }
     }
 
@@ -28,7 +28,7 @@ public class IdleJob : Job
         targetIdleTime = averageIdleTime * Random.Range ( 0.8f, 1.2f );
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
         if (this.cBase == null)
         {

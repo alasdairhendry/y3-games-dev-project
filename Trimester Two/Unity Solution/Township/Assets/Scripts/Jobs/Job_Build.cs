@@ -14,6 +14,7 @@ public class Job_Build : Job {
         this.buildSpeed = buildSpeed;
         this.buildableTarget = buildableTarget;
         this.professionTypes.Add ( ProfessionType.Worker );
+        BreakForEnergy = false;
     }
 
     public override void DoJob ()
@@ -43,11 +44,11 @@ public class Job_Build : Job {
         this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
         assignedCharacterDestination = false;
         this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
 
-        base.OnCharacterLeave ( reason, setOpenToTrue );
+        base.OnCharacterLeave ( reason, setOpenToTrue, isCompletable );
     }
 }

@@ -58,7 +58,21 @@ public class World : MonoBehaviour
         terrainLoadState.onStageComplete += OnTerrainGenerateStateChange;
         terrainLoadState.onComplete += () => { isGenerating = false; if (OnTerrainEndGenerate != null) OnTerrainEndGenerate(); };
         DEBUG_UpdateShaderParams ();        
-    }        
+    }
+
+    private void Update ()
+    {
+        if (IsUpdatingNavMesh) return;
+
+        if(updatesQueued > 0)
+        {
+            if (!IsUpdatingNavMesh)
+            {
+                DEBUG_UpdateNavMesh ();
+                updatesQueued--;
+            }
+        }
+    }
 
     public void SetRichness(Richness richness)
     {
@@ -239,9 +253,12 @@ public class World : MonoBehaviour
     }
 
     public bool IsUpdatingNavMesh { get; protected set; }
+
+    int updatesQueued = 0;
     public void DEBUG_UpdateNavMesh ()
     {
-        if (IsUpdatingNavMesh) return;
+        if (IsUpdatingNavMesh) { updatesQueued++; return; }
+
         StartCoroutine ( DEBUG_UpdateNavMeshCO () );
     }
 

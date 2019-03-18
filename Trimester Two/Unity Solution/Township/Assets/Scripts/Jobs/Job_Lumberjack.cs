@@ -26,13 +26,16 @@ public class Job_Lumberjack : Job_Profession
         if(targetInventory == null)
         {
             Debug.Log ( "Target Inventory Is null" );
+            this.targetInventory = targetProp.inventory;
             return;
         }
 
         if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
-            OnCharacterLeave ( "Storage is full. Send a market cart!", true );
-            IsCompletable = false;
+            /// TODO
+            /// ADD CALLBACK FOR INVENTORY CHANGED TO DETERMINE IF IS COMPLETABLE
+            OnCharacterLeave ( "Storage is full. Send a market cart!", true, GetCompletableParams(CompleteIdentifier.PropStorageFull) );
+            //IsCompletable = false;
             return;
         }
 
@@ -75,7 +78,7 @@ public class Job_Lumberjack : Job_Profession
         LookAtTarget ( stump.transform.GetChild ( 0 ).transform.position );
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
         if (this.cBase != null)
         {
@@ -84,22 +87,22 @@ public class Job_Lumberjack : Job_Profession
         }
         givenDestination = false;
 
-        base.OnCharacterLeave ( reason, setOpenToTrue );
+        base.OnCharacterLeave ( reason, setOpenToTrue, isCompletable );
     }
 
-    protected override IEnumerator CheckIsCompletable ()
-    {
-        if (targetProp.HaltProduction) { IsCompletable = false; yield break; }
+    //protected override IEnumerator CheckIsCompletable ()
+    //{
+    //    if (targetProp.HaltProduction) { IsCompletable = false; yield break; }
 
-        if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
-        {
-            IsCompletable = false;
-            yield break;
-        }
-        else
-        {
-            IsCompletable = true;
-            yield break;
-        }
-    }
+    //    if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
+    //    {
+    //        IsCompletable = false;
+    //        yield break;
+    //    }
+    //    else
+    //    {
+    //        IsCompletable = true;
+    //        yield break;
+    //    }
+    //}
 }

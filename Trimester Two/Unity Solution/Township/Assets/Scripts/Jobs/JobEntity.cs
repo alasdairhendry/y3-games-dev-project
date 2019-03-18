@@ -4,64 +4,90 @@ using UnityEngine;
 public class JobEntity : MonoBehaviour
 {
     private List<Job> currentJobs = new List<Job> ();
+    public WorldEntity worldEntity { get; protected set; }
 
     public void CreateJob_Build (string name, bool open, float timeRequired, System.Action onComplete, float buildSpeed, Buildable buildableTarget)
     {
         Job_Build job = new Job_Build ( this, name, open, timeRequired, onComplete, buildSpeed, buildableTarget );
-        DisplayJobWaitingIcon ();
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
     }
 
     public void CreateJob_Haul (string name, bool open, float timeRequired, System.Action onComplete, int resourceID, float resourceQuantity, Prop targetProp, ResourceInventory targetInventory)
     {
         Job_Haul job = new Job_Haul ( this, name, open, timeRequired, onComplete, resourceID, resourceQuantity, targetProp, targetInventory );
-        DisplayJobWaitingIcon ();
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
     }
 
     public void CreateJob_GatherResource (string name, bool open, float timeRequired, System.Action onComplete, int resourceID, float resourceQuantity, RawMaterial rawMaterial)
     {
         Job_GatherResource job = new Job_GatherResource ( this, name, open, timeRequired, onComplete, resourceID, resourceQuantity, rawMaterial );
-        DisplayJobWaitingIcon ();
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
     }
 
-    public Job_Lumberjack CreateJob_Lumberjack(string name, bool open, float timeRequired, System.Action onComplete, Prop_LumberjackHut prop, List<GameObject> trees, GameObject stump)
+    public Job_Lumberjack CreateJob_Lumberjack (string name, bool open, float timeRequired, System.Action onComplete, Prop_LumberjackHut prop, List<GameObject> trees, GameObject stump)
     {
-        Job_Lumberjack job = new Job_Lumberjack ( this, name, open, timeRequired, onComplete, prop ,trees, stump );
-        DisplayJobWaitingIcon ();
+        Job_Lumberjack job = new Job_Lumberjack ( this, name, open, timeRequired, onComplete, prop, trees, stump );
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
+        return job;
+    }
+
+    public Job_Fisherman CreateJob_Fisherman (string name, bool open, float timeRequired, System.Action onComplete, Prop_FishingHut prop, GameObject target, Job_Fisherman.JobState state)
+    {
+        Job_Fisherman job = new Job_Fisherman ( this, name, open, timeRequired, onComplete, prop, target, state );
+        //DisplayJobWaitingIcon ();
+        job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
         return job;
     }
 
     public Job_QuarryWorker CreateJob_QuarryWorker (string name, bool open, float timeRequired, System.Action onComplete, Prop_Quarry prop, GameObject rock, GameObject wellPoint)
     {
         Job_QuarryWorker job = new Job_QuarryWorker ( this, name, open, timeRequired, onComplete, prop, rock, wellPoint );
-        DisplayJobWaitingIcon ();
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
         return job;
     }
 
     public Job_Stonemason CreateJob_StoneMason(string name, bool open, float timeRequired, System.Action onComplete, Prop_StonemasonHut prop, GameObject plinth, GameObject plinthPoint)
     {
         Job_Stonemason job = new Job_Stonemason ( this, name, open, timeRequired, onComplete, prop, plinth, plinthPoint );
-        DisplayJobWaitingIcon ();
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
         return job;
     }
 
     public Job_MarketCart CreateJob_MarketCart(string name, bool open, float timeRequired, System.Action onComplete, Prop targetProp, ResourceInventory propInventory, int resourceID, int maxSupplyQuantity, bool supply)
     {
         Job_MarketCart job = new Job_MarketCart ( this, name, open, timeRequired, onComplete, targetProp, propInventory, resourceID, maxSupplyQuantity, supply );
-        DisplayJobWaitingIcon ();
+        //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
         currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
         return job;
     }  
 
@@ -83,9 +109,11 @@ public class JobEntity : MonoBehaviour
         for (int i = 0; i < currentJobs.Count; i++)
         {
             currentJobs[i].OnCharacterChanged -= CheckJobs;
+            currentJobs[i].onComplete -= CheckJobs;
         }
 
         JobController.DestroyJobs ( currentJobs );
+        CheckJobs ();
     }
 
     public void OnJobRemovedFromQueue (Job job)
@@ -93,9 +121,14 @@ public class JobEntity : MonoBehaviour
         if (currentJobs.Contains ( job ))
         {
             job.OnCharacterChanged -= CheckJobs;
+            job.onComplete -= CheckJobs;
             currentJobs.RemoveAt ( currentJobs.IndexOf ( job ) );
+
+            CheckJobs ();
         }
     }
+
+    private bool displayingJobWaiting = false;
 
     private void CheckJobs ()
     {
@@ -122,12 +155,19 @@ public class JobEntity : MonoBehaviour
     private void DisplayJobWaitingIcon ()
     {
         if (this == null) return;
-        GetComponent<IconDisplayer> ().AddIcon ( IconDisplayer.IconType.JobWaiting );
+        if (displayingJobWaiting) return;
+
+        //Debug.Log ( "DisplayJobWaitingIcon" );
+        GetComponent<IconDisplayer> ().AddIconGeneric ( IconDisplayer.IconType.JobWaiting );
+        displayingJobWaiting = true;
     }
 
     private void RemoveJobWaitingIcon ()
     {
         if (this == null) return;
-        GetComponent<IconDisplayer> ().RemoveIcon ( IconDisplayer.IconType.JobWaiting );
+        if (!displayingJobWaiting) return;
+        //Debug.Log ( "RemoveJobWaitingIcon" );
+        GetComponent<IconDisplayer> ().RemoveIconByType ( IconDisplayer.IconType.JobWaiting );
+        displayingJobWaiting = false;
     }
 }

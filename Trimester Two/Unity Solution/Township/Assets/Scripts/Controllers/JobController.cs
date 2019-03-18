@@ -6,11 +6,16 @@ using UnityEngine;
 public static class JobController
 {
     private static List<Job> jobs = new List<Job> ();
+    private static List<Job> previousJobs = new List<Job> ();
+
     private static int idCount = 0;
+
+    public static System.Action<List<Job>, List<Job>> onJobsChanged;
 
     public static Job QueueJob (Job job)
     {
         jobs.Add ( job );
+        if (onJobsChanged != null) onJobsChanged (jobs, previousJobs);
         return job;
     }
 
@@ -35,6 +40,7 @@ public static class JobController
                 // Job is compatible with citizen, assign it.
                 Job job = jobs[i];
                 job.OnCharacterAccept ( cBase );
+                if (onJobsChanged != null) onJobsChanged ( jobs, previousJobs );
 
                 return job;
             }
@@ -55,12 +61,14 @@ public static class JobController
         
         if (job.cBase != null && !job.Complete)
         {
-            job.OnCharacterLeave ( "Job destroyed, the object the job belonged to may have been destroyed." , false);
+            job.OnCharacterLeave ( "Job destroyed, the object the job belonged to may have been destroyed." , false, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
         }
 
         job.JobEntity.OnJobRemovedFromQueue ( job );
 
+        previousJobs.Add ( job );
         jobs.Remove ( job );
+        if (onJobsChanged != null) onJobsChanged ( jobs, previousJobs );
     }
 
     public static void DestroyJobs(List<Job> givenJobs)
@@ -78,13 +86,16 @@ public static class JobController
 
             if (targetJobs[i].cBase != null && !targetJobs[i].Complete)
             {
-                targetJobs[i].OnCharacterLeave ( "Job destroyed, the object the job belonged to may have been destroyed.", false );
+                targetJobs[i].OnCharacterLeave ( "Job destroyed, the object the job belonged to may have been destroyed.", false, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
             }
 
             targetJobs[i].JobEntity.OnJobRemovedFromQueue ( targetJobs[i] );
 
+            previousJobs.Add ( targetJobs[i] );
             jobs.Remove ( targetJobs[i] );
         }
+
+        if (onJobsChanged != null) onJobsChanged ( jobs, previousJobs );
     }
 
     public static void DecreasePriority (Job job)
@@ -107,4 +118,6 @@ public static class JobController
             jobs[currentIndex + 1] = job;
         }
     }
+
+
 }

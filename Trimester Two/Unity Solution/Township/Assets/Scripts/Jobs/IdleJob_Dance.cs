@@ -33,11 +33,11 @@ public class IdleJob_Dance : IdleJob {
         base.OnCharacterAccept ( character );
     }
 
-    public override void OnCharacterLeave (string reason, bool setOpenToTrue)
+    public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
         cBase.CitizenAnimation.animator.SetBool ( "Dance", false );
         toldToDance = false;
 
-        base.OnCharacterLeave ( reason, setOpenToTrue );
+        base.OnCharacterLeave ( reason, setOpenToTrue, isCompletable);
     }
 }

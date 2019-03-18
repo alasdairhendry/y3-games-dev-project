@@ -302,6 +302,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1489159752660820
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4490982916098592}
+  m_Layer: 0
+  m_Name: FishingSpot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1505617914351806
 GameObject:
   m_ObjectHideFlags: 1
@@ -667,6 +682,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1961869073539660
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4741293506220442}
+  m_Layer: 0
+  m_Name: FishingSpot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1966441124696136
 GameObject:
   m_ObjectHideFlags: 1
@@ -928,6 +958,19 @@ Transform:
   m_Father: {fileID: 4197685533582392}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4490982916098592
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1489159752660820}
+  m_LocalRotation: {x: -0, y: 0.61230224, z: -0, w: 0.7906237}
+  m_LocalPosition: {x: 4.469, y: 0.7, z: 10.716}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4889014719829834}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 75.512, z: 0}
 --- !u!4 &4519045143707128
 Transform:
   m_ObjectHideFlags: 1
@@ -1015,6 +1058,19 @@ Transform:
   m_Father: {fileID: 4482618955837868}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4741293506220442
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1961869073539660}
+  m_LocalRotation: {x: -0, y: 0.11885691, z: -0, w: 0.9929114}
+  m_LocalPosition: {x: 2.655, y: 0.7, z: 12.866}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4889014719829834}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 13.652, z: 0}
 --- !u!4 &4746339847972634
 Transform:
   m_ObjectHideFlags: 1
@@ -1139,6 +1195,8 @@ Transform:
   - {fileID: 4746339847972634}
   - {fileID: 4424609178618160}
   - {fileID: 4709623220046206}
+  - {fileID: 4741293506220442}
+  - {fileID: 4490982916098592}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2526,6 +2584,8 @@ MonoBehaviour:
   citizenInteractionPoint: {x: 4, y: 0, z: -1}
   MaxJobs: 2
   ProductionRequired: 15
+  fishingSpot: {fileID: 1961869073539660}
+  choppingSpot: {fileID: 1489159752660820}
 --- !u!114 &114301510967978380
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -96,6 +96,8 @@ public class PropVisualiser : MonoBehaviour {
 
     private void OnDestroy ()
     {
+        if (this == null) return;
+        if (VisualiserController.Instance == null) return;
         VisualiserController.Instance.RemoveVisualiser ( this );
     }
 

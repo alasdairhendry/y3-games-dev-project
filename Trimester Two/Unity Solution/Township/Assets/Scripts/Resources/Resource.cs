@@ -22,7 +22,39 @@ public class Resource {
         this.id = id;
         this.name = name;
         this.description = description;
-        imagePath = "Images/Resources/Resource_" + name;
+        imagePath = "UI/Resource/" + name;
         prefabPath = "Resource/Resource_" + name + "_Prefab";
+    }
+
+    public void HoldItem (CitizenGraphics graphics, bool state)
+    {
+        if (id == 0)
+        {
+            graphics.SetUsingLogs ( state );
+        }
+        else if (id == 1)
+        {
+            graphics.SetUsingRocks ( state );
+        }
+        else
+        {
+            graphics.SetUsingCrate ( state );
+        }
+    }
+
+    public static void DropResource (int id, float quantity, Vector3 position, Vector3 rotation)
+    {
+        GameObject go = GameObject.Instantiate ( Resources.Load<GameObject> ( "RawMaterialBoxed_Prefab" ) as GameObject );
+        go.transform.position = position;
+        go.transform.eulerAngles = rotation;
+        go.GetComponent<RawMaterial> ().SetValues ( id, quantity, 0.0f, "Collect" );
+    }
+
+    public static void DropResource (int id, float quantity, Transform tran)
+    {
+        GameObject go = GameObject.Instantiate ( Resources.Load<GameObject> ( "RawMaterialBoxed_Prefab" ) as GameObject );
+        go.transform.position = tran.position + (tran.forward);
+        go.transform.eulerAngles = tran.eulerAngles;
+        go.GetComponent<RawMaterial> ().SetValues ( id, quantity, 0.0f, "Collect" );
     }
 }

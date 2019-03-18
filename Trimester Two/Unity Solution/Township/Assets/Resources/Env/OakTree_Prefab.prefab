@@ -23,9 +23,9 @@ GameObject:
   - component: {fileID: 114731033116713894}
   - component: {fileID: 208216470158862742}
   - component: {fileID: 114162971295040960}
-  - component: {fileID: 114088108734101832}
   - component: {fileID: 114460927768680230}
   - component: {fileID: 114909929541438094}
+  - component: {fileID: 114981833613973656}
   m_Layer: 0
   m_Name: OakTree_Prefab
   m_TagString: Untagged
@@ -45,6 +45,21 @@ GameObject:
   - component: {fileID: 65363098355396304}
   m_Layer: 0
   m_Name: RawMaterialCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1556469956167500
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4527673792018406}
+  m_Layer: 0
+  m_Name: InteractionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -89,12 +104,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1374770735600504}
-  m_LocalRotation: {x: -0, y: 0.8762909, z: -0, w: 0.48178235}
-  m_LocalPosition: {x: -160, y: 3.0800872, z: -410}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4400528726291538}
   - {fileID: 4533053874225718}
+  - {fileID: 4527673792018406}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -111,6 +127,19 @@ Transform:
   - {fileID: 4636889200338308}
   m_Father: {fileID: 4203680648198120}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4527673792018406
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1556469956167500}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4203680648198120}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4533053874225718
 Transform:
@@ -206,18 +235,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 3, y: 8, z: 4}
   m_Center: {x: 0, y: 4, z: 0}
---- !u!114 &114088108734101832
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1374770735600504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed83aeb9fb9d7d14ab0119bc63e80e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultTab: Overview
 --- !u!114 &114162971295040960
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -265,6 +282,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceProvided: 0
   quantityProvided: 0.25
+  timeToRemove: 10
+  removalDescription: Cut Down
 --- !u!114 &114731033116713894
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -291,6 +310,18 @@ MonoBehaviour:
   breakSpeed: 2
   gravityAcceleration: -0.075
   time: 1.6
+--- !u!114 &114981833613973656
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1374770735600504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultTab: Overview
 --- !u!208 &208216470158862742
 NavMeshObstacle:
   m_ObjectHideFlags: 1
