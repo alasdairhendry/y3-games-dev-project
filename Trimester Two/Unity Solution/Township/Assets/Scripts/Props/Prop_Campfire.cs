@@ -46,7 +46,7 @@ public class Prop_Campfire : Prop {
         {
             if (!inventory.CheckHasQuantityAvailable ( 0, 0.5f ))
             {
-                jobEntity.CreateJob_Haul ( "Add wood to campfire", true, 5.0f, null, 0, 1, this, inventory );
+                jobEntity.CreateJob_Haul ( "Haul Wood To Campfire", true, 5.0f, null, 0, 1, this, inventory );
             }
         }
     }

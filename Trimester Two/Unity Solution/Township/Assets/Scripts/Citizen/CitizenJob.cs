@@ -19,14 +19,41 @@ public class CitizenJob : MonoBehaviour {
 
     public bool RegainingEnergy { get; protected set; }
 
+    private int initialJobTickSkip = 0;
+
     private void Awake ()
     {
         cBase = GetComponent<CitizenBase> ();
+        initialJobTickSkip = UnityEngine.Random.Range ( 0, 9 );
     }
 
     void Start ()
     {
-        GameTime.RegisterGameTick ( OnGameTick );       
+        GameTime.RegisterGameTick ( OnGameTick );
+
+        CheckInventory ( cBase.Inventory );
+
+        cBase.Inventory.RegisterOnInventoryChanged ( (inv) =>
+        {
+            CheckInventory ( inv );
+        } );
+    }
+
+    private void CheckInventory (ResourceInventory inv)
+    {
+        IconDisplayer id = GetComponent<IconDisplayer> ();
+
+        if (currentJob == null)
+        {
+            if (!inv.IsEmpty ())
+            {
+                id.AddIconGeneric ( IconDisplayer.IconType.Inventory );
+            }
+            else
+            {
+                id.RemoveIconByType ( IconDisplayer.IconType.Inventory );
+            }
+        }
     }
 
     private void Update ()
@@ -40,6 +67,7 @@ public class CitizenJob : MonoBehaviour {
         Tick_CheckJob ();
     }
 
+    // TODO : Double Check this
     private void CheckEnergy ()
     {
         if (cBase.CitizenNeeds.NeedsDictionary[Need.Type.Energy].currentValue <= 0.30f)
@@ -70,6 +98,12 @@ public class CitizenJob : MonoBehaviour {
 
     private void Tick_CheckJob ()
     {        
+        if(initialJobTickSkip > 0)
+        {
+            initialJobTickSkip--;
+            return;
+        }
+
         if (currentJob == null)
         {    
             if(cBase.CitizenAge.Age < 6)
@@ -138,6 +172,11 @@ public class CitizenJob : MonoBehaviour {
 
     public void OnJob_Leave ()
     {
+        if(currentJob == null && !cBase.Inventory.IsEmpty ())
+        {
+            GetComponent<IconDisplayer> ().AddIconGeneric ( IconDisplayer.IconType.Inventory );
+        }        
+
         if (currentJob == null) return;
 
         if (!previouslyAttemptedJobs.Contains ( currentJob ))

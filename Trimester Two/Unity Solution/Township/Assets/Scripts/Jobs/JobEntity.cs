@@ -6,6 +6,11 @@ public class JobEntity : MonoBehaviour
     private List<Job> currentJobs = new List<Job> ();
     public WorldEntity worldEntity { get; protected set; }
 
+    private void Awake()
+    {
+        this.worldEntity = GetComponent<WorldEntity> ();
+    }
+
     public void CreateJob_Build (string name, bool open, float timeRequired, System.Action onComplete, float buildSpeed, Buildable buildableTarget)
     {
         Job_Build job = new Job_Build ( this, name, open, timeRequired, onComplete, buildSpeed, buildableTarget );
@@ -50,6 +55,17 @@ public class JobEntity : MonoBehaviour
     public Job_Fisherman CreateJob_Fisherman (string name, bool open, float timeRequired, System.Action onComplete, Prop_FishingHut prop, GameObject target, Job_Fisherman.JobState state)
     {
         Job_Fisherman job = new Job_Fisherman ( this, name, open, timeRequired, onComplete, prop, target, state );
+        //DisplayJobWaitingIcon ();
+        job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
+        return job;
+    }
+
+    public Job_Vintner CreateJob_Vintner (string name, bool open, float timeRequired, System.Action onComplete, Prop_Orchard prop, List<Transform> waypoints)
+    {
+        Job_Vintner job = new Job_Vintner ( this, name, open, timeRequired, onComplete, prop, waypoints );
         //DisplayJobWaitingIcon ();
         job.OnCharacterChanged += CheckJobs;
         job.onComplete += CheckJobs;

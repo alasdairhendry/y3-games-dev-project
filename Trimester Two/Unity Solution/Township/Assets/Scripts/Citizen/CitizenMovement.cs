@@ -29,6 +29,8 @@ public class CitizenMovement : MonoBehaviour {
     public bool HasPath { get; protected set; }
 
     public System.Action<Vector3> onReachedPath;
+    public System.Action onDestinationCleared;
+    public System.Action onPathConfirmed;
     private System.Action<MovementState> onMovementStateChanged;
 
     private void Awake ()
@@ -126,6 +128,8 @@ public class CitizenMovement : MonoBehaviour {
             onMovementStateChanged ( movementState );
         }
 
+        onPathConfirmed?.Invoke ();
+
         //Debug.Log ( "OnPathConfirmed" );
     }
 
@@ -147,7 +151,6 @@ public class CitizenMovement : MonoBehaviour {
 
     private void OnReachedPath ()
     {
-        Debug.Log ( "OnReachedPath" );
         if (movementState == MovementState.Moving)
         {
             movementState = MovementState.Idle;
@@ -161,11 +164,16 @@ public class CitizenMovement : MonoBehaviour {
 
     public void ClearDestination ()
     {
+        if (this == null) return;
+        if (agent == null) return;
+        if (!agent.isOnNavMesh) return;
+
         destinationPosition = Vector3.zero;
         DestinationObject = null;
         path = null;
         HasPath = false;
         agent.ResetPath ();
+        onDestinationCleared?.Invoke ();
     }
 
     private void OnDestroy ()

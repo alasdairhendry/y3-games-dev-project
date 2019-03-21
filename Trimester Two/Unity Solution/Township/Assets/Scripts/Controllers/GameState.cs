@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameState : MonoBehaviour {
 
     //public static GameState Instance;
-    //public LoadState worldLoadState = new LoadState();
+    //public LoadState worldLoadState = new LoadState ();
 
     //private void Awake()
     //{

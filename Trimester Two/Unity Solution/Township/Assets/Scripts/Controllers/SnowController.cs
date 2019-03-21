@@ -36,7 +36,7 @@ public class SnowController : MonoBehaviour
     [SerializeField] private float objectSnowLevel;
     [SerializeField] private float objectSnowLevelDamp = 0.5f;
 
-    [SerializeField] private float currentTemperature;
+    [SerializeField] private float currentTemperature = 30.0f;
 
     [SerializeField] [Range(0.001f, 0.1f)] private float flakeAmount;
     [SerializeField] [Range(0.0f, 1.0f)] private float flakeOpacity;
@@ -52,11 +52,14 @@ public class SnowController : MonoBehaviour
         snowDepressions = FindObjectOfType<DEBUG_DrawSnowDepressionsWithMouse> ();
     }
 
+    public void CheckTemperature ()
+    {
+        currentTemperature = TemperatureController.Temperature;
+        CheckShouldSnow ();
+    }
+
     private void Update ()
     {
-        currentTemperature = TemperatureController.Instance.Temperature;
-
-        CheckShouldSnow ();
         SetTerrainSnowLevels ();
         SetObjectSnowLevels ();
         RemoveSnowDepressions ();
@@ -75,7 +78,12 @@ public class SnowController : MonoBehaviour
         else
         {
             if (terrainSnowLevel == maxSnowDepth)
-                shouldTerrainSnow = false;
+            {
+                if(currentTemperature > terrainTemperatureThreshold + 2)
+                {
+                    shouldTerrainSnow = false;
+                }
+            }
         }
 
         if (currentTemperature <= objectTemperatureThreshold)
@@ -86,7 +94,13 @@ public class SnowController : MonoBehaviour
         else
         {
             if (objectSnowLevel == 0.33f)
-                shouldObjectSnow = false;
+            {
+                if(currentTemperature > objectTemperatureThreshold + 2)
+                {
+                    shouldObjectSnow = false;
+                }
+            }
+                //shouldObjectSnow = false;
         }
 
         if (shouldObjectSnow || shouldTerrainSnow)

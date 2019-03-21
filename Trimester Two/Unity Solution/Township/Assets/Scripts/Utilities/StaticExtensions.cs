@@ -28,6 +28,12 @@ public static class StaticExtensions {
     {
         if (value.Length != 3) { Debug.LogError ( "Array doesnt contain 3 elements" ); return new Vector3 (); }
         return new Vector3 ( value[0], value[1], value[2] );
+    }
 
+    public static int Loop(int value, int min, int max)
+    {
+        if (value > max) return min;
+        else if (value < min) return max;
+        else return value;
     }
 }

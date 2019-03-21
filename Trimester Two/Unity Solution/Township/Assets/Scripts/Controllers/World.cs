@@ -103,8 +103,8 @@ public class World : MonoBehaviour
 
     public void SetTemperatures ()
     {
-        if (TemperatureController.Instance == null) return;
-        TemperatureController.Instance.SetAverageTemperate ( worldData.temperatureMin, worldData.temperatureMax );
+        //if (TemperatureController.Instance == null) return;
+        TemperatureController.SetAverageTemperate ( worldData.temperatureMin, worldData.temperatureMax );
     }
 
     public void Create_NavMesh (System.Action onComplete)

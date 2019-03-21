@@ -235,6 +235,7 @@ GameObject:
   - component: {fileID: 114565850905304274}
   - component: {fileID: 114468622016380576}
   - component: {fileID: 114464690440678804}
+  - component: {fileID: 114107888613561932}
   m_Layer: 0
   m_Name: LumberjackHut_Prefab
   m_TagString: Untagged
@@ -3355,6 +3356,19 @@ MonoBehaviour:
     localPosition: {x: 4, y: 0, z: 0}
     gameObject: {fileID: 0}
   materialGraphic: {fileID: 139386, guid: c2849fd453abd0445a702a035f04ac60, type: 2}
+--- !u!114 &114107888613561932
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1198493593527028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f1288afbd5b1f45ae6cd44e072aad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityName: 
+  type: 2
 --- !u!114 &114125332209764620
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3425,7 +3439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3460f42e8fd36d14595dac022b9e2f39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  citizenInteractionPoint: {x: 0, y: 0, z: 3.5}
+  citizenInteractionPoint: {x: 0, y: 0, z: 4}
   MaxJobs: 2
   ProductionRequired: 20
   trees:
@@ -3465,6 +3479,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lockOffset: {x: 0, y: 2, z: 7}
+  lockDistance: 20
   defaultTab: Overview
 --- !u!114 &114586014440346574
 MonoBehaviour:

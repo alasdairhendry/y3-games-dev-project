@@ -145,8 +145,8 @@ public class Prop_StonemasonHut : Prop_Profession {
     // Called from Prop_Profession on built "MaxJobs" times
     protected override void CreateProfessionJobs (int index)
     {
-        Job_Stonemason job = GetComponent<JobEntity> ().CreateJob_StoneMason ( "Stonemason", !HaltProduction, 5.0f, null, this, plinth, plinthPoint);
+        Job_Stonemason job = GetComponent<JobEntity> ().CreateJob_StoneMason ( "Stone Masonry", !HaltProduction, 5.0f, null, this, plinth, plinthPoint);
         professionJobs.Add ( job );
-        JobController.QueueJob ( job );
+        //JobController.QueueJob ( job );
     }
 }

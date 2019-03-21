@@ -2,60 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TemperatureController : MonoBehaviour {
+public static class TemperatureController {
 
-    public static TemperatureController Instance;
+    public static Vector2 temperatureVariance { get; private set; } = new Vector2 ( -2f, 2f );
 
-    [SerializeField] private AnimationCurve temperatureCurve;
-    [SerializeField] private Vector2 temperatureVariance = new Vector2 ( -2f, 2f );
+    public static float temperatureMin { get; private set; } = 10.0f;
+    public static float temperatureMax { get; private set; } = 15.0f;
+    public static float Temperature { get; private set; } = float.MinValue;
 
-    private float temperatureMin = 0;
-    private float temperatureMax = 0;
+    //private static bool calcTmp = true;
 
-    private float temperature = float.MinValue;
-    public float Temperature { get { return temperature; } }
-
-    //public System.Action<float, float> onTemperatureChange;
-
-    private void Awake ()
+    public static void CalculateTemperature ()
     {
-        if (Instance == null) Instance = this;
-        else if (Instance != this) Destroy ( this.gameObject );
-    }
+        //if (!calcTmp) return;
 
-    private void Start ()
-    {
-        GameTime.onDayChanged += UpdateTemperature;
-
-        if (temperature == float.MinValue)
-            CalculateTemperature ();
-    }
-
-    private void UpdateTemperature (int previousDay, int currentDay) {
-        //CalculateTemperature ();
-    }
-    
-    private void CalculateTemperature ()
-    {        
-        float timeOfYearPercentage = GameTime.currentOverallDay / 372.0f;        
-        float temperaturePercentage = temperatureCurve.Evaluate ( timeOfYearPercentage );        
+        float timeOfYearPercentage = GameTime.currentDayOfTheYear / 372.0f;        
+        float temperaturePercentage = GameData.Instance.TemperatureCurve.Evaluate ( timeOfYearPercentage );        
         float _temperature = Mathf.Lerp ( temperatureMin, temperatureMax, temperaturePercentage );        
 
         _temperature += Random.Range ( temperatureVariance.x, temperatureVariance.y );
 
-        //if (onTemperatureChange != null) onTemperatureChange ( temperature, _temperature );
-
-        temperature = _temperature;
+        Temperature = _temperature;
     }
 
-    public void SetAverageTemperate(float min, float max)
+    public static void SetAverageTemperate(float min, float max)
     {
         temperatureMin = min;
         temperatureMax = max;
+        CalculateTemperature ();
     }
 
-    public void SetTemp (float amount)
-    {
-        temperature += amount;
-    }
+    //public static void SetTemp(float amount)
+    //{
+    //    calcTmp = false;
+    //    Temperature += amount;
+    //    SnowController.Instance?.CheckTemperature ();
+    //}
 }

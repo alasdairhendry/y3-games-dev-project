@@ -118,7 +118,7 @@ public class ResourceInventory {
         }
 
         inventoryAvailable[itemID] -= quantity;
-        if (onResourceRemoved != null) onResourceRemoved ( itemID, quantity );
+        if (onResourceRemoved != null) { onResourceRemoved ( itemID, quantity ); Debug.Log ( "Removed2" ); }
 
         if (target != null && quantity > 0.0f)
         {
@@ -196,6 +196,7 @@ public class ResourceInventory {
         }
 
         inventoryReserved[itemID] -= quantity;
+        onResourceRemoved?.Invoke ( itemID, quantityAvailable );
 
         SetOverallInventory ();
 

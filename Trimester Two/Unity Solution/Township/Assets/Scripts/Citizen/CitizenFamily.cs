@@ -35,19 +35,18 @@ public class CitizenFamily : MonoBehaviour {
         this.familyID = familyID;
         this.Children = new List<CitizenFamilyMember> ();
 
-        thisMember = new CitizenFamilyMember () { firstName = firstName, citizenBase = cBase };
-        this.gameObject.name = "Citizen-" + firstName + " " + familyName;
+        Father = new CitizenFamilyMember ( "Unknown", familyName, Random.Range ( 0, 3 ), null );
+        Mother = new CitizenFamilyMember ( "Unknown", familyName, Random.Range ( 0, 3 ), null );
 
-        Father = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range(0, 3) };
-        Mother = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
+        thisMember = new CitizenFamilyMember ( firstName, familyName, SetSkinColour (), cBase );
+        this.gameObject.name = "Citizen-" + firstName + " " + familyName;
 
         cBase.CitizenAge.SetInitialAge ( Random.Range ( 18, 30 ) );
 
-        SetSkinColour ();
-
         ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.Worker );
-
         SetSelectable ();
+
+        GetComponent<WorldEntity> ().Setup ( thisMember.fullName, WorldEntity.EntityType.Citizen );
     }
         
     public void SetFromParents (string firstName, Gender gender, CitizenFamilyMember father, CitizenFamilyMember mother)
@@ -56,7 +55,6 @@ public class CitizenFamily : MonoBehaviour {
         this.gender = gender;
         this.Children = new List<CitizenFamilyMember> ();
 
-        thisMember = new CitizenFamilyMember () { firstName = firstName, citizenBase = cBase };
 
         Father = father;
         Mother = mother;        
@@ -64,9 +62,8 @@ public class CitizenFamily : MonoBehaviour {
         this.familyName = Father.citizenBase.CitizenFamily.familyName;
         this.gameObject.name = "Citizen-" + firstName + " " + familyName;
 
+        thisMember = new CitizenFamilyMember ( firstName, this.familyName, SetSkinColour (), cBase );
         cBase.CitizenAge.SetInitialAge ( 0 );
-
-        SetSkinColour ();
 
         ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.None );
 
@@ -74,17 +71,20 @@ public class CitizenFamily : MonoBehaviour {
         if (Father.citizenBase != null) { Father.citizenBase.CitizenFamily.AddChild ( thisMember ); this.familyID = father.citizenBase.CitizenFamily.familyID; }
 
         SetSelectable ();
+        GetComponent<WorldEntity> ().Setup ( thisMember.fullName, WorldEntity.EntityType.Citizen );
     }
 
     public void SetFromLoaded(PersistentData.CitizenData data)
     {
         loadedData = data;
         cBase = GetComponent<CitizenBase> ();
+        cBase.SetID ( data.ID );
+
         this.Children = new List<CitizenFamilyMember> ();
 
-        this.Father = new CitizenFamilyMember ();
-        this.Mother = new CitizenFamilyMember ();
-        this.Partner = new CitizenFamilyMember ();
+        this.Father = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
+        this.Mother = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
+        this.Partner = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
 
         this.gender = (Gender)data.Gender;
         this.familyName = data.FamilyName;
@@ -92,13 +92,13 @@ public class CitizenFamily : MonoBehaviour {
 
         this.gameObject.name = "Citizen-" + data.FirstName + " " + familyName;
 
-        thisMember = new CitizenFamilyMember () { firstName = data.FirstName, citizenBase = cBase };
-        SetSkinColour ( data.SkinColour );
+        thisMember = new CitizenFamilyMember ( data.FirstName, data.FamilyName, data.SkinColour, cBase );
 
         this.cBase.CitizenAge.SetInitialAge ( data.Age, data.Birthday );
         ProfessionController.Instance.SetProfession ( this.cBase.CitizenJob, (ProfessionType)data.Profession );
 
         SetSelectable ();
+        GetComponent<WorldEntity> ().Setup ( thisMember.fullName, WorldEntity.EntityType.Citizen );
     }
 
     public void SetFamilyFromLoaded ()
@@ -107,35 +107,42 @@ public class CitizenFamily : MonoBehaviour {
 
         if(loadedData.FatherID == -1)
         {
-            Father = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
+            Father = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
+            //Father = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
         }
         else
         {
+            Debug.Log ( loadedData.FatherID );
             CitizenBase father = EntityManager.Instance.GetCitizenBaseByID ( loadedData.FatherID );
             if (father == null) { Debug.LogError ( "Father was null at ID: " + loadedData.FatherID ); }
             else
             {
-                Father = new CitizenFamilyMember ();
-                Father.citizenBase = father;
-                Father.firstName = father.CitizenFamily.thisMember.firstName;
-                Father.skinColour = father.CitizenFamily.thisMember.skinColour;
+                Father = new CitizenFamilyMember ( father.CitizenFamily.thisMember.firstName, father.CitizenFamily.thisMember.familyName, father.CitizenFamily.thisMember.skinColour, father );
+
+                //Father = new CitizenFamilyMember ();
+                //Father.citizenBase = father;
+                //Father.firstName = father.CitizenFamily.thisMember.firstName;
+                //Father.skinColour = father.CitizenFamily.thisMember.skinColour;
             }
         }
 
         if (loadedData.MotherID == -1)
         {
-            Mother = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
+            Mother = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
         }
         else
         {
+            Debug.Log ( loadedData.MotherID );
             CitizenBase mother = EntityManager.Instance.GetCitizenBaseByID ( loadedData.MotherID );
             if (mother == null) { Debug.LogError ( "Mother was null at ID: " + loadedData.MotherID ); }
             else
             {
-                Mother = new CitizenFamilyMember ();
-                Mother.citizenBase = mother;
-                Mother.firstName = mother.CitizenFamily.thisMember.firstName;
-                Mother.skinColour = mother.CitizenFamily.thisMember.skinColour;
+                Mother = new CitizenFamilyMember ( mother.CitizenFamily.thisMember.firstName, mother.CitizenFamily.thisMember.familyName, mother.CitizenFamily.thisMember.skinColour, mother );
+
+                //Mother = new CitizenFamilyMember ();
+                //Mother.citizenBase = mother;
+                //Mother.firstName = mother.CitizenFamily.thisMember.firstName;
+                //Mother.skinColour = mother.CitizenFamily.thisMember.skinColour;
             }
         }
 
@@ -145,14 +152,18 @@ public class CitizenFamily : MonoBehaviour {
         }
         else
         {
-            CitizenBase partner = EntityManager.Instance.GetCitizenBaseByID ( loadedData.PartnerID );
+            Debug.Log ( loadedData.PartnerID );
+            CitizenBase partner = null;
+            try { partner = EntityManager.Instance.GetCitizenBaseByID ( loadedData.PartnerID ); } catch { Debug.Log ( "BOop" ); }
             if (partner == null) { Debug.LogError ( "Partner was null at ID: " + loadedData.PartnerID ); }
             else
             {
-                Partner = new CitizenFamilyMember ();
-                Partner.citizenBase = partner;
-                Partner.firstName = partner.CitizenFamily.thisMember.firstName;
-                Partner.skinColour = partner.CitizenFamily.thisMember.skinColour;
+                Partner = new CitizenFamilyMember ( partner.CitizenFamily.thisMember.firstName, partner.CitizenFamily.familyName, partner.CitizenFamily.thisMember.skinColour, partner );
+
+                //Partner = new CitizenFamilyMember ();
+                //Partner.citizenBase = partner;
+                //Partner.firstName = partner.CitizenFamily.thisMember.firstName;
+                //Partner.skinColour = partner.CitizenFamily.thisMember.skinColour;
             }
         }
 
@@ -166,14 +177,18 @@ public class CitizenFamily : MonoBehaviour {
 
             for (int i = 0; i < loadedData.ChildrenIDs.Count; i++)
             {
+                Debug.Log ( loadedData.ChildrenIDs[i] );
+
                 CitizenBase childBase = EntityManager.Instance.GetCitizenBaseByID ( loadedData.ChildrenIDs[i] );
                 if (childBase == null) { Debug.LogError ( "Child was null at ID: " + loadedData.ChildrenIDs[i] ); }
                 else
                 {
-                    CitizenFamilyMember child = new CitizenFamilyMember ();
-                    child.citizenBase = childBase;
-                    child.firstName = childBase.CitizenFamily.thisMember.firstName;
-                    child.skinColour = childBase.CitizenFamily.thisMember.skinColour;
+                    CitizenFamilyMember child = new CitizenFamilyMember ( childBase.CitizenFamily.thisMember.firstName, childBase.CitizenFamily.familyName, childBase.CitizenFamily.thisMember.skinColour, childBase );
+
+                    //CitizenFamilyMember child = new CitizenFamilyMember ();
+                    //child.citizenBase = childBase;
+                    //child.firstName = childBase.CitizenFamily.thisMember.firstName;
+                    //child.skinColour = childBase.CitizenFamily.thisMember.skinColour;
 
                     AddChild ( child );
                 }
@@ -200,9 +215,11 @@ public class CitizenFamily : MonoBehaviour {
         {
             familyID = Partner.citizenBase.CitizenFamily.familyID;
             familyName = Partner.citizenBase.CitizenFamily.familyName;
+            thisMember.UpdateName ( partner.citizenBase.CitizenFamily.familyName );
+            GetComponent<WorldEntity> ().Setup ( thisMember.fullName, WorldEntity.EntityType.Citizen );
         }
 
-        HasPartner = true;
+        HasPartner = true;        
     }
 
     public void GetPregnant ()
@@ -245,13 +262,10 @@ public class CitizenFamily : MonoBehaviour {
                     ProfessionController.Instance.SetProfession ( cBase.CitizenJob, options[index].text );
                 }, (pair) =>
                 {
+                    //Debug.Log ( "Boop" );
                     return cBase.CitizenJob.profession.ToString ();
                 }, "Profession", "Overview",
-                ProfessionType.Worker.ToString (),
-                ProfessionType.Lumberjack.ToString (),
-                ProfessionType.Quarryman.ToString (),
-                ProfessionType.Stonemason.ToString (),
-                ProfessionType.Fisherman.ToString () );
+                ProfessionController.Instance.GetProfessionsAreStringList ( 2 ) );
             }
 
             panel.AddTextData ( (pair) =>
@@ -264,11 +278,6 @@ public class CitizenFamily : MonoBehaviour {
                 return cBase.CitizenAge.Age.ToString ();
             }, "Age", "Overview" );
 
-            //panel.AddTextData ( () =>
-            //{
-            //    return familyID.ToString ( "00" );
-            //}, "Family ID", "Family" );
-
             panel.AddButtonTextData ( () =>
             {
                 if (Father == null) return;
@@ -277,7 +286,7 @@ public class CitizenFamily : MonoBehaviour {
                 else if (Father.citizenBase == null) return;
                 else
                 {
-                    FindObjectOfType<CameraMovement> ().LockTo ( Father.citizenBase.transform );
+                    Father.citizenBase.Inspectable.InspectAndLockCamera ();
                     Father.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                 }
             }, (pair) =>
@@ -299,7 +308,7 @@ public class CitizenFamily : MonoBehaviour {
                  else if (Mother.citizenBase == null) return;
                  else
                  {
-                     FindObjectOfType<CameraMovement> ().LockTo ( Mother.citizenBase.transform );
+                     Mother.citizenBase.Inspectable.InspectAndLockCamera ();
                      Mother.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                  }
              }, (pair) =>
@@ -325,7 +334,7 @@ public class CitizenFamily : MonoBehaviour {
                     else if (Children[x].citizenBase == null) return;
                     else
                     {
-                        FindObjectOfType<CameraMovement> ().LockTo ( Children[x].citizenBase.transform );
+                        Children[x].citizenBase.Inspectable.InspectAndLockCamera ();
                         Children[x].citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                     }
                 }, (pair) =>
@@ -349,7 +358,7 @@ public class CitizenFamily : MonoBehaviour {
                 else if (Partner.citizenBase == null) return;
                 else
                 {
-                    FindObjectOfType<CameraMovement> ().LockTo ( Partner.citizenBase.transform );
+                    Partner.citizenBase.Inspectable.InspectAndLockCamera ();
                     Partner.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
                 }
             }, (pair) =>
@@ -370,7 +379,7 @@ public class CitizenFamily : MonoBehaviour {
         } );
     }
 
-    private void SetSkinColour (int skinColour = -1)
+    private int SetSkinColour (int skinColour = -1)
     {
         if (skinColour == -1)
         {
@@ -378,26 +387,47 @@ public class CitizenFamily : MonoBehaviour {
             int y = Mother.skinColour;
 
             if (x == 0 & y == 0)
-                thisMember.skinColour = 0;
+                return 0;
             else if ((x == 1 && y == 0) || (x == 0 && y == 1))
-                thisMember.skinColour = 0;
+                return 0;
             else if ((x == 2 && y == 0) || (x == 0 && y == 2))
-                thisMember.skinColour = 1;
+                return 1;
             else if ((x == 2 && y == 1) || (x == 1 && y == 2))
-                thisMember.skinColour = 2;
+                return 2;
+            else return 0;
         }
         else
         {
-            thisMember.skinColour = skinColour;
+            return skinColour;
         }
 
-        cBase.CitizenGraphics.SetCitizenMaterialSpecific ( thisMember.skinColour );
+        //cBase.CitizenGraphics.SetCitizenMaterialSpecific ( thisMember.skinColour );
     }
 
     public class CitizenFamilyMember
     {
-        public string firstName;
-        public int skinColour;
-        public CitizenBase citizenBase;
+        public string firstName { get; protected set; }
+        public string familyName { get; protected set; }
+        public string fullName { get; protected set; }
+
+        public int skinColour { get; protected set; }
+        public CitizenBase citizenBase { get; protected set; }
+
+        public CitizenFamilyMember (string firstName, string familyName, int skinColour, CitizenBase citizenBase)
+        {
+            this.firstName = firstName;
+            this.familyName = familyName;
+            this.fullName = firstName + " " + familyName;
+            this.skinColour = skinColour;
+            this.citizenBase = citizenBase;
+            
+            citizenBase?.CitizenGraphics.SetCitizenMaterialSpecific ( this.skinColour );
+        }
+
+        public void UpdateName (string familyName)
+        {
+            this.familyName = familyName;
+            this.fullName = firstName + " " + familyName;
+        }
     }
 }

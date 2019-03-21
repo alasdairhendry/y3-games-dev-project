@@ -9,15 +9,19 @@ using UnityEngine.UI;
 [RequireComponent(typeof(EventTrigger))]
 public class FoldoutButton : MonoBehaviour {
 
+    [Header("Data")]
     [SerializeField] private string text;
     [SerializeField] private bool generateTopSeperator;
     [SerializeField] private bool animatingChildren;
+
+    [Header("Hotkey")]
+    [SerializeField] public Hotkey.Function hotkey;
+    [SerializeField] public bool hasHotkey;
+
+    [Header("Children")]
     [SerializeField] private List<Child> children = new List<Child> ();
     [SerializeField] private GameObject childPrefab;
     [SerializeField] private GameObject seperatorPrefab;
-
-    [SerializeField] public Hotkey.Function hotkey;
-    [SerializeField] public bool hasHotkey;
 
     private Button button;
     private GameObject childrenRoot;
@@ -26,6 +30,11 @@ public class FoldoutButton : MonoBehaviour {
     {
         if (!string.IsNullOrEmpty ( text ))
             GetComponentInChildren<Text> ().text = text;
+
+        if (hasHotkey)
+        {
+            transform.Find("HotkeyText").GetComponent<Text>().text = Hotkey.GetData ( hotkey ).GetCommandString ();
+        }
 
         childrenRoot = transform.Find ( "Children" ).gameObject;
         HideChildren ();
@@ -51,7 +60,9 @@ public class FoldoutButton : MonoBehaviour {
             if(Hotkey.GetKeyDown(hotkey))
             {
                 if (button.onClick != null)
-                    button.onClick.Invoke ();
+                {
+                    button.onClick.Invoke ();                    
+                }
             }
         }
 
@@ -95,6 +106,9 @@ public class FoldoutButton : MonoBehaviour {
             child.GetComponent<RectTransform> ().localScale = Vector3.one;
             child.GetComponent<Button> ().onClick.AddListener ( () => { if (_c.action != null) _c.action.Invoke (); } );
             child.GetComponentInChildren<Text> ().text = _c.name;
+
+            if (_c.hasHotkey)
+                child.transform.Find ( "HotkeyText" ).GetComponent<Text> ().text = Hotkey.GetData ( _c.hotkey ).GetCommandString ();
         }
     }
 

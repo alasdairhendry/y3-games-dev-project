@@ -69,7 +69,9 @@ public class HUD_Build_Panel : UIPanel {
             GameObject go = Instantiate ( propOptionPrefab );
             go.transform.SetParent ( optionsContent );
             go.GetComponentsInChildren<Image> ()[2].sprite = props[i].buildModeSprite;
-            go.GetComponentInChildren<Text> ().text = props[i].name;
+            Text[] texts = go.GetComponentsInChildren<Text> ();
+            texts[0].text = props[i].name;
+            texts[1].text = props[i].description;
             go.GetComponent<Button> ().onClick.AddListener ( () => { FindObjectOfType<BuildMode> ().SetPropData ( pd ); } );
         }
     }

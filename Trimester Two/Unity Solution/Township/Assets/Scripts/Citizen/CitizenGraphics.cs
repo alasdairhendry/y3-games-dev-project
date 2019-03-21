@@ -14,6 +14,7 @@ public class CitizenGraphics : MonoBehaviour {
     [SerializeField] private GameObject logsGraphics;
     [SerializeField] private GameObject rocksGraphics;
     [SerializeField] private GameObject rodGraphics;
+    [SerializeField] private GameObject pickAxeGraphics;
 
     [SerializeField] private GameObject axeGraphics;
     [SerializeField] private Transform[] axePlaceholders;
@@ -26,6 +27,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     private float lanternWeightCounter = 0.0f;
     private bool isUsingLantern = false;
+    private bool allowLantern = true;
 
     private void Awake ()
     {
@@ -102,13 +104,23 @@ public class CitizenGraphics : MonoBehaviour {
                 case CitizenAnimation.AxeUseAnimation.Splitting:
                     cBase.CitizenAnimation.SetState_Splitting ( state );
                     break;
-            }            
+            }
         }
+    }
+
+    public void SetUsingPickaxe (bool state)
+    {
+        DisableGraphics ( logsGraphics, marketCartGraphics, rocksGraphics, rodGraphics, crateGraphics );
+
+        if (pickAxeGraphics != null)
+            pickAxeGraphics.SetActive ( state );
+
+        cBase.CitizenAnimation.SetState_Pickaxing ( state );
     }
 
     public void SetUsingCart(bool state)
     {
-        DisableGraphics ( crateGraphics, logsGraphics, rocksGraphics, rodGraphics );
+        DisableGraphics ( crateGraphics, logsGraphics, rocksGraphics, rodGraphics, pickAxeGraphics );
 
         if (marketCartGraphics != null)
             marketCartGraphics.SetActive ( state );
@@ -118,7 +130,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingCrate(bool state)
     {
-        DisableGraphics ( logsGraphics, marketCartGraphics, rocksGraphics, rodGraphics );
+        DisableGraphics ( logsGraphics, marketCartGraphics, rocksGraphics, rodGraphics, pickAxeGraphics );
 
         if (crateGraphics != null)
             crateGraphics.SetActive ( state );
@@ -128,7 +140,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingLogs (bool state)
     {
-        DisableGraphics ( crateGraphics, marketCartGraphics, rocksGraphics, rodGraphics );
+        DisableGraphics ( crateGraphics, marketCartGraphics, rocksGraphics, rodGraphics, pickAxeGraphics );
 
         if (logsGraphics != null)
             logsGraphics.SetActive ( state );
@@ -138,7 +150,7 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingRocks (bool state)
     {
-        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rodGraphics );
+        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rodGraphics, pickAxeGraphics );
 
         if (rocksGraphics != null)
             rocksGraphics.SetActive ( state );
@@ -148,12 +160,15 @@ public class CitizenGraphics : MonoBehaviour {
 
     public void SetUsingRod (bool state)
     {
-        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rocksGraphics );
+        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rocksGraphics, pickAxeGraphics );
 
         if (rodGraphics != null)
             rodGraphics.SetActive ( state );
 
         cBase.CitizenAnimation.SetAnimationState = state == true ? CitizenAnimation.AnimationState.Fishing : CitizenAnimation.AnimationState.Idle;
+
+        allowLantern = !state;
+        SetUsingLantern ( SunController.Instance.time );
     }
 
     private void DisableGraphics(params GameObject[] objects)
@@ -192,6 +207,13 @@ public class CitizenGraphics : MonoBehaviour {
 
     private void SetUsingLantern(SunController.Time time)
     {
+        if (!allowLantern)
+        {
+            isUsingLantern = false;
+            lanternGraphics.SetActive ( false );
+            return;
+        }
+
         if(time == SunController.Time.Day)
         {
             isUsingLantern = false;
@@ -206,6 +228,8 @@ public class CitizenGraphics : MonoBehaviour {
 
     private void OnProfessionChanged(ProfessionType type)
     {
+        if (this == null) return;
+
         for (int i = 0; i < citizenMeshes.Count; i++)
         {
             if(citizenMeshes[i].types.Contains(type))

@@ -21,8 +21,18 @@ public class WarehouseController : MonoBehaviour {
         }
 
         inventory = new ResourceInventory ( float.MaxValue );
-        inventory.AddItemQuantity ( 0, 6 );
-        inventory.AddItemQuantity ( 1, 2 );
+        inventory.AddItemQuantity ( 0, 30 );
+        inventory.AddItemQuantity ( 1, 10 );
+    }
+
+    public void Load (PersistentData.SaveData data)
+    {
+        inventory = new ResourceInventory ( float.MaxValue );
+
+        for (int i = 0; i < data.WarehouseResourceIDs.Count; i++)
+        {
+            inventory.AddItemQuantity ( data.WarehouseResourceIDs[i], data.WarehouseResourceQuantities[i] );
+        }
     }
 
     public Prop_Warehouse FindWarehouseToHaul (Transform citizenTransform, int resourceID, float resourceQuantity)

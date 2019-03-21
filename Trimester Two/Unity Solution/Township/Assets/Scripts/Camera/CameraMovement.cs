@@ -169,14 +169,25 @@ public class CameraMovement : MonoBehaviour {
 
     private void FollowTarget ()
     {
-        Vector3 targetFollowPosition = lockTarget.position;
+        Vector3 targetFollowPosition = lockTarget.TransformPoint ( lockOffset );
+
+        //Vector3 direction = (lockTarget.transform.position - transform.transform.position).normalized;
+        targetFollowPosition -= transform.forward * lockDistance;
+
         targetPosition = targetFollowPosition;
+
+
         Zoom ();
     }
 
-    public void LockTo(Transform target)
+    private Vector3 lockOffset = Vector3.zero;
+    private float lockDistance = 3;
+
+    public void LockTo(Transform target, Vector3 offset, float lockDistance)
     {
-        lockTarget = target;
+        this.lockTarget = target;
+        this.lockOffset = offset;
+        this.lockDistance = lockDistance;
         isLocked = true;
     }
 }

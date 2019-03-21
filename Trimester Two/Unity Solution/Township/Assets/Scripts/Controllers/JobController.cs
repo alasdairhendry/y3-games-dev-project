@@ -14,9 +14,15 @@ public static class JobController
 
     public static Job QueueJob (Job job)
     {
+        job.OnCharacterLeaveAction += OnCharacterLeavesJob;
         jobs.Add ( job );
-        if (onJobsChanged != null) onJobsChanged (jobs, previousJobs);
+        onJobsChanged?.Invoke ( jobs, previousJobs );
         return job;
+    }
+
+    public static void OnCharacterLeavesJob ()
+    {
+        onJobsChanged?.Invoke ( jobs, previousJobs );
     }
 
     // Obtain the next job in the queue, if any.
@@ -68,7 +74,8 @@ public static class JobController
 
         previousJobs.Add ( job );
         jobs.Remove ( job );
-        if (onJobsChanged != null) onJobsChanged ( jobs, previousJobs );
+        onJobsChanged?.Invoke ( jobs, previousJobs );
+        Debug.Log ( "DestroyJob " + Time.frameCount );
     }
 
     public static void DestroyJobs(List<Job> givenJobs)
@@ -95,27 +102,102 @@ public static class JobController
             jobs.Remove ( targetJobs[i] );
         }
 
-        if (onJobsChanged != null) onJobsChanged ( jobs, previousJobs );
+        onJobsChanged?.Invoke ( jobs, previousJobs );
+        Debug.Log ( "DestroyJobs " + Time.frameCount );
     }
 
-    public static void DecreasePriority (Job job)
+    public static void IncreasePriority(Job job)
     {
+        if (!jobs.Contains ( job )) return;
+
         int currentIndex = jobs.IndexOf ( job );
 
         if (jobs.Count == 1)
         {
-            // this is the only job we have, so we cant do anything
+            Debug.LogError ( "this is the only job we have, so we cant do anything" );
         }
-        else if (currentIndex >= jobs.Count - 1)
+        else if(currentIndex == 0)
         {
-            // This job is the lowest priority, so don't do anything.
+            Debug.LogError ( "This job is the highest priority, so don't do anything" );
         }
         else
         {
-            // Increase the current jobs index by one, and move the next job below us.
-            Job nextJob = jobs[currentIndex + 1];
-            jobs[currentIndex] = nextJob;
-            jobs[currentIndex + 1] = job;
+            Debug.LogError ( "Increase the current jobs index by one, and move the next job below us" );
+            jobs.RemoveAt ( currentIndex );
+            jobs.Insert ( currentIndex - 1, job );
+            onJobsChanged?.Invoke ( jobs, previousJobs );
+            //Job nextJob = jobs[currentIndex + 1];
+            //jobs[currentIndex] = nextJob;
+            //jobs[currentIndex + 1] = job;
+        }
+    }
+
+    public static void DecreasePriority (Job job)
+    {
+        if (!jobs.Contains ( job )) return;
+
+        int currentIndex = jobs.IndexOf ( job );
+
+        if (jobs.Count == 1)
+        {
+            //Debug.LogError ( "this is the only job we have, so we cant do anything" );
+        }
+        else if (currentIndex >= jobs.Count - 1)
+        {
+            //Debug.LogError ( "This job is the lowest priority, so don't do anything" );
+        }
+        else
+        {
+            //Debug.LogError ( "Increase the current jobs index by one, and move the next job below us" );
+            jobs.RemoveAt ( currentIndex );
+            jobs.Insert ( currentIndex + 1, job );
+            onJobsChanged?.Invoke ( jobs, previousJobs );
+        }
+    }
+
+    public static void TopPriority (Job job)
+    {
+        if (!jobs.Contains ( job )) return;
+
+        int currentIndex = jobs.IndexOf ( job );
+
+        if (jobs.Count == 1)
+        {
+            Debug.LogError ( "this is the only job we have, so we cant do anything" );
+        }
+        else if (currentIndex == 0)
+        {
+            Debug.LogError ( "This job is the lowest priority, so don't do anything" );
+        }
+        else
+        {
+            Debug.LogError ( "Increase the current jobs index by one, and move the next job below us" );
+            jobs.RemoveAt ( currentIndex );
+            jobs.Insert ( 0, job );
+            onJobsChanged?.Invoke ( jobs, previousJobs );
+        }
+    }
+
+    public static void LowestPriority (Job job)
+    {
+        if (!jobs.Contains ( job )) return;
+
+        int currentIndex = jobs.IndexOf ( job );
+
+        if (jobs.Count == 1)
+        {
+            Debug.LogError ( "this is the only job we have, so we cant do anything" );
+        }
+        else if (currentIndex >= jobs.Count - 1)
+        {
+            Debug.LogError ( "This job is the lowest priority, so don't do anything" );
+        }
+        else
+        {
+            Debug.LogError ( "Increase the current jobs index by one, and move the next job below us" );
+            jobs.RemoveAt ( currentIndex );
+            jobs.Insert ( jobs.Count - 1, job );
+            onJobsChanged?.Invoke ( jobs, previousJobs );
         }
     }
 

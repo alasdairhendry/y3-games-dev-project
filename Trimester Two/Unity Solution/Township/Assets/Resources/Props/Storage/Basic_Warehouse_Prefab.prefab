@@ -254,6 +254,7 @@ GameObject:
   - component: {fileID: 114399137898293682}
   - component: {fileID: 114006913209747968}
   - component: {fileID: 114314632704535234}
+  - component: {fileID: 114976546005412854}
   m_Layer: 0
   m_Name: Basic_Warehouse_Prefab
   m_TagString: Untagged
@@ -350,7 +351,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1995401221311614}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 4.35, z: -10.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -359,7 +360,7 @@ Transform:
   - {fileID: 4801276040274246}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!4 &4548803375284836
 Transform:
   m_ObjectHideFlags: 1
@@ -788,6 +789,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lockOffset: {x: 0, y: 2, z: 0}
+  lockDistance: 10
   defaultTab: Inventory
 --- !u!114 &114314632704535234
 MonoBehaviour:
@@ -879,6 +882,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dbff650a7abe4d801ed2d7c40028c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114976546005412854
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1995401221311614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f1288afbd5b1f45ae6cd44e072aad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityName: 
+  type: 2
 --- !u!208 &208419858724530258
 NavMeshObstacle:
   m_ObjectHideFlags: 1

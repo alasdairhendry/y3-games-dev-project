@@ -6,8 +6,16 @@ using UnityEngine.UI;
 
 public class HUD_Tooltip_Panel : UIPanel {
 
+    public static HUD_Tooltip_Panel Instance;
+
     [SerializeField] private GameObject tooltipPrefab;
     private List<Tooltip> activeTooltips = new List<Tooltip> ();
+
+    private void Awake ()
+    {
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy ( this.gameObject );
+    }
 
     protected override void Update ()
     {
@@ -20,9 +28,9 @@ public class HUD_Tooltip_Panel : UIPanel {
         base.targetAnchoredPosition = Input.mousePosition;
     }
 
-    public void AddTooltip (string message, Tooltip.Preset preset)
+    public GameObject AddTooltip (string message, Tooltip.Preset preset)
     {
-        if (activeTooltips.Exists ( x => x.message == message )) return;
+        if (activeTooltips.Exists ( x => x.message == message )) { Debug.LogError ( "Tooltip exists" ); return activeTooltips.Find ( x => x.message == message ).gameObject; }
 
         Tooltip tooltip = new Tooltip ( message, preset );
 
@@ -36,6 +44,7 @@ public class HUD_Tooltip_Panel : UIPanel {
 
         tooltip.gameObject = go;
         activeTooltips.Add ( tooltip );
+        return go;
     }
 
     public void RemoveTooltip (string message)
@@ -45,6 +54,15 @@ public class HUD_Tooltip_Panel : UIPanel {
             Tooltip t = activeTooltips.Find ( x => x.message == message );
             activeTooltips.Remove ( t );
             Destroy ( t.gameObject );
+        }
+    }
+
+    public void RemoveTooltip(GameObject go)
+    {
+        if(activeTooltips.Exists(x => x.gameObject == go ))
+        {
+            activeTooltips.Remove ( activeTooltips.Find ( x => x.gameObject == go ) );
+            Destroy ( go );
         }
     }
 	

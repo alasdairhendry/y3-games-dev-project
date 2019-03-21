@@ -40,6 +40,7 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
         GameObject go = Instantiate ( prefab, citizen.Position.ToVector3 () + new Vector3 ( 0.0f, 150.0f, 0.0f ), Quaternion.identity );
         loadedCitizens.Add ( go.GetComponent<CitizenBase> () );
         go.GetComponent<CitizenBase> ().SetID ( citizenIDCounter );
+        go.GetComponent<CitizenBase> ().SetInventory ( citizen.ResourceIDs, citizen.ResourceQuantities );
         go.GetComponent<CitizenFamily> ().SetFromLoaded ( citizen );
         go.GetComponent<CitizenMovement> ().AvoidancePriority = citizenIDCounter % 100;
         citizenIDCounter++;
@@ -55,9 +56,11 @@ public class DEBUG_CHARACTER_SPAWNER : MonoBehaviour
         }
     }
 
-    public void CreateSingleCitizen ()
+    public void CreateSingleCitizen (bool male)
     {
-        GameObject male = CreateCitizen ( 0 );
+        if (male)
+            CreateCitizen ( 0 );
+        else CreateCitizen ( 1 );
     }
 
     public void CreateInitialFamily ()

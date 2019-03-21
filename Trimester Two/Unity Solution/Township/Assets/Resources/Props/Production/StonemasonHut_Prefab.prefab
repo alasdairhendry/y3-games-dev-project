@@ -142,6 +142,7 @@ GameObject:
   - component: {fileID: 114023007267584894}
   - component: {fileID: 114072339555664640}
   - component: {fileID: 114449403775525220}
+  - component: {fileID: 114969316499082938}
   m_Layer: 0
   m_Name: StonemasonHut_Prefab
   m_TagString: Untagged
@@ -1165,7 +1166,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1165562676165896}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1175,7 +1176,7 @@ Transform:
   - {fileID: 4634764649714486}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!4 &4688518505928862
 Transform:
   m_ObjectHideFlags: 1
@@ -2670,6 +2671,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lockOffset: {x: -3.5, y: 0, z: 2}
+  lockDistance: 16
   defaultTab: Overview
 --- !u!114 &114072339555664640
 MonoBehaviour:
@@ -2814,6 +2817,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Stage: 3
+--- !u!114 &114969316499082938
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1165562676165896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f1288afbd5b1f45ae6cd44e072aad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityName: 
+  type: 2
 --- !u!208 &208040585851438974
 NavMeshObstacle:
   m_ObjectHideFlags: 1

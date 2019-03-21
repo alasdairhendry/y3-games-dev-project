@@ -50,6 +50,7 @@ public class Buildable : MonoBehaviour {
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
         inventory.RegisterOnResourceAdded ( OnMaterialAdded );
+        prop.onDestroy += OnPropDestroyed;
 
         if (stageCount <= 0) { Complete (); return this; }
 
@@ -63,48 +64,86 @@ public class Buildable : MonoBehaviour {
         return this;
     }
 
+    private void OnPropDestroyed (Prop prop)
+    {
+        if (this.prop != prop) return;
+
+        if (inventory != null)
+        {
+            int materialPointID = 0;
+
+            if (!IsComplete)
+            {
+                List<Resource> r = ResourceManager.Instance.GetResourceList ();
+                for (int i = 0; i < r.Count; i++)
+                {
+                    if (!inventory.CheckIsEmpty ( r[i].id ))
+                    {
+                        Resource.DropResource ( r[i].id, inventory.GetAvailableQuantity ( r[i].id ), transform.TransformPoint ( materialPoints[materialPointID].localPosition ), transform.TransformDirection ( Vector3.zero ) );
+                        materialPointID++;
+                    }
+                }
+            }
+        }
+    }
+
     public Buildable LOAD_OnPropPlaced(PersistentData.PropData data)
     {
         prop = GetComponent<Prop> ();
         inventory = new ResourceInventory ();
         inventory.RegisterOnResourceAdded ( OnMaterialAdded );
 
-        for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
-        {
-            if (data.BuildableResourceIDs.Contains ( prop.data.requiredMaterials[i].id ))
-            {
-                int index = data.BuildableResourceIDs.IndexOf ( prop.data.requiredMaterials[i].id );
+        AddConstructionPercentage ( data.ConstructionPercent );
 
-                if (data.BuildableResourceQuantities[index] > 0)
+        if (IsComplete)
+        {
+            return this;
+        }
+        else
+        {
+            for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
+            {
+                if (data.BuildableResourceIDs.Contains ( prop.data.requiredMaterials[i].id ))
                 {
-                    inventory.AddItemQuantity ( data.BuildableResourceIDs[index], data.BuildableResourceQuantities[index], transform, prop.data.UIOffsetY );
+                    int index = data.BuildableResourceIDs.IndexOf ( prop.data.requiredMaterials[i].id );
+
+                    if (data.BuildableResourceQuantities[index] > 0)
+                    {
+                        inventory.AddItemQuantity ( data.BuildableResourceIDs[index], data.BuildableResourceQuantities[index], transform, prop.data.UIOffsetY );
+                    }
                 }
             }
-        }
 
-        if (stageCount <= 0) { Complete (); return this; }
+            if (stageCount <= 0) { Complete (); return this; }
 
-        for (int i = 1; i < stageCount + 1; i++)
-        {
-            SetStageActive ( i, false );
-        }
-
-        currentStage = data.BuildableStage;
-
-        if(data.ConstructionPercent < 100.0f)
-        {
-            for (int i = 0; i < currentStage + 1; i++)
+            for (int i = 1; i < stageCount + 1; i++)
             {
-                SetStageActive ( i, true );
+                SetStageActive ( i, false );
             }
+
+            currentStage = data.BuildableStage;
+
+            if (data.ConstructionPercent < 100.0f)
+            {
+                for (int i = 0; i < currentStage + 1; i++)
+                {
+                    SetStageActive ( i, true );
+                }
+            }
+
+            SetStage ();
+            CreateJobs ();
+            return this;
         }
 
-        AddConstructionPercentage ( data.ConstructionPercent );
-        if (IsComplete) return this;
+        
 
-        SetStage ();
-        CreateJobs ();
-        return this;
+        //AddConstructionPercentage ( data.ConstructionPercent );
+        //if (IsComplete) return this;
+
+        //SetStage ();
+        //CreateJobs ();
+        //return this;
     }
 
     private void CreateJobs ()
@@ -114,7 +153,7 @@ public class Buildable : MonoBehaviour {
         for (int i = 0; i < prop.data.requiredMaterials.Count; i++)
         {
             if (!inventory.CheckHasQuantityAvailable ( prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount ))
-                GetComponent<JobEntity> ().CreateJob_Haul ( "Haul Item ID " + prop.data.requiredMaterials[i].id, true, 5.0f, null, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, prop, inventory );
+                GetComponent<JobEntity> ().CreateJob_Haul ( "Haul " + ResourceManager.Instance.GetResourceByID(prop.data.requiredMaterials[i].id).name, true, 5.0f, null, prop.data.requiredMaterials[i].id, prop.data.requiredMaterials[i].amount, prop, inventory );
 
             if (!materialIcons.ContainsKey ( prop.data.requiredMaterials[i].id ))
             {
@@ -189,7 +228,7 @@ public class Buildable : MonoBehaviour {
 
     private void OnMaterialsMet ()
     {
-        GetComponent<JobEntity> ().CreateJob_Build ( "Build Object " + prop.data.name, true, 5.0f, null, 5.0f, this );
+        GetComponent<JobEntity> ().CreateJob_Build ( "Build " + prop.data.name, true, 5.0f, null, 5.0f, this );
     }
 
     float targetPercent = 0;
@@ -223,7 +262,7 @@ public class Buildable : MonoBehaviour {
 
     private void SetStageActive (int stage, bool state)
     {
-        if (!stages.ContainsKey ( stage )) { Debug.LogError ( "Why does " + Prop.data.name + " have invalid stuffs " + stage ); return; }        
+        if (!stages.ContainsKey ( stage )) { /*Debug.LogError ( "Why does " + Prop.data.name + " have invalid stuffs " + stage );*/ return; }        
 
         for (int x = 0; x < stages[stage].Count; x++)
         {
@@ -279,24 +318,6 @@ public class Buildable : MonoBehaviour {
     {
         if (inventory != null)
             inventory.UnregisterOnResourceAdded ( OnMaterialAdded );
-
-        if (inventory != null)
-        {
-            int materialPointID = 0;
-
-            if (!IsComplete)
-            {
-                List<Resource> r = ResourceManager.Instance.GetResourceList ();
-                for (int i = 0; i < r.Count; i++)
-                {
-                    if (!inventory.CheckIsEmpty ( r[i].id ))
-                    {
-                        Resource.DropResource ( r[i].id, inventory.GetAvailableQuantity ( r[i].id ), transform.TransformPoint ( materialPoints[materialPointID].localPosition ), transform.TransformDirection ( Vector3.zero ) );
-                        materialPointID++;
-                    }
-                }
-            }
-        }
     }
 
     [System.Serializable]

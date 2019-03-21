@@ -48,7 +48,7 @@ public class Job {
         this.professionTypes = new List<ProfessionType> ();
         this.BreakForEnergy = false;
 
-        Debug.Log ( "Created Job " + Name );
+        //Debug.Log ( "Created Job " + Name );
 
         //GameTime.RegisterGameTick ( Tick_CheckCompletable );
     }
@@ -84,7 +84,7 @@ public class Job {
 
         if (this.cBase == null)
         {
-            Debug.Log ( this.Name + " has no character assigned" ); return;
+            //Debug.Log ( this.Name + " has no character assigned" );
         }
         else
         {
@@ -97,11 +97,11 @@ public class Job {
         if (setOpenToTrue)
         {
             this.Open = true;
-            Debug.Log ( "Job " + Name + " has been set to open" );
+            //Debug.Log ( "Job " + Name + " has been set to open" );
         }
         else
         {
-            Debug.Log ( "Job " + Name + " has been set to NOT open" );
+            //Debug.Log ( "Job " + Name + " has been set to NOT open" );
         }
 
         this.IsCompletable = isCompletable.Key;
@@ -114,11 +114,11 @@ public class Job {
                 AddCompletableListeners ();
             }
 
-            Debug.Log ( "Job " + Name + " has been set to NOT completable" );
+            //Debug.Log ( "Job " + Name + " has been set to NOT completable" );
         }
 
-        if (OnCharacterLeaveAction != null) OnCharacterLeaveAction ();
-        if (OnCharacterChanged != null) OnCharacterChanged ();
+        OnCharacterLeaveAction?.Invoke ();
+        OnCharacterChanged?.Invoke ();
     }
 
     // Called by the character that this job is assigned to, to invoke the core logic of this job

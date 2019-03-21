@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,11 +15,17 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     [SerializeField] private Transform rightHorizontalView;
 
     [SerializeField] private GameObject keyValueText_Prefab;
+    [SerializeField] private Text header_Label;
+
+    //[SerializeField] private Button destroyButton;
+    //[SerializeField] private Button focusButton;
 
     private System.Action tickActions;
     private System.Action onCloseActions;
 
     private System.Action displayAction;
+    private System.Action destroyAction;
+    private System.Action focusAction;
 
     private string currentTabName = "Default";
     private Dictionary<string, GameObject> tabs = new Dictionary<string, GameObject> ();
@@ -28,6 +35,7 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     public void ShowPanel (GameObject target)
     {
         this.target = target;
+        header_Label.text = "<b>" + target?.GetComponent<WorldEntity> ()?.Type.ToString() + "</b>" + " - " + target?.GetComponent<WorldEntity> ()?.EntityName;
         FindObjectOfType<HUD_EntityInspection_Panel> ().ShowPanel ( HUD_EntityInspection_Panel.InspectionType.Citizen );
     }   
 
@@ -78,12 +86,17 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     {
         currentTabName = tabName;
         ClearPanel ();
-        if (displayAction != null) displayAction ();
+        displayAction?.Invoke ();
     }
 
-    public void SetAction(System.Action action)
+    public void SetAction(System.Action displayAction, System.Action destroyAction, System.Action focusAction, string destroyDescription)
     {
-        displayAction = action;
+        this.displayAction = displayAction;
+        this.destroyAction = destroyAction;
+        this.focusAction = focusAction;
+
+        if (!string.IsNullOrEmpty ( destroyDescription ))
+            transform.Find ( "Header_Panel" ).Find ( "Delete_Button" ).GetComponent<Tooltip> ().SetTooltip ( destroyDescription, HUD_Tooltip_Panel.Tooltip.Preset.Information );
     }
 
     public void AddTextData(System.Func<KeyValueUIPair, string> action, string key, string tabName)
@@ -141,7 +154,8 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
                 dropdown.options.Add ( new Dropdown.OptionData ( options[i] ) );
             }
 
-            dropdown.onValueChanged.AddListener ( (index) => { valueChanged ( index, dropdown.options); } );
+            dropdown.onValueChanged.RemoveAllListeners ();
+            dropdown.onValueChanged.AddListener (  (index) => { valueChanged ( index, dropdown.options); } );
         }
     }
 
@@ -174,6 +188,16 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     {
         if (target == null) { ClearPanel (); Hide (); return; }
         if (tickActions != null) tickActions ();
+    }
+
+    public void OnClick_Delete ()
+    {
+        destroyAction?.Invoke ();
+    }
+
+    public void OnClick_Focus ()
+    {
+        focusAction?.Invoke ();
     }
 
     public override void Hide ()

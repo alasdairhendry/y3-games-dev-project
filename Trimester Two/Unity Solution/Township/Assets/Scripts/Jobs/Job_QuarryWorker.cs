@@ -56,7 +56,7 @@ public class Job_QuarryWorker : Job_Profession {
 
         if (!provideResources) provideResources = true;
 
-        this.cBase.GetComponent<CitizenGraphics> ().SetUsingAxe ( true, CitizenAnimation.AxeUseAnimation.Splitting );
+        this.cBase.GetComponent<CitizenGraphics> ().SetUsingPickaxe ( true );
 
         LookAtTarget ( rock.transform.position );
     }
@@ -70,8 +70,7 @@ public class Job_QuarryWorker : Job_Profession {
     {
         if (this.cBase != null)
         {
-            this.cBase.CitizenGraphics.SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Chopping );
-            this.cBase.CitizenGraphics.SetUsingAxe ( false, CitizenAnimation.AxeUseAnimation.Splitting );
+            this.cBase.CitizenGraphics.SetUsingPickaxe ( false );
         }
         givenDestination = false;
 

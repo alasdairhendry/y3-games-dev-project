@@ -9,12 +9,21 @@ public class Hotkey : MonoBehaviour {
         CameraRotateLeft,
         CameraRotateRight,
         CameraPan,
+
         HaltUI,
         BuildMode,
+
         PropRotateClockwise,
         PropRotateAntiClockwise,
         PropRotateIncrementClockwise,
-        PropRotateIncrementAntiClockwise
+        PropRotateIncrementAntiClockwise,
+
+        Save,
+        Exit,
+
+        ToggleResources,
+        ToggleJobs,
+        ToggleProfessions
     }
 
     public enum Category
@@ -22,7 +31,9 @@ public class Hotkey : MonoBehaviour {
         Camera,
         BuildMode,
         Modes,
-        Misc
+        Misc,
+        System,
+        UI
     }
 
     private static Dictionary<Function, HotkeyData> hotkeys = new Dictionary<Function, HotkeyData> ();
@@ -58,6 +69,13 @@ public class Hotkey : MonoBehaviour {
         AddHotkey ( new HotkeyData ( Function.PropRotateIncrementAntiClockwise, Category.BuildMode, KeyCode.None, "Rotate Props By 45 Degrees" ) );
 
         AddHotkey ( new HotkeyData ( Function.HaltUI, Category.Misc, KeyCode.LeftShift, "Halt UI" ) );
+
+        AddHotkey ( new HotkeyData ( Function.Save, Category.System, KeyCode.S, KeyCode.LeftShift, "Save Current Game" ) );
+        AddHotkey ( new HotkeyData ( Function.Exit, Category.System, KeyCode.Escape, KeyCode.LeftAlt, "Exit The Game" ) );
+
+        AddHotkey ( new HotkeyData ( Function.ToggleResources, Category.UI, KeyCode.R, KeyCode.LeftShift, "Toggle The Resources Panel" ) );
+        AddHotkey ( new HotkeyData ( Function.ToggleJobs, Category.UI, KeyCode.J, KeyCode.LeftShift, "Toggle The Jobs Panel" ) );
+        AddHotkey ( new HotkeyData ( Function.ToggleProfessions, Category.UI, KeyCode.P, KeyCode.LeftShift, "Toggle The Professions Panel" ) );
     }
 
     private void AddHotkey(HotkeyData hotkey)
@@ -144,13 +162,50 @@ public class Hotkey : MonoBehaviour {
         return false;
     }
 
-    private class HotkeyData
+    public static HotkeyData GetData(Function function)
+    {
+        if (hotkeys.ContainsKey ( function ))
+        {
+            return hotkeys[function];
+        }
+
+        return null;
+    }
+
+    public class HotkeyData
     {
         public Function Function { get; private set; }
         public Category Category { get; private set; }
         public KeyCode KeyCode { get; private set; }
         public KeyCode Modifier { get; private set; }
         public string Description { get; private set; }
+
+        public string GetCommandString ()
+        {
+            string s = "";
+
+            if(Modifier != KeyCode.None)
+            {
+                switch (Modifier)
+                {
+                    case KeyCode.LeftControl:
+                        s += "CTRL + ";
+                        break;
+
+                    case KeyCode.LeftShift:
+                        s += "SHIFT + ";
+                        break;
+
+                    case KeyCode.LeftAlt:
+                        s += "ALT + ";
+                        break;
+                }
+            }
+
+            s += KeyCode.ToString ();
+
+            return "[" + s + "]";
+        }
 
         public HotkeyData (Function function, Category category, KeyCode keyCode, string description)
         {

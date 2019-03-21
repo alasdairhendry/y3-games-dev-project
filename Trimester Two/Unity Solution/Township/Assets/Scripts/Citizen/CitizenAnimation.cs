@@ -119,6 +119,12 @@ public class CitizenAnimation : MonoBehaviour {
         SetAnimationState = AnimationState.Idle;
     }
 
+    public void SetState_Pickaxing(bool state)
+    {
+        animator.SetBool ( "isPickaxe", state );
+        SetAnimationState = AnimationState.Idle;
+    }
+
     public void SetInjuryState (float healthValue)
     {
         animator.SetFloat ( "Health", healthValue );

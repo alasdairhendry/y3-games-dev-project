@@ -26,9 +26,9 @@ public class HUD_GameTime_Panel : UIPanel {
 
     private void UpdateDate ()
     {        
-        dataLabel.text = "Day " + GameTime.currentDay + " Month " + GameTime.currentMonth + " Year " + GameTime.currentYear + " (" + SeasonController.CurrentSeason.ToString () + ")";
+        dataLabel.text = "Day " + GameTime.currentDayOfTheMonth + " Month " + GameTime.currentMonth + " Year " + GameTime.currentYear + " (" + SeasonController.CurrentSeason.ToString () + ")";
         seasonLabel.text = SeasonController.CurrentSeason.ToString ();
-        temperatureLabel.text = TemperatureController.Instance.Temperature.ToString ( "00" ) + "* C";
+        temperatureLabel.text = TemperatureController.Temperature.ToString ( "00" ) + "* C";
     }
 
     public void OnClick_SpeedDown ()

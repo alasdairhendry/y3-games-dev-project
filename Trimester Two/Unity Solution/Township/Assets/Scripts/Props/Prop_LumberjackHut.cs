@@ -26,9 +26,8 @@ public class Prop_LumberjackHut : Prop_Profession {
     // Called from Prop_Profession on built "MaxJobs" times
     protected override void CreateProfessionJobs (int index)
     {
-        Job_Lumberjack job = GetComponent<JobEntity> ().CreateJob_Lumberjack ( "Lumberjack", !HaltProduction, 5.0f, null, this, trees[index].Objects, stumps[index] );
+        Job_Lumberjack job = GetComponent<JobEntity> ().CreateJob_Lumberjack ( "Lumberjacking", !HaltProduction, 5.0f, null, this, trees[index].Objects, stumps[index] );
         professionJobs.Add ( job );
-        JobController.QueueJob ( job );
     }
 
     protected override void SetInspectable ()

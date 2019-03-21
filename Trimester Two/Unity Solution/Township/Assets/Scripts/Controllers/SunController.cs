@@ -38,7 +38,7 @@ public class SunController : MonoBehaviour {
 
     private void Update ()
     {
-        if(GameTime.currentDay >= dayTimeEnds)
+        if(GameTime.currentDayOfTheMonth >= dayTimeEnds)
         {
             if (!isNightTime)
             {

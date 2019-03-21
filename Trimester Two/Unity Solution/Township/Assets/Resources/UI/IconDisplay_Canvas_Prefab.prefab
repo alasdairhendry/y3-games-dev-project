@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224837226754920904}
   - component: {fileID: 223586349757367572}
   - component: {fileID: 114500574709455900}
+  - component: {fileID: 225778625928269248}
   m_Layer: 13
   m_Name: IconDisplay_Canvas_Prefab
   m_TagString: Untagged
@@ -164,3 +165,14 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &225778625928269248
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1722399823743288}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0

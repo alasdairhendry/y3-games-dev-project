@@ -33,7 +33,7 @@ public class Job_Profession : Job {
         if (this.cBase == null)
         {
             if (setOpenToTrue) this.Open = true;
-            Debug.Log ( this.Name + " has no character assigned" ); return;            
+            return;            
         }
         else
         {
@@ -46,11 +46,9 @@ public class Job_Profession : Job {
         if (setOpenToTrue)
         {
             this.Open = true;
-            Debug.Log ( "Job " + Name + " has been set to open" );
         }
         else
         {
-            Debug.Log ( "Job " + Name + " has been set to NOT open" );
         }
 
         base.IsCompletable = isCompletable.Key;
@@ -62,12 +60,10 @@ public class Job_Profession : Job {
             {
                 AddCompletableListeners ();
             }
-
-            Debug.Log ( "Job " + Name + " has been set to NOT completable" );
         }
 
-        if (OnCharacterLeaveAction != null) OnCharacterLeaveAction ();
-        if (OnCharacterChanged != null) OnCharacterChanged ();
+        OnCharacterLeaveAction?.Invoke ();
+        OnCharacterChanged?.Invoke ();
     }
 
     protected override void AddCompletableListeners ()

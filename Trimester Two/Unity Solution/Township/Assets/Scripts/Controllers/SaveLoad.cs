@@ -56,10 +56,13 @@ public class SaveLoad : MonoBehaviour {
         PersistentData.SaveData data = PersistentData.Load ( "MySaveFile" );
 
         if (data == null) return;
+        WarehouseController.Instance.Load ( data );
+        FindObjectOfType<CameraMovement> ().LOAD_Position ( data );
+        GamePreferences.Instance.Load ( data.gamePreferences );
+
         Load_Citizens ( data );
         Load_Props ( data );
-
-        FindObjectOfType<CameraMovement> ().LOAD_Position ( data );
+        Load_GameTime ( data.gameTime );
     }
 
     private void Load_Citizens (PersistentData.SaveData data)
@@ -86,5 +89,10 @@ public class SaveLoad : MonoBehaviour {
             Prop prop = go.GetComponent<Prop> ();
             prop.LOAD_Place ( data.props[i], propData );
         }
+    }
+
+    private void Load_GameTime (PersistentData.GameTimeData data)
+    {
+        GameTime.Load ( data );
     }
 }

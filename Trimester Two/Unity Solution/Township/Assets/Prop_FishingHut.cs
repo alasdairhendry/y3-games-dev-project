@@ -6,7 +6,6 @@ public class Prop_FishingHut : Prop_Profession {
 
     [SerializeField] private GameObject fishingSpot;
     [SerializeField] private GameObject choppingSpot;
-    int jobIndex = 0;
 
     protected override void OnPlaced ()
     {
@@ -29,20 +28,18 @@ public class Prop_FishingHut : Prop_Profession {
     // Called from Prop_Profession on built "MaxJobs" times
     protected override void CreateProfessionJobs (int index)
     {
-        if (jobIndex == 0)
+        if (index == 0)
         {
             Job_Fisherman job = GetComponent<JobEntity> ().CreateJob_Fisherman ( "Fishing", !HaltProduction, 5.0f, null, this, fishingSpot, Job_Fisherman.JobState.Fishing );
             professionJobs.Add ( job );
-            JobController.QueueJob ( job );
+            //JobController.QueueJob ( job );
         }
         else
         {
             Job_Fisherman job = GetComponent<JobEntity> ().CreateJob_Fisherman ( "Fishing", !HaltProduction, 5.0f, null, this, choppingSpot, Job_Fisherman.JobState.Fishing );
             professionJobs.Add ( job );
-            JobController.QueueJob ( job );
+            //JobController.QueueJob ( job );
         }
-
-        jobIndex++;
     }
 
     protected override void SetInspectable ()

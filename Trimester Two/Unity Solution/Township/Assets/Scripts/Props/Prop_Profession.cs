@@ -157,10 +157,9 @@ public class Prop_Profession : Prop {
             {
                 if (!createdSupplyJob)
                 {
-                    GetComponent<JobEntity> ().CreateJob_MarketCart ( "Supply " + resourceIDToConsume + " to " + this.name, true,
+                    GetComponent<JobEntity> ().CreateJob_MarketCart ( "Supply " + ResourceManager.Instance.GetResourceByID(resourceIDToConsume).name + " to " + this.worldEntity.EntityName, true,
                         5.0f, () => { createdSupplyJob = false; }, this, inventory, resourceIDToConsume, (int)inventory.EntryCapacity, true );
-                    createdSupplyJob = true;
-                    Debug.Log ( "Created supply job for " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name );
+                    createdSupplyJob = true;                    
                 }
             }
         }
@@ -171,7 +170,7 @@ public class Prop_Profession : Prop {
             {
                 if (!createdCollectJob)
                 {
-                    GetComponent<JobEntity> ().CreateJob_MarketCart ( "Collect " + resourceIDToGive + " from " + this.name, true,
+                    GetComponent<JobEntity> ().CreateJob_MarketCart ( "Collect " + ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name + " from " + this.worldEntity.EntityName, true,
                         5.0f, () => { createdCollectJob = false; }, this, inventory, resourceIDToGive, (int)inventory.EntryCapacity, false );
                     createdCollectJob = true;
                 }

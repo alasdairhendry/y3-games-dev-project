@@ -5,7 +5,10 @@ using UnityEngine.UI;
 
 public class IconDisplayer : MonoBehaviour {
 
-    public enum IconType { Inventory, JobWaiting, Warning, Other }
+    public enum Displayer { Citizen, Prop, RawMaterial }
+    public enum IconType { Inventory, JobWaiting, Warning, Other, NoHouse }
+
+    [SerializeField] private Displayer displayType = Displayer.Prop;
 
     private List<IconType> displayedIcons = new List<IconType> ();
     private List<GameObject> displayIconsGameObjects = new List<GameObject> ();
@@ -17,15 +20,55 @@ public class IconDisplayer : MonoBehaviour {
     //private Vector2 minMaxDistance = new Vector2 ();
 
     private RectTransform canvasRect;
+    private CanvasGroup canvasGroup;
     private Transform rootPanel;
     private bool canvasCreated = false;
 
+    private bool active = true;
+
+    private void Start ()
+    {
+        //SetScaling ();
+    }
+
     private void Update ()
     {
+        if (!canvasCreated) return;
+
+        if (!active)
+        {
+            switch (displayType)
+            {
+                case Displayer.Citizen:
+                    if (GamePreferences.Instance.preferences.showCitizenIcons) { SetState ( true ); }
+                    break;
+                case Displayer.Prop:
+                    if (GamePreferences.Instance.preferences.showPropIcons) { SetState ( true ); }
+                    break;
+                case Displayer.RawMaterial:
+                    break;
+            }
+            return;
+        }
+
+        switch (displayType)
+        {
+            case Displayer.Citizen:
+                if (!GamePreferences.Instance.preferences.showCitizenIcons) { SetState ( false ); }
+                    break;
+            case Displayer.Prop:
+                if (!GamePreferences.Instance.preferences.showPropIcons) { SetState ( false ); }
+                break;
+            case Displayer.RawMaterial:
+                break;
+        }
+
         if (displayIconsGameObjects.Count > 0)
         {
             SetScaling ();
         }
+
+
     }
 
     private void SetScaling ()
@@ -39,6 +82,7 @@ public class IconDisplayer : MonoBehaviour {
     {
         GameObject go = Instantiate ( Resources.Load<GameObject> ( "UI/IconDisplay_Canvas_Prefab" ) );
         canvasRect = go.GetComponent<RectTransform> ();
+        canvasGroup = go.GetComponent<CanvasGroup> ();
         go.transform.SetParent ( this.transform );
 
         canvasRect.anchoredPosition3D = offset;
@@ -137,9 +181,18 @@ public class IconDisplayer : MonoBehaviour {
             case IconType.Warning:
                 return Resources.Load<Sprite> ( "UI/shoppingBasket" );
 
+            case IconType.NoHouse:
+                return Resources.Load<Sprite> ( "UI/house" );
+
             default:
                 return Resources.Load<Sprite> ( "UI/shoppingBasket" );
         }
+    }
+
+    private void SetState(bool state)
+    {
+        active = state;
+        canvasGroup.alpha = (state) ? 1 : 0;
     }
 
     public class TextIcon

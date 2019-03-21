@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class Prop : MonoBehaviour {
 
     public ResourceInventory inventory;
+    public WorldEntity worldEntity { get; protected set; }
 
     public PropData data { get; protected set; }
     public Buildable buildable { get; protected set; }
@@ -21,7 +22,13 @@ public class Prop : MonoBehaviour {
 
     public System.Action<Prop> onDestroy;
 
-    protected virtual void Awake () { isBlueprint = true; SetActiveNavMeshObstacles ( false ); }
+    public Inspectable Inspectable { get; protected set; }
+
+    protected virtual void Awake ()
+    {
+        isBlueprint = true;
+        SetActiveNavMeshObstacles ( false );
+    }
 
     protected virtual void Start () { }
 
@@ -37,7 +44,9 @@ public class Prop : MonoBehaviour {
 
         CreateInteractionObject ();
 
-        GetComponent<Inspectable> ().enabled = true;
+        worldEntity = GetComponent<WorldEntity> ().Setup ( data.name, WorldEntity.EntityType.Building );
+        Inspectable = GetComponent<Inspectable> ();
+        Inspectable.enabled = true;
 
         SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), false );
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
@@ -55,7 +64,9 @@ public class Prop : MonoBehaviour {
 
         CreateInteractionObject ();
 
-        GetComponent<Inspectable> ().enabled = true;
+        worldEntity = GetComponent<WorldEntity> ().Setup ( propData.name, WorldEntity.EntityType.Building );
+        Inspectable = GetComponent<Inspectable> ();
+        Inspectable.enabled = true;
 
         SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), false );
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
@@ -103,7 +114,10 @@ public class Prop : MonoBehaviour {
 
     protected virtual void SetInspectable ()
     {
-        GetComponent<Inspectable> ().SetAdditiveAction ( () =>
+        Inspectable.SetDestroyAction ( () => { DestroyProp (); }, false, "Bulldoze" );
+        Inspectable.SetFocusAction ( () => { Inspectable.InspectAndLockCamera (); }, false );
+
+        Inspectable.SetAdditiveAction ( () =>
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
@@ -115,14 +129,6 @@ public class Prop : MonoBehaviour {
                 this.buildable.CompleteInspectorDEBUG ();
 
             }, "Complete", "Any" );        
-
-            panel.AddButtonData ( () =>
-            {
-                if (this == null) return;
-                if (this.gameObject == null) return;
-                DestroyProp ();
-
-            }, "Destroy", "Any" );
         } );
     }
 
@@ -167,20 +173,22 @@ public class Prop : MonoBehaviour {
         collectedNavMeshProbes = true;
     }
 
-    public virtual bool SampleSurface ()
+    public virtual bool SampleSurface (PropData _data)
     {
         if (!collectedNavMeshProbes) CollectNavMeshProbes ();
+
+        bool onGround = true;
+        bool onWater = true;
 
         for (int i = 0; i < navMeshGroundProbes.Count; i++)
         {
             if (!BuildMode.Instance.SampleNavMesh ( navMeshGroundProbes[i].position, 1 ))
             {
-                FindObjectOfType<HUD_Tooltip_Panel> ().AddTooltip ( "Must be placed on solid ground", HUD_Tooltip_Panel.Tooltip.Preset.Error );
-                return false;
+                onGround = false;
             }
             else
             {
-                FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( "Must be placed on solid ground" );
+                FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( "Terrain not suitable." );
             }
         }
 
@@ -188,16 +196,79 @@ public class Prop : MonoBehaviour {
         {
             if (!BuildMode.Instance.SampleNavMesh ( navMeshWaterProbes[i].position, 8 ))
             {
-                return false;
+                onWater = false;
             }
         }
 
-        return true;
+        switch (_data.placementArea)
+        {
+            case PlacementArea.Ground:
+
+                if (onGround)
+                {
+                    RemoveTooltip ();
+                    return true;
+                }
+                else
+                {
+                    SetTooltip ( "Terrain location not suitable", HUD_Tooltip_Panel.Tooltip.Preset.Error );
+                    return false;
+                }
+
+            case PlacementArea.Waterside:
+
+                if (onGround && onWater)
+                {
+                    RemoveTooltip ();
+                    return true;
+                }
+                else
+                {
+                    SetTooltip ( "Must be placed on shoreline", HUD_Tooltip_Panel.Tooltip.Preset.Error );
+                    return false;
+                }
+
+            case PlacementArea.Water:
+
+                if (onWater)
+                {
+                    RemoveTooltip ();
+                    return true;
+                }
+                else
+                {
+                    SetTooltip ( "Must be placed on water", HUD_Tooltip_Panel.Tooltip.Preset.Error );
+                    return false;
+                }
+
+            default:
+                Debug.LogError ( "Placement type " + _data.placementArea.ToString () + " not found" );
+                RemoveTooltip ();
+                return false;
+        }
+    }
+
+    GameObject tooltipObject;
+    private string currentTooltipMessage;
+
+    private void SetTooltip(string message, HUD_Tooltip_Panel.Tooltip.Preset preset)
+    {
+        if (currentTooltipMessage == message) return;
+        if (tooltipObject != null) RemoveTooltip ();
+        tooltipObject = HUD_Tooltip_Panel.Instance.AddTooltip ( message, preset );
+        currentTooltipMessage = message;
+    }
+
+    private void RemoveTooltip ()
+    {
+        currentTooltipMessage = "";
+        if (tooltipObject != null)
+            HUD_Tooltip_Panel.Instance.RemoveTooltip ( tooltipObject );
     }
 
     private void OnDestroy ()
     {
-           
+        RemoveTooltip ();
     }
 
     private void OnDrawGizmosSelected ()

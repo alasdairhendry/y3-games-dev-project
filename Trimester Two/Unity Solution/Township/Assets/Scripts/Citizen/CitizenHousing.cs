@@ -13,6 +13,8 @@ public class CitizenHousing : MonoBehaviour {
         cBase = GetComponent<CitizenBase> ();
         HousingController.onHouseBecomesEmpty += TryJoinHouse;
         HousingController.onCitizenLeavesHouse += TryJoinHouse;
+
+        GetComponent<IconDisplayer> ().AddIconGeneric ( IconDisplayer.IconType.NoHouse );
     }
 
     private void Start ()
@@ -23,7 +25,7 @@ public class CitizenHousing : MonoBehaviour {
 
     private void SearchForHouse ()
     {
-        if (hasHouse) { Debug.LogError ( "Already have house" ); return; }
+        if (hasHouse) { return; }
 
         Prop_House[] houses = FindObjectsOfType<Prop_House> ();
 
@@ -45,13 +47,12 @@ public class CitizenHousing : MonoBehaviour {
     }
 
     private void TryJoinHouse(Prop_House house)
-    {
-        Debug.Log ( "TryJoinHouse" );
-        if (hasHouse) { Debug.LogError ( "Already have house" ); return; }
-        if (house.IsBluePrint) { Debug.LogError ( "House was blueprint" ); return; }
-        if (!house.buildable.IsComplete) { Debug.LogError ( "House is incomplete" ); return; }
-        if (house.familyID != cBase.CitizenFamily.familyID && house.familyID != -1) { Debug.LogError ( "House isnt my family" ); return; };
-        if (house.occupied && house.familyID != cBase.CitizenFamily.familyID) { Debug.Log ( "House was occupied" ); return; };
+    {        
+        if (hasHouse) { return; }
+        if (house.IsBluePrint) { return; }
+        if (!house.buildable.IsComplete) { return; }
+        if (house.familyID != cBase.CitizenFamily.familyID && house.familyID != -1) { return; };
+        if (house.occupied && house.familyID != cBase.CitizenFamily.familyID) { return; };
 
         if (house.AddCitizen ( cBase ))
         {
@@ -77,6 +78,8 @@ public class CitizenHousing : MonoBehaviour {
         HousingController.onHouseBecomesEmpty -= TryJoinHouse;
         HousingController.onCitizenLeavesHouse -= TryJoinHouse;
         house.onDestroy += (prop) => { LeaveHouse (); };
+
+        GetComponent<IconDisplayer> ().RemoveIconByType ( IconDisplayer.IconType.NoHouse );
     }
 
     private void OnLeaveHouse (Prop_House house)
@@ -84,6 +87,8 @@ public class CitizenHousing : MonoBehaviour {
         HousingController.onHouseBecomesEmpty += TryJoinHouse;
         HousingController.onCitizenLeavesHouse += TryJoinHouse;
         house.onDestroy -= (prop) => { LeaveHouse (); };
+
+        GetComponent<IconDisplayer> ().AddIconGeneric ( IconDisplayer.IconType.NoHouse );
     }
 
     private void SetInspection ()
@@ -95,7 +100,7 @@ public class CitizenHousing : MonoBehaviour {
             panel.AddButtonTextData (() =>
             {
                 if (!hasHouse) return;
-                FindObjectOfType<CameraMovement> ().LockTo ( house.transform );
+                house.Inspectable.InspectAndLockCamera ();
                 house.GetComponentInChildren<Inspectable> ().Inspect ();
             }, (pair) =>
             {

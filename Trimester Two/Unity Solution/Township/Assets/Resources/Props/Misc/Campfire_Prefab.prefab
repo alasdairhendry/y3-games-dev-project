@@ -309,6 +309,7 @@ GameObject:
   - component: {fileID: 114798177543625592}
   - component: {fileID: 114054087682094708}
   - component: {fileID: 114805395767078770}
+  - component: {fileID: 114088702027160554}
   m_Layer: 0
   m_Name: Campfire_Prefab
   m_TagString: Untagged
@@ -2062,7 +2063,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lockOffset: {x: 0, y: 0, z: 0}
+  lockDistance: 4
   defaultTab: Inventory
+--- !u!114 &114088702027160554
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1711288779251446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f1288afbd5b1f45ae6cd44e072aad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityName: 
+  type: 2
 --- !u!114 &114217331660413804
 MonoBehaviour:
   m_ObjectHideFlags: 1

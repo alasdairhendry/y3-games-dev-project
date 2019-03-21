@@ -17,6 +17,9 @@ public class BuildMode : ModeBase {
 
     [SerializeField] private bool axisSnap = false;
 
+    private GameObject priceTooltip;
+    private GameObject placementTooltip;
+
     protected override void Awake ()
     {
         base.Awake ();
@@ -64,7 +67,7 @@ public class BuildMode : ModeBase {
         currentPropOutline.transform.rotation = Quaternion.identity;
         outlineYRotation = 180.0f;
         outlineYIncrementRotation = 180.0f;
-        FindObjectOfType<HUD_Tooltip_Panel> ().AddTooltip ( "£300.00", HUD_Tooltip_Panel.Tooltip.Preset.Warning );
+        priceTooltip = FindObjectOfType<HUD_Tooltip_Panel> ().AddTooltip ( "£300.00", HUD_Tooltip_Panel.Tooltip.Preset.Information );
         CheckMoving ();
     }
 
@@ -225,7 +228,7 @@ public class BuildMode : ModeBase {
 
     private bool SamplePropOnNavMesh (Vector3 point)
     {
-        return currentPropOutline.GetComponentInChildren<Prop> ().SampleSurface ();
+        return currentPropOutline.GetComponentInChildren<Prop> ().SampleSurface ( currentPropData );
         //if (currentPropData.placementArea == PlacementArea.Waterside)
         //{
         //    bool valid = false;
@@ -270,7 +273,7 @@ public class BuildMode : ModeBase {
     {
         //if (isActive) if (OnActivate != null) OnActivate ();
         //if (!isActive) if (OnDeactivate != null) OnDeactivate ();        
-        FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( "£300.00" );
+        FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( priceTooltip );
         DestroyPropOutline ();
     }   
     

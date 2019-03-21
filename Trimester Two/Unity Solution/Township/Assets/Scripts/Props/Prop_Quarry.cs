@@ -31,7 +31,7 @@ public class Prop_Quarry : Prop_Profession {
     {
         Job_QuarryWorker job = GetComponent<JobEntity> ().CreateJob_QuarryWorker ( "Quarry Work", !HaltProduction, 5.0f, null, this, rocks[index], wellPoints[index] );
         professionJobs.Add ( job );
-        JobController.QueueJob ( job );
+        //JobController.QueueJob ( job );
     }
 
     protected override void SetInspectable ()

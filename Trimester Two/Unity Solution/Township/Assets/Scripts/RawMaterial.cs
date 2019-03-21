@@ -8,20 +8,19 @@ public class RawMaterial : MonoBehaviour
     [SerializeField] private float quantityProvided;
     [SerializeField] private float timeToRemove = 10.0f;
     [SerializeField] private string removalDescription = "Cut Down";
+    public Inspectable Inspectable { get; protected set; }
 
-    //[SerializeField] private bool removableByBuilding = true;
-    //public bool RemovableByBuilding { get { return removableByBuilding; } }
+    public WorldEntity worldEntity { get; protected set; }
 
-    [ContextMenu ( "CreateRemovalJob" )]
-    public void CreateRemovalJob ()
+    private void Awake ()
     {
-        if (GetComponent<JobEntity> ().HasNonNullJob ()) return;
-        GetComponent<JobEntity> ().CreateJob_GatherResource ( "Gather Resource", true, timeToRemove, null, resourceProvided, quantityProvided, this );
+        Inspectable = GetComponent<Inspectable> ();
     }
 
     protected virtual void Start ()
     {
         SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> (), false );
+        worldEntity = GetComponent<WorldEntity> ();
         SetInspectable ();
     }
 
@@ -31,6 +30,15 @@ public class RawMaterial : MonoBehaviour
         this.quantityProvided = rQuantity;
         this.timeToRemove = removeTime;
         this.removalDescription = description;
+
+        if (worldEntity == null) worldEntity = GetComponent<WorldEntity> ();
+        worldEntity?.Setup ( ResourceManager.Instance.GetResourceByID ( rID ).name, WorldEntity.EntityType.Resource );
+    }
+
+    public void CreateRemovalJob ()
+    {
+        if (GetComponent<JobEntity> ().HasNonNullJob ()) return;
+        GetComponent<JobEntity> ().CreateJob_GatherResource ( removalDescription + " " + worldEntity.EntityName, true, timeToRemove, null, resourceProvided, quantityProvided, this );
     }
 
     public virtual void OnGathered ()
@@ -56,7 +64,10 @@ public class RawMaterial : MonoBehaviour
 
     private void SetInspectable ()
     {
-        GetComponent<Inspectable> ().SetAdditiveAction ( () =>
+        Inspectable.SetDestroyAction ( () => { this.RemoveOnBuildingPlaced (); }, false, "Remove" );
+        Inspectable.SetFocusAction ( () => { Inspectable.InspectAndLockCamera (); }, false );
+
+        Inspectable.SetAdditiveAction ( () =>
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
@@ -68,15 +79,6 @@ public class RawMaterial : MonoBehaviour
                 panel.Hide ();
 
             }, removalDescription, "Overview" );
-
-            panel.AddButtonData ( () =>
-            {
-                if (this == null) return;
-
-                this.RemoveOnBuildingPlaced ();
-                panel.Hide ();
-
-            }, "Remove", "Overview" );
 
         } );
     }

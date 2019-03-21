@@ -17,6 +17,8 @@ public class PopoutNotification : MonoBehaviour {
 
     public void AddPopout (string text, int fontSize, FontStyle style, Color textColour, Transform transform, float offset)
     {
+        if (!GamePreferences.Instance.preferences.showInventoryPopups) return;
+
         GameObject go = Instantiate ( prefab );
         go.transform.SetParent ( this.transform );
 
@@ -33,6 +35,8 @@ public class PopoutNotification : MonoBehaviour {
 
     public void AddPopout (string text, int fontSize, FontStyle style, Color textColour, Transform transform, float offset, Sprite sprite, float scale)
     {
+        if (!GamePreferences.Instance.preferences.showInventoryPopups) return;
+
         GameObject go = Instantiate ( prefab );
         go.transform.SetParent ( this.transform );
 

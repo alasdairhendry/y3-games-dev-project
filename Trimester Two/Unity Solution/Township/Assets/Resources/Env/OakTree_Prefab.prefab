@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 114460927768680230}
   - component: {fileID: 114909929541438094}
   - component: {fileID: 114981833613973656}
+  - component: {fileID: 114683170163150524}
   m_Layer: 0
   m_Name: OakTree_Prefab
   m_TagString: Untagged
@@ -104,16 +105,16 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1374770735600504}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0.649448, z: 0, w: 0.760406}
+  m_LocalPosition: {x: 29.57, y: 3.65, z: 19.92}
+  m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children:
   - {fileID: 4400528726291538}
   - {fileID: 4533053874225718}
   - {fileID: 4527673792018406}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 81, z: 0}
 --- !u!4 &4400528726291538
 Transform:
   m_ObjectHideFlags: 1
@@ -284,6 +285,19 @@ MonoBehaviour:
   quantityProvided: 0.25
   timeToRemove: 10
   removalDescription: Cut Down
+--- !u!114 &114683170163150524
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1374770735600504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f1288afbd5b1f45ae6cd44e072aad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityName: Tree
+  type: 3
 --- !u!114 &114731033116713894
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -321,6 +335,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c018d5815abdd4a9a0b74d10c9cd00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lockOffset: {x: 0, y: 3, z: 0}
+  lockDistance: 20
   defaultTab: Overview
 --- !u!208 &208216470158862742
 NavMeshObstacle:

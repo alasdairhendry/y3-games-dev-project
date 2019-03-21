@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class CitizenBase : MonoBehaviour {
 
     public int ID { get; protected set; }
+    public WorldEntity WorldEntity { get; protected set; }
     public CitizenMovement CitizenMovement { get; protected set; }
     public CitizenAnimation CitizenAnimation { get; protected set; }
     public CitizenGraphics CitizenGraphics { get; protected set; }
@@ -15,6 +16,8 @@ public class CitizenBase : MonoBehaviour {
     public CitizenAge CitizenAge { get; protected set; }
     public CitizenFamily CitizenFamily { get; protected set; }
     public CitizenHousing CitizenHousing { get; protected set; }
+    public CitizenFootsteps CitizenFootsteps { get; protected set; }
+    public Inspectable Inspectable { get; protected set; }
 
     private NavMeshAgent agent { get; set; }
     public ResourceInventory Inventory { get; protected set; }
@@ -25,6 +28,7 @@ public class CitizenBase : MonoBehaviour {
 
     private void Awake ()
     {
+        WorldEntity = GetComponent<WorldEntity> ();
         CitizenMovement = GetComponent<CitizenMovement> ();
         CitizenAnimation = GetComponent<CitizenAnimation> ();
         CitizenGraphics = GetComponent<CitizenGraphics> ();
@@ -34,7 +38,9 @@ public class CitizenBase : MonoBehaviour {
         CitizenAge = GetComponent<CitizenAge> ();
         CitizenFamily = GetComponent<CitizenFamily> ();
         CitizenHousing = GetComponent<CitizenHousing> ();
-
+        CitizenFootsteps = FindObjectOfType<CitizenFootsteps> ();
+        Inspectable = GetComponent<Inspectable> ();
+        
         Inventory = new ResourceInventory ( float.MaxValue );
         agent = GetComponent<NavMeshAgent> ();
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
@@ -47,7 +53,10 @@ public class CitizenBase : MonoBehaviour {
 
     private void SetInspection ()
     {
-        GetComponent<Inspectable> ().SetAdditiveAction ( () =>
+        Inspectable.SetDestroyAction ( () => { KillCitizen (); }, false, "Kill" );
+        Inspectable.SetFocusAction ( () => { Inspectable.InspectAndLockCamera (); }, false );
+
+        Inspectable.SetAdditiveAction ( () =>
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
@@ -57,15 +66,7 @@ public class CitizenBase : MonoBehaviour {
 
                 CitizenNeeds.NeedsDictionary[Need.Type.Energy].SetBase ( 0 );
 
-            }, "Set Energy 0", "Needs" );
-
-            panel.AddButtonData ( () =>
-            {
-                if (this == null) return;
-
-                FindObjectOfType<CameraMovement> ().LockTo ( this.transform );
-
-            }, "Follow Citizen", "Any" );
+            }, "Set Energy 0", "Needs" );            
 
             panel.AddButtonData ( () =>
             {
@@ -134,43 +135,14 @@ public class CitizenBase : MonoBehaviour {
 
             }, CitizenNeeds.Needs[3].type.ToString (), "Needs" );
 
-
-            panel.AddTickActionData ( () =>
-            {
-                if (this == null) return;
-
-                LineRenderer lr = this.GetComponentInChildren<LineRenderer> ();
-
-                if (this.CitizenMovement.Path != null)
-                {
-                    NavMeshPath path = this.CitizenMovement.Path;
-                    lr.positionCount = path.corners.Length;
-
-                    for (int i = 0; i < path.corners.Length; i++)
-                    {
-                        lr.SetPosition ( i, path.corners[i] + new Vector3 ( 0.0f, 0.2f + (SnowController.Instance.TerrainSnowLevel / SnowController.Instance.MaxSnowDepth), 0.0f ) );
-                    }
-
-                    if(path.status == NavMeshPathStatus.PathComplete)
-                    {
-                        lr.sharedMaterial.SetColor ( "_TintColor", ColourGroupController.Instance.GetColour ( "UI_TextGreen" ) );
-                    }
-                    else
-                    {
-                        lr.sharedMaterial.SetColor ( "_TintColor", ColourGroupController.Instance.GetColour ( "UI_TextRed" ) );
-                    }
-
-                }
-                else lr.positionCount = 0;                
-            } );
+            CitizenFootsteps.SetState ( true, this);
 
             panel.AddOnCloseAction ( () =>
-            {
-                if (this == null) return;
+             {
+                 if (this == null) return;
 
-                LineRenderer lr = this.GetComponentInChildren<LineRenderer> ();
-                if (lr != null) lr.positionCount = 0;
-            } );
+                 CitizenFootsteps.SetState ( false, this );
+             } );
         } );
     }
 
@@ -179,10 +151,21 @@ public class CitizenBase : MonoBehaviour {
         this.ID = id;
     }
 
+    public void SetInventory(List<int> ids, List<float> quantities)
+    {
+        Inventory = new ResourceInventory ( float.MaxValue );
+        
+        for (int i = 0; i < ids.Count; i++)
+        {
+            WarehouseController.Instance.Inventory.AddItemQuantity ( ids[i], quantities[i] );
+        }
+    }
+
     private void KillCitizen ()
     {
-        if (OnCitizenDied != null) OnCitizenDied (this);
+        OnCitizenDied?.Invoke ( this );
         if (this.CitizenJob.GetCurrentJob != null) this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "Citizen Died", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
+        ProfessionController.Instance.SetProfessionExplicit ( this.CitizenJob );
         Destroy ( this.gameObject );
     }
 

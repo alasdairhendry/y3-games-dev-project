@@ -21,17 +21,17 @@ public class VisualiserController : MonoBehaviour {
 
     private void Update ()
     {
-        if (Input.GetKeyDown ( KeyCode.P ))
-        {
-            if (isOn) TurnOff ();
-            else Visualise ( materials[matIndex],
-                (p, m) =>
-                {
-                    Material _m = new Material ( m );
-                    _m.color = Color.Lerp ( Color.black, Color.white, p.transform.position.x / 100.0f );
-                    return _m;
-                } );
-        }
+        //if (Input.GetKeyDown ( KeyCode.P ))
+        //{
+        //    if (isOn) TurnOff ();
+        //    else Visualise ( materials[matIndex],
+        //        (p, m) =>
+        //        {
+        //            Material _m = new Material ( m );
+        //            _m.color = Color.Lerp ( Color.black, Color.white, p.transform.position.x / 100.0f );
+        //            return _m;
+        //        } );
+        //}
     }
 
     public void Visualise(Material material, System.Func<PropVisualiser, Material, Material> MaterialCheck)

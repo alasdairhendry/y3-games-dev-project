@@ -18,7 +18,6 @@ public class CitizenIdleJob : MonoBehaviour {
 
     private void CreateJobs ()
     {
-        //idleJobs.Add ( new IdleJob_MoveTo ( null, "Be Lazy" ) );
         idleJobs.Add ( new IdleJob_StandByCampfire ( null, "Warm up" ) );
         idleJobs.Add ( new IdleJob_Dance ( null, "Dance The YMCA" ) );
     }

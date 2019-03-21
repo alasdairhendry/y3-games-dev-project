@@ -35,8 +35,8 @@ public class ResourceManager : MonoBehaviour {
         CreateResource ( 4, "Iron Bar", "A durable building material" );
         CreateResource ( 5, "Charcoal", "Used in advanced metal production" );
 
-        CreateResource ( 6, "Apple", "Can be fermented into alcohol" );
-        CreateResource ( 7, "Cider", "Increase happiness for citizens" );
+        CreateResource ( 6, "Grapes", "Can be fermented into alcohol" );
+        CreateResource ( 7, "Wine", "Increase happiness for citizens" );
 
         CreateResource ( 8, "Tool", "Increases production for many professions" );
 

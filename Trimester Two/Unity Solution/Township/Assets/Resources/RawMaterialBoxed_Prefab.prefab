@@ -74,6 +74,7 @@ GameObject:
   - component: {fileID: 114356441516545064}
   - component: {fileID: 114689869588365894}
   - component: {fileID: 114266844317094758}
+  - component: {fileID: 114155649933798296}
   m_Layer: 0
   m_Name: RawMaterialBoxed_Prefab
   m_TagString: Untagged
@@ -245,6 +246,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderers: []
+--- !u!114 &114155649933798296
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1287848159991344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f1288afbd5b1f45ae6cd44e072aad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityName: 
+  type: 3
 --- !u!114 &114266844317094758
 MonoBehaviour:
   m_ObjectHideFlags: 1

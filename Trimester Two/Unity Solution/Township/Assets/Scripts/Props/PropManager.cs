@@ -152,8 +152,8 @@ public class PropManager : MonoBehaviour {
       ) );
 
         propData.Add ( new PropData (
-          "Orchard",
-          "Allows an orchadist to grow apples",
+          "Vineyard",
+          "Allows a Vintner to grow apples",
           "Orchard",
           PropCategory.Gathering,
           PlacementType.Plopable,
@@ -217,8 +217,8 @@ public class PropManager : MonoBehaviour {
         ) );
 
         propData.Add ( new PropData (
-           "Brewery",
-           "Allows a brewer to ferment apples into cider",
+           "Winery",
+           "Allows a Winemaker to ferment grapes into wine",
            "Brewery",
            PropCategory.Production,
            PlacementType.Plopable,

@@ -31,9 +31,6 @@ public class Job_Haul : Job
         this.targetInventory = targetInventory;
         this.professionTypes.Add ( ProfessionType.Worker );
         BreakForEnergy = false;
-        Debug.Log ( "Creating haul job for " + this.resourceQuantity + " " + ResourceManager.Instance.GetResourceByID ( this.resourceID ).name );
-
-        //Tick_CheckCompletable ( 0 );
     }
 
     public override void DoJob ()
@@ -144,7 +141,7 @@ public class Job_Haul : Job
                 WarehouseController.Instance.Inventory.AddItemQuantity ( resourceID, resourceQuantity, targetWarehouse.transform, targetWarehouse.data.UIOffsetY );
         }
 
-        cBase.CitizenGraphics.SetUsingCrate ( false );
+        cBase?.CitizenGraphics.SetUsingCrate ( false );
 
         if (resourcesGivenToCitizen)
             base.cBase.Inventory.RemoveItemQuantity ( resourceID, resourceQuantity, base.cBase.transform, 2.0f );

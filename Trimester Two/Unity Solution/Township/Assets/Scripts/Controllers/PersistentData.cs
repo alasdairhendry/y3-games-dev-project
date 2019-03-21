@@ -19,9 +19,20 @@ public static class PersistentData {
         SaveData data = new SaveData ();
         SaveCitizens ( ref data, citizens );
         SaveProps ( ref data, props );
+        SaveGameTime ( ref data );
 
         data.CameraPosition = Camera.main.transform.position.ToFloat3 ();
         data.CameraRotation = Camera.main.GetComponent<CameraMovement> ().currentRotation;
+
+        List<Resource> resourceList = ResourceManager.Instance.GetResourceList ();
+
+        for (int x = 0; x < resourceList.Count; x++)
+        {
+            data.WarehouseResourceIDs.Add ( resourceList[x].id );
+            data.WarehouseResourceQuantities.Add ( Mathf.Clamp ( WarehouseController.Instance.Inventory.inventoryOverall[resourceList[x].id], 0.0f, float.MaxValue ) );
+        }
+
+        data.gamePreferences = GamePreferences.Instance.preferences;
 
         bf.Serialize ( stream, data );
         Debug.Log ( "Saved to " + path );
@@ -69,6 +80,17 @@ public static class PersistentData {
                 if (cBase.CitizenFamily.Children[x].citizenBase != null)
                 {
                     citizenData.ChildrenIDs.Add ( cBase.CitizenFamily.Children[x].citizenBase.ID );
+                }
+            }
+
+            List<Resource> resourceList = ResourceManager.Instance.GetResourceList ();
+
+            if (citizens[i].Inventory != null)
+            {
+                for (int x = 0; x < resourceList.Count; x++)
+                {
+                    citizenData.ResourceIDs.Add ( resourceList[x].id );
+                    citizenData.ResourceQuantities.Add ( Mathf.Clamp ( citizens[i].Inventory.inventoryOverall[resourceList[x].id], 0.0f, float.MaxValue ) );
                 }
             }
 
@@ -122,6 +144,15 @@ public static class PersistentData {
         }
     }
 
+    private static void SaveGameTime(ref SaveData data)
+    {
+        data.gameTime.dayOfMonth = GameTime.currentDayOfTheMonth;
+        data.gameTime.dayOfYear = GameTime.currentDayOfTheYear;
+        data.gameTime.month = GameTime.currentMonth;
+        data.gameTime.year = GameTime.currentYear;
+        data.gameTime.dayOfGame = GameTime.currentDayOfTheGame;
+    }
+
     public static SaveData Load (string saveName)
     {
         if (!Directory.Exists ( path )) { Debug.LogError ( "Save Directory Does Not Exist" ); return null; }
@@ -143,6 +174,13 @@ public static class PersistentData {
     {
         public List<CitizenData> citizens = new List<CitizenData> ();
         public List<PropData> props = new List<PropData> ();
+        public GameTimeData gameTime = new GameTimeData ();
+
+        public List<int> WarehouseResourceIDs = new List<int> ();
+        public List<float> WarehouseResourceQuantities = new List<float> ();
+
+        public GamePreferences.Preferences gamePreferences;
+
         public float[] CameraPosition;
         public float CameraRotation;
     }
@@ -166,6 +204,9 @@ public static class PersistentData {
         public int Profession;
         public int Age;
         public int Birthday;
+
+        public List<int> ResourceIDs = new List<int> ();
+        public List<float> ResourceQuantities = new List<float> ();
     }
 
     [System.Serializable]
@@ -185,5 +226,15 @@ public static class PersistentData {
 
         public int BuildableStage;
         public float ConstructionPercent;
+    }
+
+    [System.Serializable]
+    public class GameTimeData
+    {
+        public int dayOfMonth;
+        public int dayOfYear;
+        public int dayOfGame;
+        public int month;
+        public int year;
     }
 }
