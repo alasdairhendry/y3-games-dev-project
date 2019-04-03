@@ -26,12 +26,12 @@ public class World_Editor : Editor {
         QuickSwitch.Draw<BiomeData>(null, serializedObject, "biomeData", ref world.biomeData, ref biomeFoldout);
         QuickSwitch.Draw<EnvironmentData>(null, serializedObject, "environmentData", ref world.environmentData, ref envFoldout);
 
-        if(Input.GetKey(KeyCode.LeftShift) && Input.GetKey ( KeyCode.A )) { world.DEBUG_UpdateShaderParams (); }
+        //if(Input.GetKey(KeyCode.LeftShift) && Input.GetKey ( KeyCode.A )) { world.DEBUG_UpdateShaderParams (); }
 
         if (GUILayout.Button ( "Update NavMesh" )) { world.DEBUG_UpdateNavMesh (); }
         if (GUILayout.Button ( "Update Shader Params" )) { world.DEBUG_UpdateShaderParams (); }
 
-        if (GUILayout.Button ( "Generate" )) { world.Create (); }        
+        if (GUILayout.Button ( "Generate" )) { world.CreateFrom_New (); }        
     }
 
     private Type[] GetAttributes<T>() where T : MonoBehaviour

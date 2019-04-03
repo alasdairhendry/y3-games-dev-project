@@ -122,7 +122,7 @@ public class ProfessionController : MonoBehaviour {
 
             if (citizenJobs[i].profession == ProfessionType.None || citizenJobs[i].profession == ProfessionType.Student)
             {
-                if(CitizenAgeIsCompatible(citizenJobs[i], ProfessionType.None ))
+                if(CitizenAgeIsCompatible(citizenJobs[i], type ))
                 {
                     found = true;
                 }

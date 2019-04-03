@@ -1,0 +1,9 @@
+Now your citizens have a Warehouse they can use.
+
+The Town Plaque and Warehouse were built instantly to get you started.
+From now on, your citizens will need to use resources from the Warehouse to build them for you.
+
+Press {0} to open up the Resources Panel, or open it through the Town Data Menu. 
+This will show you what resources are currently stored in the Warehouse.
+
+Use these resources to build some houses for your citizens. {1} should be enough.

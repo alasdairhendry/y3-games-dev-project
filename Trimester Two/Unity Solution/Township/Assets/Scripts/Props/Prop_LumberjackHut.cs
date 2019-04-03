@@ -10,6 +10,11 @@ public class Prop_LumberjackHut : Prop_Profession {
     protected override void OnPlaced ()
     {
         base.OnPlaced ();
+
+        for (int i = 0; i < PropManager.Instance.propData.Count; i++)
+        {
+            PropManager.Instance.propData[i].Unlock ();
+        }
     }
 
     protected override void SetResources ()

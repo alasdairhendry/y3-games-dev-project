@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ public class Hud_Professions_Panel : UIPanel {
     [SerializeField] private GameObject prefab;
     [SerializeField] private Transform contentTransform;
 
-    private Dictionary<ProfessionType, Text> textObjects = new Dictionary<ProfessionType, Text> ();
+    private Dictionary<ProfessionType, TextMeshProUGUI> textObjects = new Dictionary<ProfessionType, TextMeshProUGUI> ();
 
     ProfessionType cycleType = ProfessionType.None;
     int cycleIndex = 0;
@@ -29,7 +30,7 @@ public class Hud_Professions_Panel : UIPanel {
             GameObject go = Instantiate ( prefab );
             go.transform.SetParent ( contentTransform );
 
-            Text[] texts = go.GetComponentsInChildren<Text> ();
+            TextMeshProUGUI[] texts = go.GetComponentsInChildren<TextMeshProUGUI> ();
             texts[0].text = profs[i].type.ToString ();
             texts[1].text = ProfessionController.Instance.professionsByCitizen[profs[i].type].Count.ToString ( "0" );
 

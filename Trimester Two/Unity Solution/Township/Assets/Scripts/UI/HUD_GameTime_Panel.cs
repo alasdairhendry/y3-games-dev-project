@@ -34,13 +34,29 @@ public class HUD_GameTime_Panel : UIPanel {
     public void OnClick_SpeedDown ()
     {
         GameTime.ModifyGameSpeed (true);
-        gameTimeModifierLabel.text = GameTime.GameTimeModifier.ToDescription ( new Dictionary<float, string> () { { 1.0f, "Normal" }, { 2.0f, "Fast" }, { 3.0f, "Faster" }, { 5.0f, "Fastest" } } );
+        if(GameTime.GameTimeModifier == GameTime.GameTimeSpeeds[0])
+        {
+            gameTimeModifierLabel.text = "Normal";
+        }
+        else
+        {
+            gameTimeModifierLabel.text = GameTime.GameTimeModifier.ToString ( "0.0" ) + " x";
+        }
+        //gameTimeModifierLabel.text = GameTime.GameTimeModifier.ToDescription ( new Dictionary<float, string> () { { 1.0f, "Normal" }, { 2.0f, "Fast" }, { 3.0f, "Faster" }, { 5.0f, "Fastest" } } );
     }
 
     public void OnClick_SpeedUp ()
     {
         GameTime.ModifyGameSpeed (false);
-        gameTimeModifierLabel.text = GameTime.GameTimeModifier.ToDescription ( new Dictionary<float, string> () { { 1.0f, "Normal" }, { 2.0f, "Fast" }, { 3.0f, "Faster" }, { 5.0f, "Fastest" } } );
+        if (GameTime.GameTimeModifier == GameTime.GameTimeSpeeds[0])
+        {
+            gameTimeModifierLabel.text = "Normal";
+        }
+        else
+        {
+            gameTimeModifierLabel.text = GameTime.GameTimeModifier.ToString ( "0.0" ) + "x";
+        }
+        //gameTimeModifierLabel.text = GameTime.GameTimeModifier.ToDescription ( new Dictionary<float, string> () { { 1.0f, "Normal" }, { 2.0f, "Fast" }, { 3.0f, "Faster" }, { 5.0f, "Fastest" } } );
     }
 
     public void OnClick_PausePlay ()

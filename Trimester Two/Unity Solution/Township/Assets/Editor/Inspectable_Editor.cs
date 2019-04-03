@@ -11,10 +11,13 @@ public class Inspectable_Editor : Editor {
     private bool destroy = false;
     private GameObject cameraObject;
     private Camera camera;
+
+    //private bool displayCamera = false;
     //private RenderTexture renderTexture;        
 
     private void OnEnable ()
     {
+        return;
         type = (Inspectable)target;
         destroy = false;
 
@@ -25,7 +28,7 @@ public class Inspectable_Editor : Editor {
             PrefabType p = PrefabUtility.GetPrefabType ( r[i] );
             if (p == PrefabType.Prefab || p == PrefabType.ModelPrefab) { Debug.LogError ( "Found asset " + r[i].name + " - returning", r[i] ); continue; }
 
-            Debug.Log ( r[i].name, r[i] );
+            //Debug.Log ( r[i].name, r[i] );
             DestroyImmediate ( r[i] );
         }
 

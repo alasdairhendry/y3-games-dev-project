@@ -11,7 +11,7 @@ public class CitizenAnimation : MonoBehaviour {
     [SerializeField] private AnimationClip walkAdultClip;
     [SerializeField] private AnimationClip walkChildClip;
 
-    public enum AnimationState { Idle, Walking, Carrying, Cart, Fishing }
+    public enum AnimationState { Idle, Walking, Carrying, Cart, Fishing, Squashing }
 
     private AnimationState animationState = AnimationState.Idle;
     public AnimationState SetAnimationState { set { animationState = value; ChangeAnimationState ( value ); } }
@@ -71,6 +71,7 @@ public class CitizenAnimation : MonoBehaviour {
                 animator.SetBool ( "isWalking", false );
                 animator.SetBool ( "isCarrying", false );
                 animator.SetBool ( "isWheelbarrow", false );
+                animator.SetBool ( "isSquashing", false );
                 animator.SetBool ( "isFishing", false );
                 animator.SetFloat ( "IdleState", 0 );
                 break;
@@ -78,6 +79,7 @@ public class CitizenAnimation : MonoBehaviour {
             case AnimationState.Walking:
                 animator.SetBool ( "isWalking", true );
                 animator.SetBool ( "isFishing", false );
+                animator.SetBool ( "isSquashing", false );
                 animator.SetFloat ( "IdleState", 0 );
                 break;
 
@@ -85,12 +87,14 @@ public class CitizenAnimation : MonoBehaviour {
                 animator.SetBool ( "isWalking", true );
                 animator.SetBool ( "isCarrying", true );
                 animator.SetBool ( "isFishing", false );
+                animator.SetBool ( "isSquashing", false );
                 animator.SetFloat ( "IdleState", 0 );
                 break;
 
             case AnimationState.Cart:
                 animator.SetBool ( "isWalking", true );
                 animator.SetBool ( "isWheelbarrow", true );
+                animator.SetBool ( "isSquashing", false );
                 animator.SetBool ( "isFishing", false );
                 animator.SetFloat ( "IdleState", 1 );
                 break;
@@ -98,7 +102,16 @@ public class CitizenAnimation : MonoBehaviour {
             case AnimationState.Fishing:
                 animator.SetBool ( "isWalking", false );
                 animator.SetBool ( "isWheelbarrow", false );
+                animator.SetBool ( "isSquashing", false );
                 animator.SetBool ( "isFishing", true );
+                animator.SetFloat ( "IdleState", 1 );
+                break;
+
+            case AnimationState.Squashing:
+                animator.SetBool ( "isWalking", false );
+                animator.SetBool ( "isWheelbarrow", false );
+                animator.SetBool ( "isFishing", false );
+                animator.SetBool ( "isSquashing", true );
                 animator.SetFloat ( "IdleState", 1 );
                 break;
 

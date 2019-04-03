@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ public class HUD_Warehouse_Panel : UIPanel {
     [SerializeField] private GameObject prefab;
     [SerializeField] private Transform content;
 
-    private Dictionary<int, Text> entries = new Dictionary<int, Text> ();
+    private Dictionary<int, TextMeshProUGUI> entries = new Dictionary<int, TextMeshProUGUI> ();
 
     protected override void Start ()
     {
@@ -22,9 +23,9 @@ public class HUD_Warehouse_Panel : UIPanel {
             go.transform.SetParent ( content );
 
             go.GetComponentsInChildren<Image> ()[2].sprite = r[i].image;
-            go.GetComponentsInChildren<Text> ()[0].text = r[i].name;
-            go.GetComponentsInChildren<Text> ()[1].text = WarehouseController.Instance.Inventory.GetAvailableQuantity ( i ).ToString ( "00" );
-            entries.Add ( i, go.GetComponentsInChildren<Text> ()[1] );
+            go.GetComponentsInChildren<TextMeshProUGUI> ()[0].text = r[i].name;
+            go.GetComponentsInChildren<TextMeshProUGUI> ()[1].text = Mathf.Floor ( WarehouseController.Instance.Inventory.GetAvailableQuantity ( i ) ).ToString ( "00" );
+            entries.Add ( i, go.GetComponentsInChildren<TextMeshProUGUI> ()[1] );
         }
 
         WarehouseController.Instance.Inventory.RegisterOnResourceAdded ( OnResourceAdded );
@@ -33,12 +34,12 @@ public class HUD_Warehouse_Panel : UIPanel {
 
     private void OnResourceAdded (int id, float q)
     {
-        entries[id].text = WarehouseController.Instance.Inventory.GetAvailableQuantity ( id ).ToString ("00");
+        entries[id].text = Mathf.Floor ( WarehouseController.Instance.Inventory.GetAvailableQuantity ( id ) ).ToString ( "00" );
     }
 
     private void OnResourceRemoved (int id, float q)
     {
-        entries[id].text = WarehouseController.Instance.Inventory.GetAvailableQuantity ( id ).ToString ( "00" );
+        entries[id].text = Mathf.Floor ( WarehouseController.Instance.Inventory.GetAvailableQuantity ( id ) ).ToString ( "00" );
     }
 
     public override void Show ()

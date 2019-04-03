@@ -232,6 +232,7 @@ GameObject:
   - component: {fileID: 114517106248022034}
   - component: {fileID: 114486804969605798}
   - component: {fileID: 114239569244658736}
+  - component: {fileID: 114330257133581800}
   - component: {fileID: 195350524218408274}
   - component: {fileID: 114017856892280710}
   - component: {fileID: 114043790602679826}
@@ -3234,6 +3235,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5336cdd1a1c728f4688023f408bda7e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowLookForHouse: 1
+--- !u!114 &114330257133581800
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1153849819904790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2917cd519b11684893733382c61ad32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114366307493470918
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3272,6 +3285,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9bf93bfae8dddc4eb1562a4369fd294, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pregnancyProbabilityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0.030322075
+      outSlope: 0.030322075
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.016012738
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -1.8633007
+      outSlope: -1.8633007
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.055466354
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &114517106248022034
 MonoBehaviour:
   m_ObjectHideFlags: 1

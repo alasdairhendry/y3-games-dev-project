@@ -20,6 +20,8 @@ public class Prop : MonoBehaviour {
     private List<Transform> navMeshGroundProbes = new List<Transform> ();
     private List<Transform> navMeshWaterProbes = new List<Transform> ();
 
+    private List<LineRenderer> lrs = new List<LineRenderer> ();
+
     public System.Action<Prop> onDestroy;
 
     public Inspectable Inspectable { get; protected set; }
@@ -39,7 +41,7 @@ public class Prop : MonoBehaviour {
     {
         this.data = data;
         isBlueprint = false;
-        buildable = GetComponent<Buildable> ().OnPropPlaced ();        
+        buildable = GetComponent<Buildable> ().OnPropPlaced ();
         SetActiveNavMeshObstacles ( true );
 
         CreateInteractionObject ();
@@ -50,6 +52,8 @@ public class Prop : MonoBehaviour {
 
         SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), false );
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
+
+        GameTime.onDayChanged += OnDayChange;
 
         SetInventory ();
         OnPlaced ();
@@ -71,6 +75,8 @@ public class Prop : MonoBehaviour {
         SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), false );
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
 
+        GameTime.onDayChanged += OnDayChange;
+
         inventory = new ResourceInventory ( data.PropInventoryCapacity );
         for (int i = 0; i < data.PropResourceIDs.Count; i++)
         {
@@ -91,6 +97,13 @@ public class Prop : MonoBehaviour {
     public virtual void OnBuilt ()
     {
 
+    }
+
+    protected void OnDayChange(int p, int c)
+    {
+        if (buildable.IsComplete)
+            MoneyController.Instance.RemoveWithTransaction ( data.dailyUpkeep, "Daily Upkeep for " + data.name, MoneyController.Transaction.Category.Upkeep );
+        else MoneyController.Instance.RemoveWithTransaction ( Mathf.FloorToInt((float)data.dailyUpkeep * 0.25f), "Daily Upkeep for " + data.name, MoneyController.Transaction.Category.Upkeep );
     }
 
     protected virtual void SetActiveNavMeshObstacles(bool state)
@@ -148,14 +161,24 @@ public class Prop : MonoBehaviour {
 
     public virtual void DestroyProp ()
     {
-        if (onDestroy != null) onDestroy ( this );
+        onDestroy?.Invoke ( this );
 
         if (this == null) return;
         if (this.gameObject == null) return;
 
+        if (buildable.IsComplete)
+        {
+            MoneyController.Instance.AddWithTransaction ( Mathf.FloorToInt ( (float)data.costToPlace * 0.25f ), "Bulldozed completed " + data.name, MoneyController.Transaction.Category.Build );
+        }
+        else
+        {
+            MoneyController.Instance.AddWithTransaction ( Mathf.FloorToInt ( (float)data.dailyUpkeep * 0.75f ), "Bulldozed incomplete " + data.name, MoneyController.Transaction.Category.Build );
+        }
+
         EntityManager.Instance.OnEntityDestroyed ( this.gameObject, this.GetType() );
         GetComponent<JobEntity> ().DestroyJobs ();
         SnowController.Instance.SetObjectMaterial ( GetComponentsInChildren<MeshRenderer> ( true ), true );
+        GameTime.onDayChanged -= OnDayChange;
         Destroy ( this.gameObject );
     }
 
@@ -186,10 +209,10 @@ public class Prop : MonoBehaviour {
             {
                 onGround = false;
             }
-            else
-            {
-                FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( "Terrain not suitable." );
-            }
+            //else
+            //{
+            //    FindObjectOfType<HUD_Tooltip_Panel> ().RemoveTooltip ( "Terrain not suitable." );
+            //}
         }
 
         for (int i = 0; i < navMeshWaterProbes.Count; i++)
@@ -263,10 +286,12 @@ public class Prop : MonoBehaviour {
     {
         currentTooltipMessage = "";
         if (tooltipObject != null)
+        {
             HUD_Tooltip_Panel.Instance.RemoveTooltip ( tooltipObject );
+        }
     }
 
-    private void OnDestroy ()
+    protected virtual void OnDestroy ()
     {
         RemoveTooltip ();
     }
@@ -276,6 +301,6 @@ public class Prop : MonoBehaviour {
         if (citizenInteractionPoint == null) return;
 
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere ( transform.position + citizenInteractionPoint, 0.5f );
+        Gizmos.DrawWireSphere ( transform.TransformPoint ( citizenInteractionPoint ), 0.5f );
     }
 }

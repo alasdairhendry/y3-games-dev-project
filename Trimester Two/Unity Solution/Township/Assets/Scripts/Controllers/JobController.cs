@@ -75,7 +75,6 @@ public static class JobController
         previousJobs.Add ( job );
         jobs.Remove ( job );
         onJobsChanged?.Invoke ( jobs, previousJobs );
-        Debug.Log ( "DestroyJob " + Time.frameCount );
     }
 
     public static void DestroyJobs(List<Job> givenJobs)
@@ -103,7 +102,6 @@ public static class JobController
         }
 
         onJobsChanged?.Invoke ( jobs, previousJobs );
-        Debug.Log ( "DestroyJobs " + Time.frameCount );
     }
 
     public static void IncreasePriority(Job job)

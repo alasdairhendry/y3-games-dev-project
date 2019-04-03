@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class IdleJob_StandByCampfire : IdleJob
 {
@@ -79,11 +80,14 @@ public class IdleJob_StandByCampfire : IdleJob
             {
                 if (cBase == null) return;
                 cBase.CitizenAnimation.animator.SetBool ( "KneelByFire", true );
+                cBase.GetComponent<NavMeshAgent> ().enabled = false;
                 AgentJobStatus = "Warming Hands";
             }
 
-            Quaternion lookRot = Quaternion.LookRotation ( this.targetPosition - this.cBase.transform.position, Vector3.up );
-            this.cBase.transform.rotation = Quaternion.Slerp ( this.cBase.transform.rotation, lookRot, GameTime.DeltaGameTime * 2.5f );
+            Vector3 dir = (this.targetPosition - this.cBase.transform.position);
+            dir.y = 0;
+            Quaternion lookRot = Quaternion.LookRotation ( dir, Vector3.up );
+            this.cBase.transform.rotation = lookRot;
         }
     }
 
@@ -96,6 +100,7 @@ public class IdleJob_StandByCampfire : IdleJob
     {
         if (cBase != null)
             cBase.CitizenAnimation.animator.SetBool ( "KneelByFire", false );
+        cBase.GetComponent<NavMeshAgent> ().enabled = true;
         toldToAnimate = false;
         givenPosition = false;
         targetPosition = new Vector3 ();

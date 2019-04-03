@@ -96,6 +96,46 @@ public class JobEntity : MonoBehaviour
         return job;
     }
 
+    public Job_Blacksmith CreateJob_Blacksmith (string name, bool open, float timeRequired, System.Action onComplete, Prop_Smithery prop, GameObject smithPoint, GameObject anvilPoint)
+    {
+        Job_Blacksmith job = new Job_Blacksmith ( this, name, open, timeRequired, onComplete, prop, smithPoint, anvilPoint );
+        job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
+        return job;
+    }
+
+    public Job_Miner CreateJob_Miner (string name, bool open, float timeRequired, System.Action onComplete, Prop_Mine prop, Transform jobPoint)
+    {
+        Job_Miner job = new Job_Miner ( this, name, open, timeRequired, onComplete, prop, jobPoint );
+        job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
+        return job;
+    }
+
+    public Job_CharcoalBurner CreateJob_CharcoalBurner (string name, bool open, float timeRequired, System.Action onComplete, Prop_CharcoalBurnerHut prop, Transform jobPoint)
+    {
+        Job_CharcoalBurner job = new Job_CharcoalBurner ( this, name, open, timeRequired, onComplete, prop, jobPoint );
+        job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
+        return job;
+    }
+
+    public Job_Brewery CreateJob_Brewery (string name, bool open, float timeRequired, System.Action onComplete, Prop_Brewery prop, Transform entryPoint, Transform squashPoint, ParticleSystem particles)
+    {
+        Job_Brewery job = new Job_Brewery ( this, name, open, timeRequired, onComplete, prop, entryPoint, squashPoint, particles );
+        job.OnCharacterChanged += CheckJobs;
+        job.onComplete += CheckJobs;
+        currentJobs.Add ( JobController.QueueJob ( job ) );
+        CheckJobs ();
+        return job;
+    }
+
     public Job_MarketCart CreateJob_MarketCart(string name, bool open, float timeRequired, System.Action onComplete, Prop targetProp, ResourceInventory propInventory, int resourceID, int maxSupplyQuantity, bool supply)
     {
         Job_MarketCart job = new Job_MarketCart ( this, name, open, timeRequired, onComplete, targetProp, propInventory, resourceID, maxSupplyQuantity, supply );

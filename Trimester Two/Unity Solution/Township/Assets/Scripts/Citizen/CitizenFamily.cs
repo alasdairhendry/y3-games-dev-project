@@ -23,7 +23,15 @@ public class CitizenFamily : MonoBehaviour {
     public int familyID { get; protected set; }
     public string familyName { get; protected set; }
 
-    public bool isPregnant { get; protected set; }
+    [SerializeField] private AnimationCurve pregnancyProbabilityCurve;
+    public bool isPregnant { get; protected set; } = false;
+    public int pregnancyDueDay { get; protected set; } = 0;
+    public bool isWidowed { get; protected set; } = false;
+
+    private int pregnancyLength = 7;
+    private int pregnancyMinAge = 12;
+    private int pregnancyMaxAge = 40;
+    private float pregnancyProbabilityMultiplier = 0.05f;
 
     private PersistentData.CitizenData loadedData;
     
@@ -41,7 +49,9 @@ public class CitizenFamily : MonoBehaviour {
         thisMember = new CitizenFamilyMember ( firstName, familyName, SetSkinColour (), cBase );
         this.gameObject.name = "Citizen-" + firstName + " " + familyName;
 
+        //cBase.CitizenAge.onAgeChanged += OnAgeChanged;
         cBase.CitizenAge.SetInitialAge ( Random.Range ( 18, 30 ) );
+        PartnerController.Instance.SetEligible ( this.cBase );
 
         ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.Worker );
         SetSelectable ();
@@ -55,14 +65,25 @@ public class CitizenFamily : MonoBehaviour {
         this.gender = gender;
         this.Children = new List<CitizenFamilyMember> ();
 
-
         Father = father;
-        Mother = mother;        
+        Mother = mother;
 
-        this.familyName = Father.citizenBase.CitizenFamily.familyName;
+        if(Father == null)
+        {
+            Father = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
+        }
+
+        if (Father.citizenBase != null)
+            this.familyName = Father.citizenBase.CitizenFamily.familyName;
+        else if (Mother.citizenBase != null)
+            this.familyName = Mother.citizenBase.CitizenFamily.familyName;
+        else { Debug.LogError ( "Unknown family name", this.gameObject ); this.familyName = "Unknown"; }
+
         this.gameObject.name = "Citizen-" + firstName + " " + familyName;
 
         thisMember = new CitizenFamilyMember ( firstName, this.familyName, SetSkinColour (), cBase );
+
+        //cBase.CitizenAge.onAgeChanged += OnAgeChanged;
         cBase.CitizenAge.SetInitialAge ( 0 );
 
         ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.None );
@@ -94,7 +115,9 @@ public class CitizenFamily : MonoBehaviour {
 
         thisMember = new CitizenFamilyMember ( data.FirstName, data.FamilyName, data.SkinColour, cBase );
 
+        //cBase.CitizenAge.onAgeChanged += OnAgeChanged;
         this.cBase.CitizenAge.SetInitialAge ( data.Age, data.Birthday );
+
         ProfessionController.Instance.SetProfession ( this.cBase.CitizenJob, (ProfessionType)data.Profession );
 
         SetSelectable ();
@@ -103,26 +126,21 @@ public class CitizenFamily : MonoBehaviour {
 
     public void SetFamilyFromLoaded ()
     {
+        isWidowed = loadedData.isWidowed;
+
         if (loadedData == null) { Debug.LogError ( "No loaded data found." ); return; }
 
         if(loadedData.FatherID == -1)
         {
             Father = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
-            //Father = new CitizenFamilyMember () { firstName = "Unknown", citizenBase = null, skinColour = Random.Range ( 0, 3 ) };
         }
         else
         {
-            Debug.Log ( loadedData.FatherID );
             CitizenBase father = EntityManager.Instance.GetCitizenBaseByID ( loadedData.FatherID );
             if (father == null) { Debug.LogError ( "Father was null at ID: " + loadedData.FatherID ); }
             else
             {
                 Father = new CitizenFamilyMember ( father.CitizenFamily.thisMember.firstName, father.CitizenFamily.thisMember.familyName, father.CitizenFamily.thisMember.skinColour, father );
-
-                //Father = new CitizenFamilyMember ();
-                //Father.citizenBase = father;
-                //Father.firstName = father.CitizenFamily.thisMember.firstName;
-                //Father.skinColour = father.CitizenFamily.thisMember.skinColour;
             }
         }
 
@@ -132,17 +150,41 @@ public class CitizenFamily : MonoBehaviour {
         }
         else
         {
-            Debug.Log ( loadedData.MotherID );
             CitizenBase mother = EntityManager.Instance.GetCitizenBaseByID ( loadedData.MotherID );
             if (mother == null) { Debug.LogError ( "Mother was null at ID: " + loadedData.MotherID ); }
             else
             {
                 Mother = new CitizenFamilyMember ( mother.CitizenFamily.thisMember.firstName, mother.CitizenFamily.thisMember.familyName, mother.CitizenFamily.thisMember.skinColour, mother );
+            }
+        }
 
-                //Mother = new CitizenFamilyMember ();
-                //Mother.citizenBase = mother;
-                //Mother.firstName = mother.CitizenFamily.thisMember.firstName;
-                //Mother.skinColour = mother.CitizenFamily.thisMember.skinColour;
+        if (isWidowed)
+        {
+            SetPartner ( null );
+        }
+        else
+        {
+            CitizenBase partner = null;
+
+            try
+            {
+                partner = EntityManager.Instance.GetCitizenBaseByID ( loadedData.PartnerID );
+            }
+            catch
+            {
+                Debug.Log ( "This is an error - PartnerID = " + loadedData.PartnerID, this.gameObject );
+            }
+
+            if (partner == null)
+            {
+                SetPartner ( null );
+                if (cBase.CitizenAge.Age >= 10)
+                    PartnerController.Instance.SetEligible ( this.cBase );
+            }
+            else
+            {
+                //Partner = new CitizenFamilyMember ( partner.CitizenFamily.thisMember.firstName, partner.CitizenFamily.familyName, partner.CitizenFamily.thisMember.skinColour, partner );
+                SetPartner ( partner.CitizenFamily.thisMember );
             }
         }
 
@@ -152,18 +194,17 @@ public class CitizenFamily : MonoBehaviour {
         }
         else
         {
-            Debug.Log ( loadedData.PartnerID );
             CitizenBase partner = null;
             try { partner = EntityManager.Instance.GetCitizenBaseByID ( loadedData.PartnerID ); } catch { Debug.Log ( "BOop" ); }
-            if (partner == null) { Debug.LogError ( "Partner was null at ID: " + loadedData.PartnerID ); }
+            if (partner == null)
+            {
+                SetPartner ( null );
+                Debug.LogError ( "Partner was null at ID: " + loadedData.PartnerID );
+            }
             else
             {
-                Partner = new CitizenFamilyMember ( partner.CitizenFamily.thisMember.firstName, partner.CitizenFamily.familyName, partner.CitizenFamily.thisMember.skinColour, partner );
-
-                //Partner = new CitizenFamilyMember ();
-                //Partner.citizenBase = partner;
-                //Partner.firstName = partner.CitizenFamily.thisMember.firstName;
-                //Partner.skinColour = partner.CitizenFamily.thisMember.skinColour;
+                //Partner = new CitizenFamilyMember ( partner.CitizenFamily.thisMember.firstName, partner.CitizenFamily.familyName, partner.CitizenFamily.thisMember.skinColour, partner );
+                SetPartner ( partner.CitizenFamily.thisMember );
             }
         }
 
@@ -177,24 +218,40 @@ public class CitizenFamily : MonoBehaviour {
 
             for (int i = 0; i < loadedData.ChildrenIDs.Count; i++)
             {
-                Debug.Log ( loadedData.ChildrenIDs[i] );
-
                 CitizenBase childBase = EntityManager.Instance.GetCitizenBaseByID ( loadedData.ChildrenIDs[i] );
                 if (childBase == null) { Debug.LogError ( "Child was null at ID: " + loadedData.ChildrenIDs[i] ); }
                 else
                 {
                     CitizenFamilyMember child = new CitizenFamilyMember ( childBase.CitizenFamily.thisMember.firstName, childBase.CitizenFamily.familyName, childBase.CitizenFamily.thisMember.skinColour, childBase );
 
-                    //CitizenFamilyMember child = new CitizenFamilyMember ();
-                    //child.citizenBase = childBase;
-                    //child.firstName = childBase.CitizenFamily.thisMember.firstName;
-                    //child.skinColour = childBase.CitizenFamily.thisMember.skinColour;
-
                     AddChild ( child );
                 }
             }
         }
 
+        SetPregnanyFromLoaded ( loadedData );
+
+    }
+
+    public void SetPregnanyFromLoaded (PersistentData.CitizenData data)
+    {
+        if (data.isPregnant)
+        {
+            isPregnant = true;
+            //pregnancyPartner =
+            pregnancyDueDay = data.pregnancyDueDate;
+            GameTime.onDayChanged += CheckGiveBirth;
+
+            //if (data.pregnancyPartnerID == -1)
+            //{
+            //    pregnancyPartner = new CitizenFamilyMember ( "Unknown", this.familyName, Random.Range ( 0, 3 ), null );
+            //}
+        }
+    }
+
+    public void SetNewFamilyID(int id)
+    {
+        this.familyID = id;
     }
 
     public void AddChild(CitizenFamilyMember child)
@@ -204,15 +261,25 @@ public class CitizenFamily : MonoBehaviour {
 
     public void SetPartner(CitizenFamilyMember partner)
     {
-        if(partner.citizenBase == null) { Debug.LogError ( "NO" ); return; }
+        if (partner == null)
+        {
+            HasPartner = false;
+            //Partner = null;
+            //PartnerController.Instance.SetEligible ( this.cBase );
+            return;
+        }
+
+        if (partner.citizenBase == null) { Debug.LogError ( "NO" ); return; }
         if(partner.citizenBase.CitizenFamily == null) { Debug.LogError ( "NO2" ); return; }
         if (partner.citizenBase.CitizenFamily.gender == this.gender) return;
         if (Children.Count > 0) return;
 
         Partner = partner;
+        Partner.citizenBase.OnCitizenDied += (cBase) => { GameTime.onDayChanged -= CheckPregnancy; SetPartner ( null ); isWidowed = true; };
 
         if (gender == Gender.Female)
         {
+            GameTime.onDayChanged += CheckPregnancy;
             familyID = Partner.citizenBase.CitizenFamily.familyID;
             familyName = Partner.citizenBase.CitizenFamily.familyName;
             thisMember.UpdateName ( partner.citizenBase.CitizenFamily.familyName );
@@ -222,14 +289,70 @@ public class CitizenFamily : MonoBehaviour {
         HasPartner = true;        
     }
 
+    /// <summary>
+    /// Called each day. Calculates whether a person can/should become pregnant
+    /// </summary>
+    private void CheckPregnancy (int p, int c)
+    {
+        if(this.gender == Gender.Male) { Debug.LogError ( "Males cannot get pregnant" ); return; }
+        if (isPregnant) { return; }
+        if (!HasPartner) { Debug.LogError ( "Citizen does not have partner" ); return; }
+        if (Children.Count >= GameData.Instance.startingConditions.maximumChildren) { GameTime.onDayChanged -= CheckPregnancy; return; }
+
+        if (cBase.CitizenAge.Age < pregnancyMinAge) { return; }
+        if (cBase.CitizenAge.Age > pregnancyMaxAge) { GameTime.onDayChanged -= CheckPregnancy; return; }
+
+        float probability = pregnancyProbabilityCurve.Evaluate ( Mathf.InverseLerp ( pregnancyMinAge, pregnancyMaxAge, cBase.CitizenAge.Age ) );
+        float newProbability = pregnancyProbabilityMultiplier * probability;
+        newProbability *= GameData.Instance.startingConditions.fertilityModifier;
+
+        if(Random.value <= newProbability)
+        {
+            GetPregnant ();
+        }
+    }
+
+    //private void OnGUI ()
+    //{
+    //    if (this.gender == Gender.Female)
+    //        if (GUILayout.Button ( "Get Pregnant" )) GetPregnant ();
+    //}
+
     public void GetPregnant ()
     {
-        if(this.gender == Gender.Female && HasPartner)
+        isPregnant = true;
+        pregnancyDueDay = GameTime.currentDayOfTheGame + pregnancyLength;
+        GameTime.onDayChanged += CheckGiveBirth;
+
+        if (GamePreferences.Instance.preferences.showNotification_Pregnancy)
+            HUD_Notification_Panel.Instance.AddNotification ( thisMember.fullName + " has became pregnant", null, cBase.Inspectable );
+    }
+
+    /// <summary>
+    /// Called each day when pregnant. Calculates whether a citizen should give birth now or not
+    /// </summary>
+    private void CheckGiveBirth (int p, int c)
+    {
+        if(GameTime.currentDayOfTheGame >= pregnancyDueDay)
         {
-            isPregnant = true;
-            DEBUG_CHARACTER_SPAWNER.Instance.CreateBabyCitizen ( Partner, thisMember );
-            isPregnant = false;
+            GiveBirth ();
+            GameTime.onDayChanged -= CheckGiveBirth;
         }
+    }
+
+    private void GiveBirth ()
+    {
+        CitizenBase baby = CitizenController.Instance.CreateBabyCitizen ( Partner, thisMember ).GetComponent<CitizenBase> ();
+
+        if (GamePreferences.Instance.preferences.showNotification_Birth)
+        {
+            if (baby.CitizenFamily.gender == Gender.Male)
+                HUD_Notification_Panel.Instance.AddNotification ( thisMember.fullName + " has given birth to a son", null, baby.Inspectable );
+            else
+                HUD_Notification_Panel.Instance.AddNotification ( thisMember.fullName + " has given birth to a daughter", null, baby.Inspectable );
+        }
+
+        isPregnant = false;
     }
 
     private void SetSelectable ()
@@ -238,35 +361,7 @@ public class CitizenFamily : MonoBehaviour {
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
-            panel.AddTextData ( (pair) =>
-            {
-                if (thisMember == null) return "None";
-                string s = "";
-                if (!string.IsNullOrEmpty ( thisMember.firstName )) s += thisMember.firstName;
-                if (!string.IsNullOrEmpty ( familyName )) s += " " + familyName;
-                if (string.IsNullOrEmpty ( s )) s = "None";
-                return s;
-            }, "Name", "Overview" );
 
-            if (cBase.CitizenJob.profession == ProfessionType.None || cBase.CitizenJob.profession == ProfessionType.Student)
-            {
-                panel.AddTextData ( (pair) =>
-                  {
-                      return cBase.CitizenJob.profession.ToString ();
-                  }, "Profession", "Overview" );
-            }
-            else
-            {
-                panel.AddDropdownData ( (index, options) =>
-                {
-                    ProfessionController.Instance.SetProfession ( cBase.CitizenJob, options[index].text );
-                }, (pair) =>
-                {
-                    //Debug.Log ( "Boop" );
-                    return cBase.CitizenJob.profession.ToString ();
-                }, "Profession", "Overview",
-                ProfessionController.Instance.GetProfessionsAreStringList ( 2 ) );
-            }
 
             panel.AddTextData ( (pair) =>
             {
@@ -322,6 +417,26 @@ public class CitizenFamily : MonoBehaviour {
 
              }, "Mother", "Family" );
 
+            panel.AddButtonTextData ( () =>
+            {
+                if (Partner == null) return;
+                if (string.IsNullOrEmpty ( Partner.firstName )) return;
+
+                else if (Partner.citizenBase == null) return;
+                else
+                {
+                    Partner.citizenBase.Inspectable.InspectAndLockCamera ();
+                    Partner.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
+                }
+            }, (pair) =>
+            {
+                if (isWidowed) return "(Widowed)";
+                if (Partner == null) return "None";
+                if (string.IsNullOrEmpty ( Partner.firstName )) return "None";
+                if (Partner.citizenBase == null) return Partner.firstName + " (Deceased)";
+                else return Partner.firstName;
+            }, "Partner", "Family" );
+
             for (int i = 0; i < Children.Count; i++)
             {
                 int x = i;
@@ -350,31 +465,12 @@ public class CitizenFamily : MonoBehaviour {
                 }, "Child", "Family" );
             }
 
-            panel.AddButtonTextData ( () =>
+            if (this.gender == Gender.Female)
             {
-                if (Partner == null) return;
-                if (string.IsNullOrEmpty ( Partner.firstName )) return;
-
-                else if (Partner.citizenBase == null) return;
-                else
+                panel.AddTextData ( (pair) =>
                 {
-                    Partner.citizenBase.Inspectable.InspectAndLockCamera ();
-                    Partner.citizenBase.GetComponentInChildren<Inspectable> ().Inspect ();
-                }
-            }, (pair) =>
-            {
-                if (Partner == null) return "None";
-                if (string.IsNullOrEmpty ( Partner.firstName )) return "None";
-                if (Partner.citizenBase == null) return Partner.firstName + " (Deceased)";
-                else return Partner.firstName;
-            }, "Partner", "Family" );
-
-            if (gender == Gender.Female)
-            {
-                panel.AddButtonData ( () =>
-                  {
-                      GetPregnant ();
-                  }, "Get Pregnant", "Family" );
+                    if (isPregnant) return "Yes"; else return "No";
+                }, "Pregnant", "Family" );
             }
         } );
     }
@@ -402,6 +498,11 @@ public class CitizenFamily : MonoBehaviour {
         }
 
         //cBase.CitizenGraphics.SetCitizenMaterialSpecific ( thisMember.skinColour );
+    }
+
+    private void OnDestroy ()
+    {
+        GameTime.onDayChanged -= CheckPregnancy;
     }
 
     public class CitizenFamilyMember

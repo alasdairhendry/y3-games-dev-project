@@ -36,4 +36,35 @@ public static class StaticExtensions {
         else if (value < min) return max;
         else return value;
     }
+
+    public static void ShuffleList<E> (List<E> list)
+    {
+        System.Random random = new System.Random ();
+
+        if (list.Count > 1)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                E tmp = list[i];
+                int randomIndex = random.Next ( i + 1 );
+
+                //Swap elements
+                list[i] = list[randomIndex];
+                list[randomIndex] = tmp;
+            }
+        }
+    }
+}
+
+public static class RichText
+{
+    public static string RTBold (this string str)
+    {
+        return "<b>" + str + "</b>";
+    }
+
+    public static string RTBlack (this string str)
+    {
+        return "<color=black>" + str + "</color>";
+    }
 }

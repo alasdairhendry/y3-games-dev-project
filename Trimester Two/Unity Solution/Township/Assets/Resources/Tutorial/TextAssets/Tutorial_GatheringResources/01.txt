@@ -1,0 +1,11 @@
+Looks like you got ahead of yourself and built a Lumberjack's Hut all on your own!
+
+Lumberjack Huts allow your citizens to gather Wood.
+
+Wood is the most basic, but most important, resource in Township.
+It can be used to build new buildings and provide fire for your citizens.
+
+After a Lumberjack's Hut is built, select 2 citizens and change their profession to Lumberjack.
+They will start working the Lumberjack's Hut.
+
+Alternatively, you can press {0} to open the Professions Panel, and assign professions through there.

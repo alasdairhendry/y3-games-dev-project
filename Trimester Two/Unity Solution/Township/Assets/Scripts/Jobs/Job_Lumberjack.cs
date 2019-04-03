@@ -32,10 +32,7 @@ public class Job_Lumberjack : Job_Profession
 
         if (targetInventory.CheckIsFull ( targetProp.resourceIDToGive ))
         {
-            /// TODO
-            /// ADD CALLBACK FOR INVENTORY CHANGED TO DETERMINE IF IS COMPLETABLE
             OnCharacterLeave ( "Storage is full. Send a market cart!", true, GetCompletableParams(CompleteIdentifier.PropStorageFull) );
-            //IsCompletable = false;
             return;
         }
 

@@ -16,19 +16,20 @@ public class SaveLoad : MonoBehaviour {
 
     private void Update ()
     {
-        if (Input.GetKeyDown ( KeyCode.L ))
+        if (Input.GetKeyDown ( KeyCode.L ) && !Hotkey.InputFieldIsActive ())
         {
             Load ( "" );
         }
     }
 
-    public void Save (string saveName)
+    public void Save (/*string saveName*/)
     {
         List<GameObject> citizenObjects = EntityManager.Instance.GetEntitiesByType ( typeof ( CitizenBase ) );
         List<GameObject> propObjects = EntityManager.Instance.GetPropEntites ();
 
         List<CitizenBase> citizenBases = new List<CitizenBase> ();
         List<Prop> props = new List<Prop> ();
+        List<World.SerializedEnvironment> entities = FindObjectOfType<World> ().environmentEntities;
 
         for (int i = 0; i < citizenObjects.Count; i++)
         {
@@ -47,18 +48,38 @@ public class SaveLoad : MonoBehaviour {
         }
 
         //PersistentData.Save ( citizenBases, props, saveName );
-        PersistentData.Save ( citizenBases, props, "MySaveFile");
+        PersistentData.Save ( citizenBases, props, entities, GameData.Instance.CurrentSaveFileName );
     }
 
     public void Load (string saveName)
     {
         //PersistentData.SaveData data = PersistentData.Load ( saveName );
-        PersistentData.SaveData data = PersistentData.Load ( "MySaveFile" );
+        PersistentData.SaveData data = PersistentData.Load ( saveName );
 
         if (data == null) return;
+
+        GameData.Instance.SetGameDataType ( GameData.GameDataType.Loaded, saveName );
+
+        World world = FindObjectOfType<World> ();
+        WorldPresets.Instance.SetPresets ( data.worldPresetIndex, world );
+        world.CreateFrom_Load ( data.environmentEntities, saveName );
+
+        // DO NOT ADD MORE LOGIC HERE - USE PostWorldLoad().
+    }
+
+    public void PostWorldLoad (string saveName)
+    {
+        PersistentData.SaveData data = PersistentData.Load ( saveName );
+        if (data == null) { Debug.Log ( "PostWorldLoad Null - " + saveName ); return; } 
+
+        MoneyController.Instance.Start_Loaded ( data );
+
         WarehouseController.Instance.Load ( data );
+        TaxController.Instance.Start_Loaded ( data );
+        CitizenController.Instance.LoadFamilyIDCounter ( data.familyIDCounter );
         FindObjectOfType<CameraMovement> ().LOAD_Position ( data );
         GamePreferences.Instance.Load ( data.gamePreferences );
+        GameData.Instance.Load_StartingConditionsAsCustom ( data.startingConditions );
 
         Load_Citizens ( data );
         Load_Props ( data );
@@ -69,10 +90,11 @@ public class SaveLoad : MonoBehaviour {
     {
         for (int i = 0; i < data.citizens.Count; i++)
         {
-            DEBUG_CHARACTER_SPAWNER.Instance.LOAD_Citizen ( data.citizens[i] );
+            CitizenController.Instance.LOAD_Citizen ( data.citizens[i] );
         }
 
-        DEBUG_CHARACTER_SPAWNER.Instance.LOAD_CitizenFamilies ();
+        CitizenController.Instance.LOAD_CitizenFamilies ();
+        //DEBUG_CHARACTER_SPAWNER.Instance.LOAD_CitizenPregnancy ();
     }
 
     private void Load_Props(PersistentData.SaveData data)

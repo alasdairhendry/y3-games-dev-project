@@ -10,7 +10,11 @@ public class EntityManager : MonoBehaviour {
 
     private List<GameObject> worldEntities = new List<GameObject> ();
     private Dictionary<Type, List<GameObject>> worldEntitiesDictionary = new Dictionary<Type, List<GameObject>> ();
+
     private List<GameObject> propEntities = new List<GameObject> ();
+
+    public System.Action<GameObject> onEntityCreated;
+    public System.Action<GameObject> onEntityDestroyed;
 
     private void Awake ()
     {
@@ -81,6 +85,8 @@ public class EntityManager : MonoBehaviour {
                 propEntities.Add ( gameObject );
             }
         }
+
+        onEntityCreated?.Invoke ( gameObject );
     }
 
     public void OnEntityDestroyed (GameObject gameObject, Type type)
@@ -115,5 +121,7 @@ public class EntityManager : MonoBehaviour {
                 propEntities.Remove ( gameObject );
             }
         }
+
+        onEntityDestroyed?.Invoke ( gameObject );
     }
 }

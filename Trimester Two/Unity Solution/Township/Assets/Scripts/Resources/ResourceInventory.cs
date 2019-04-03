@@ -89,11 +89,11 @@ public class ResourceInventory {
         }
 
         inventoryAvailable[itemID] += quantityToAdd;
-        if (onResourceAdded != null) onResourceAdded ( itemID, quantityToAdd );
+        onResourceAdded?.Invoke ( itemID, quantityToAdd );
 
-        if(target != null && quantityToAdd > 0.0f)
+        if (target != null && quantityToAdd > 0.0f)
         {
-            PopoutNotification.Instance.AddPopout ( "+" + quantityToAdd.ToString ( "00" ), 18, FontStyle.Bold, ColourGroupController.Instance.GetColour ( "UI_TextGreen" ), target, yOffset, ResourceManager.Instance.GetResourceByID ( itemID ).image, 40 );
+            PopoutNotification.Instance.AddPopout ( "+" + quantityToAdd.ToString ( "0.0" ), 18, FontStyle.Bold, ColourGroupController.Instance.GetColour ( "UI_TextGreen" ), target, yOffset, ResourceManager.Instance.GetResourceByID ( itemID ).image, 40 );
         }
 
         SetOverallInventory ();
@@ -118,11 +118,12 @@ public class ResourceInventory {
         }
 
         inventoryAvailable[itemID] -= quantity;
-        if (onResourceRemoved != null) { onResourceRemoved ( itemID, quantity ); Debug.Log ( "Removed2" ); }
+        //if (onResourceRemoved != null) { onResourceRemoved ( itemID, quantity ); Debug.Log ( "Removed2" ); }
+        onResourceRemoved?.Invoke ( itemID, quantity );
 
         if (target != null && quantity > 0.0f)
         {
-            PopoutNotification.Instance.AddPopout ( "-" + quantity.ToString ( "00" ), 18, FontStyle.Bold, ColourGroupController.Instance.GetColour( "UI_TextRed"), target, yOffset, ResourceManager.Instance.GetResourceByID ( itemID ).image, 40 );
+            PopoutNotification.Instance.AddPopout ( "-" + quantity.ToString ( "0.0" ), 18, FontStyle.Bold, ColourGroupController.Instance.GetColour( "UI_TextRed"), target, yOffset, ResourceManager.Instance.GetResourceByID ( itemID ).image, 40 );
         }
 
         SetOverallInventory ();
@@ -196,7 +197,7 @@ public class ResourceInventory {
         }
 
         inventoryReserved[itemID] -= quantity;
-        onResourceRemoved?.Invoke ( itemID, quantityAvailable );
+        onResourceRemoved?.Invoke ( itemID, quantity );
 
         SetOverallInventory ();
 
@@ -237,6 +238,16 @@ public class ResourceInventory {
         }
 
         return isEmpty;
+    }
+
+    public void CLEAR_ALL ()
+    {
+        for (int i = 0; i < ResourceManager.Instance.GetResourceList ().Count; i++)
+        {
+            inventoryOverall[i] = 0.0f;
+            inventoryAvailable[i] = 0.0f;
+            inventoryReserved[i] = 0.0f;
+        }
     }
 
     public void RegisterOnInventoryChanged (System.Action<ResourceInventory> action)

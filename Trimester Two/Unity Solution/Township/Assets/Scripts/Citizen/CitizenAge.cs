@@ -20,42 +20,24 @@ public class CitizenAge : MonoBehaviour {
         Age = age;
 
         if (birthday == -1)
-            Birthday = GameTime.currentDayOfTheYear;
+            Birthday = GameTime.currentDayOfTheMonth;
         else Birthday = birthday;
 
         if (Age < 3) cBase.CitizenAnimation.SetWalkClip ( false );
         SetSize ();
-        //GameTime.onDayChanged += OnDayChanged;
-        GameTime.onMonthChanged += OnMonthChanged;
-    }
+        GameTime.onDayChanged += OnDayChanged;
+    }   
 
-    public void OnMonthChanged(int previous, int current)
+    public void OnDayChanged (int previous, int current)
     {
-        return;
+        if (CheckDeath ()) return;
 
-        Age++;
-        OnAgeChanged ( Age );
-    }
-
-    bool done = false;
-    private void Update ()
-    {
-        if (done) return;
-        if (Input.GetKeyDown ( KeyCode.O ))
+        if (current == Birthday)
         {
-            OnAgeChanged ( 10 );
-            done = true;
+            Age++;
+            OnAgeChanged ( Age );
         }
     }
-
-    //public void OnDayChanged(int previous, int current)
-    //{
-    //    if(current == Birthday)
-    //    {
-    //        Age++;
-    //        OnAgeChanged (Age);
-    //    }
-    //}
 
     private void OnAgeChanged (int newAge)
     {
@@ -63,20 +45,65 @@ public class CitizenAge : MonoBehaviour {
         {
             /// If unlocked education, begin education.
             cBase.CitizenAnimation.SetWalkClip ( true );
+
+            ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.Student );
+
+            if (GamePreferences.Instance.preferences.showNotification_SpecialBirthday)
+                HUD_Notification_Panel.Instance.AddNotification ( cBase.CitizenFamily.thisMember.fullName + " has grown up and is now a student", null, cBase.Inspectable );
+
         }
         else if(newAge == 6)
         {
             // Begin work as a child
             // TODO: Notify player of a new worker
             ProfessionController.Instance.SetProfession ( cBase.CitizenJob, ProfessionType.Worker );
+
+            if (GamePreferences.Instance.preferences.showNotification_SpecialBirthday)
+                HUD_Notification_Panel.Instance.AddNotification ( cBase.CitizenFamily.thisMember.fullName + " has grown up and can now work", null, cBase.Inspectable );
         }
         else if(newAge == 10)
         {
-            Debug.Log ( cBase.CitizenFamily.thisMember.fullName + " is has turned 10" );
-            PartnerController.Instance.SetEligible ( this.cBase );
+            if (!cBase.CitizenFamily.HasPartner)
+                PartnerController.Instance.SetEligible ( this.cBase );
+
+            if (GamePreferences.Instance.preferences.showNotification_SpecialBirthday)
+                HUD_Notification_Panel.Instance.AddNotification ( cBase.CitizenFamily.thisMember.fullName + " has grown up and can now marry", null, cBase.Inspectable );
+        }
+        else if(newAge == 12)
+        {
+            if (GamePreferences.Instance.preferences.showNotification_SpecialBirthday)
+                HUD_Notification_Panel.Instance.AddNotification ( cBase.CitizenFamily.thisMember.fullName + " has grown up and can now have children", null, cBase.Inspectable );
+        }
+        else
+        {
+            if (GamePreferences.Instance.preferences.showNotification_Birthday)
+                HUD_Notification_Panel.Instance.AddNotification ( cBase.CitizenFamily.thisMember.fullName + " has turned " + newAge.ToString (), null, cBase.Inspectable );
         }
 
         SetSize ();
+    }
+
+    private bool CheckDeath ()
+    {
+        float v = Random.Range ( 0.0f, 100.0f );
+        float prob = (GameData.Instance.MortalityCurve.Evaluate ( Age ) * 0.05f) * GameData.Instance.startingConditions.mortalityRate;
+
+        if (v < prob)
+        {
+            string reason = "";
+
+            if (Age <= 6) reason = "Young Age";
+            else if (Age <= 45) reason = "Unexpected Causes";
+            else reason = "Old Age";
+
+            cBase.KillCitizen ( reason );
+            return true;
+        }
+        else
+        {
+            //Debug.LogError ( "Citizen survived day " + day + " at age " + age );
+            return false;
+        }
     }
 
     private void SetSize ()
@@ -87,7 +114,6 @@ public class CitizenAge : MonoBehaviour {
 
     private void OnDestroy ()
     {
-        //GameTime.onDayChanged -= OnDayChanged;
-        GameTime.onMonthChanged -= OnMonthChanged;
+        GameTime.onDayChanged -= OnDayChanged;
     }
 }

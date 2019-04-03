@@ -49,7 +49,7 @@ public class CitizenMovement : MonoBehaviour {
 
     private void Update ()
     {
-        if (!agent.isOnNavMesh) { Debug.LogError ( "Agent not on navmesh", this.gameObject ); }
+        if (!agent.isOnNavMesh) { return; }
 
         if (HasPath)
             CheckCurrentPath ();
@@ -74,9 +74,32 @@ public class CitizenMovement : MonoBehaviour {
     {
         RaycastHit hit;
 
-        if (Physics.Raycast ( transform.position, Vector3.down, out hit, 10000, 1 << 9 ))
+        if (Physics.Raycast ( transform.position + (Vector3.up * 20.0f), Vector3.down, out hit, 10000, 1 << 9 ))
         {
             agent.Warp ( hit.point );
+        }
+        else
+        {
+            Debug.LogError ( "No navmesh to hit" );
+        }
+    }
+
+    public void WarpSpecific(Vector3 position)
+    {
+        agent.Warp ( position );
+    }
+
+    public void WarpAgentToNavMesh (Vector3 position)
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast ( position + (Vector3.up * 10.0f), Vector3.down, out hit, 10000, 1 << 9 ))
+        {
+            agent.Warp ( hit.point );
+        }
+        else
+        {
+            Debug.LogError ( "No navmesh to hit" );
         }
     }
 
@@ -94,6 +117,8 @@ public class CitizenMovement : MonoBehaviour {
 
     public bool SetDestination(GameObject target, Vector3 targetPosition)
     {
+        if (!agent.isOnNavMesh) { WarpAgentToNavMesh (); }
+
         DestinationObject = target;
         destinationPosition = targetPosition;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -14,8 +15,6 @@ public class BuildMode : ModeBase {
     private float outlineYIncrementRotation = 180.0f;
 
     [SerializeField] private Material[] outlineMaterials;
-
-    [SerializeField] private bool axisSnap = false;
 
     private GameObject priceTooltip;
     private GameObject placementTooltip;
@@ -37,6 +36,7 @@ public class BuildMode : ModeBase {
         if (currentPropOutline == null) currentPropOutline = new GameObject ( "propOutline" );
         isActive = true;
         TriggerCallback ();
+        MoneyController.Instance.onMoneyChanged += OnMoneyChanged;
     }
 
     public override void StopMode ()
@@ -45,6 +45,7 @@ public class BuildMode : ModeBase {
 
         isActive = false;
         TriggerCallback ();
+        MoneyController.Instance.onMoneyChanged -= OnMoneyChanged;
     }
 
     public override void Toggle ()
@@ -58,6 +59,31 @@ public class BuildMode : ModeBase {
         DestroyPropOutline ();
 
         currentPropData = data;
+
+        //if (currentPropData.locked && !FindObjectOfType<HUD_Build_Panel>().bypassUnlocks)
+        //{
+        //    for (int i = 0; i < PropManager.Instance.propData.Count; i++)
+        //    {
+        //        if (PropManager.Instance.propData[i].locked == false)
+        //        {
+        //            currentPropData = PropManager.Instance.propData[i];
+        //            break;
+        //        }
+
+        //    }
+        //}
+
+        if(currentPropData == null)
+        {
+            Debug.LogError ( "All props are locked" );
+        }
+        //int index = 0;
+        //do
+        //{
+            
+        //}
+        
+
         GameObject g = Instantiate ( data.Prefab );
         g.transform.SetParent ( currentPropOutline.transform );
         g.transform.localPosition = Vector3.zero;
@@ -67,7 +93,11 @@ public class BuildMode : ModeBase {
         currentPropOutline.transform.rotation = Quaternion.identity;
         outlineYRotation = 180.0f;
         outlineYIncrementRotation = 180.0f;
-        priceTooltip = FindObjectOfType<HUD_Tooltip_Panel> ().AddTooltip ( "£300.00", HUD_Tooltip_Panel.Tooltip.Preset.Information );
+
+        if (priceTooltip != null) HUD_Tooltip_Panel.Instance.RemoveTooltip ( priceTooltip );
+        priceTooltip = HUD_Tooltip_Panel.Instance.AddTooltip ( "£300.00", HUD_Tooltip_Panel.Tooltip.Preset.Information );
+        SetMoneyTooltip ();
+
         CheckMoving ();
     }
 
@@ -82,6 +112,23 @@ public class BuildMode : ModeBase {
         CheckClicking ();
         if (!Hotkey.MouseMoved && !CameraMovement.CameraMoved) return;
         CheckMoving ();
+    }
+
+    private void OnMoneyChanged(int newMoney)
+    {
+        SetMoneyTooltip ();
+    }
+
+    private void SetMoneyTooltip ()
+    {
+        if (currentPropData == null) return;
+        if (currentPropOutline == null) return;
+        if (priceTooltip == null) return;
+
+        if (MoneyController.Instance.CanAfford ( currentPropData.costToPlace ))
+            HUD_Tooltip_Panel.Instance.UpdateTooltip ( priceTooltip, "£" + currentPropData.costToPlace );
+        else
+            HUD_Tooltip_Panel.Instance.UpdateTooltip ( priceTooltip, "<color=red>£" + currentPropData.costToPlace + "</color>" );
     }
 
     private void CheckMoving ()
@@ -181,6 +228,12 @@ public class BuildMode : ModeBase {
 
     private void PlaceHandle (Vector3 point)
     {
+        if (!MoneyController.Instance.CanAfford ( currentPropData.costToPlace ))
+        {
+            SetMoneyTooltip ();
+            return;
+        }
+
         if (!EventSystem.current.IsPointerOverGameObject ())
         {
             if (SampleEligibility ( point, 1 ))
@@ -193,6 +246,7 @@ public class BuildMode : ModeBase {
                 go.transform.name = "PlacedObject: " + currentPropData.name;
                 Prop prop = go.GetComponent<Prop> ();
                 prop.Place ( currentPropData );
+                MoneyController.Instance.RemoveWithTransaction ( currentPropData.costToPlace, "Built " + currentPropData.name, MoneyController.Transaction.Category.Build );
             }
         }
     }
@@ -227,7 +281,7 @@ public class BuildMode : ModeBase {
     }
 
     private bool SamplePropOnNavMesh (Vector3 point)
-    {
+    {        
         return currentPropOutline.GetComponentInChildren<Prop> ().SampleSurface ( currentPropData );
         //if (currentPropData.placementArea == PlacementArea.Waterside)
         //{
@@ -280,6 +334,10 @@ public class BuildMode : ModeBase {
     private void DestroyPropOutline ()
     {
         if (currentPropOutline.transform.childCount > 0)
-            Destroy ( currentPropOutline.transform.GetChild ( 0 ).gameObject );
+            for (int i = 0; i < currentPropOutline.transform.childCount; i++)
+            {
+                Destroy ( currentPropOutline.transform.GetChild ( i ).gameObject );
+            }
+            //Destroy ( currentPropOutline.transform.GetChild ( 0 ).gameObject );
     }
 }

@@ -39,29 +39,72 @@ public static class EnvironmentGenerator {
                 break;
         }
 
-        for (int i = 0; i < data.detailData.Length; i++)
+        //for (int i = 0; i < data.detailData.Length; i++)
+        //{
+        //    BiomeGenerator.Biome b = BiomeGenerator.biomes.Find(x => x.name == data.detailData[i].biomeName);
+
+        //    if (b == null) continue;
+        //    if (b.entries == null) continue;
+
+        //    for (int x = 0; x < b.entries.Count; x++)
+        //    {
+        //        if(Seed.Next(0, 1000) <= chance)
+        //        {
+        //            Vector3 position = position = new Vector3 ( b.entries[x].x * 10.0f, 150.0f, b.entries[x].z * 10.0f ) - new Vector3 ( 480.0f, 0.0f, 480.0f );
+
+        //            //if (environmentEntities.First ( e => e.position == position ) != null) continue;
+        //            if (environmentEntities.Exists ( e => e.position == position )) continue;
+
+        //            environmentEntities.Add(new EnvironmentEntityData()
+        //            {
+        //                prefabName = data.detailData[i].prefabPath,
+        //                position = new Vector3(b.entries[x].x * 10.0f,150.0f, b.entries[x].z * 10.0f) - new Vector3(480.0f, 0.0f, 480.0f)
+        //            });
+        //        }
+        //    }
+        //}
+
+        for (int i = 0; i < data.detailGroups.Count; i++)
         {
-            BiomeGenerator.Biome b = BiomeGenerator.biomes.Find(x => x.name == data.detailData[i].biomeName);
+           
+            BiomeGenerator.Biome targetBiome = BiomeGenerator.biomes.Find ( x => x.name == data.detailGroups[i].BiomeName );
 
-            if (b == null) continue;
-            if (b.entries == null) continue;
+            if (targetBiome == null) continue;
+            if (targetBiome.entries == null) continue;
 
-            for (int x = 0; x < b.entries.Count; x++)
+            EnvironmentData.DetailGroup group = new EnvironmentData.DetailGroup ();
+
+            // Create basically a drop table with X amount of entries per ratio.
+            // Could probably do this a much more efficient way, but, Maths...
+            for (int x = 0; x < data.detailGroups[i].group.Count; x++)
             {
-                if(Seed.Next(0, 1000) <= chance)
+                for (int y = 0; y < data.detailGroups[i].group[x].ratio; y++)
                 {
-                    Vector3 position = position = new Vector3 ( b.entries[x].x * 10.0f, 150.0f, b.entries[x].z * 10.0f ) - new Vector3 ( 480.0f, 0.0f, 480.0f );
+                    group.group.Add ( data.detailGroups[i].group[x] );
+                }
+            }
+
+            for (int x = 0; x < targetBiome.entries.Count; x++)
+            {
+                if (Seed.Next ( 0, 1000 ) <= (chance * data.detailGroups[i].overallModifier))
+                {
+                    Vector3 position = position = new Vector3 ( targetBiome.entries[x].x * 10.0f, 150.0f, targetBiome.entries[x].z * 10.0f ) - new Vector3 ( 480.0f, 0.0f, 480.0f );
 
                     //if (environmentEntities.First ( e => e.position == position ) != null) continue;
                     if (environmentEntities.Exists ( e => e.position == position )) continue;
 
-                    environmentEntities.Add(new EnvironmentEntityData()
+                    int chosenDataIndex = 0;
+                    chosenDataIndex = Seed.Next ( 0, group.group.Count );
+
+                    environmentEntities.Add ( new EnvironmentEntityData ()
                     {
-                        prefabName = data.detailData[i].prefabPath,
-                        position = new Vector3(b.entries[x].x * 10.0f,150.0f, b.entries[x].z * 10.0f) - new Vector3(480.0f, 0.0f, 480.0f)
-                    });
+                        prefabName = group.group[chosenDataIndex].data.prefabPath,
+                        position = new Vector3 ( targetBiome.entries[x].x * 10.0f, 150.0f, targetBiome.entries[x].z * 10.0f ) - new Vector3 ( 480.0f, 0.0f, 480.0f )
+                    } );
                 }
             }
+
+            //targetBiome.entries
         }
 
         yield return CreateGraphics(sender);
@@ -69,12 +112,14 @@ public static class EnvironmentGenerator {
 
     private static IEnumerator CreateGraphics(World sender)
     {
+        sender.ClearEnvEntitiyList ();
+
         int x = 0;
 
         while(x < environmentEntities.Count)
         {
             EnvironmentEntityData e = environmentEntities[x];
-            sender.SpawnMeshGraphic(e.prefabName, e.position, Quaternion.identity, null);
+            sender.SpawnEnvironmentEntity(e.prefabName, e.position, Quaternion.identity, null);
 
             x++;            
         }

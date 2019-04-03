@@ -26,27 +26,27 @@ public class ResourceManager : MonoBehaviour {
     {
         /// DO NOT CHANGE THE ORDER
 
-        CreateResource ( 0, "Wood", "A lightweight building material" );
-        CreateResource ( 1, "Brick", "A heavy building material" );
+        CreateResource ( 0, "Wood", "A lightweight building material", 5.0f);
+        CreateResource ( 1, "Brick", "A heavy building material", 7.5f );
 
-        CreateResource ( 2, "Stone", "A decorative building" );
+        CreateResource ( 2, "Stone", "A decorative building", 10.0f );
 
-        CreateResource ( 3, "Iron Ore", "A strong mineral that can be harvested from the dirt" );
-        CreateResource ( 4, "Iron Bar", "A durable building material" );
-        CreateResource ( 5, "Charcoal", "Used in advanced metal production" );
+        CreateResource ( 3, "Iron Ore", "A strong mineral that can be harvested from the dirt", 15.0f );
+        CreateResource ( 4, "Iron Bar", "A durable building material", 25.0f );
+        CreateResource ( 5, "Charcoal", "Used in advanced metal production", 15.0f );
 
-        CreateResource ( 6, "Grapes", "Can be fermented into alcohol" );
-        CreateResource ( 7, "Wine", "Increase happiness for citizens" );
+        CreateResource ( 6, "Grapes", "Can be fermented into alcohol", 30.0f );
+        CreateResource ( 7, "Wine", "Increase happiness for citizens", 45.0f );
 
-        CreateResource ( 8, "Tool", "Increases production for many professions" );
+        CreateResource ( 8, "Tool", "Increases production for many professions", 25.0f );
 
-        CreateResource ( 9, "Meat", "Provides energy to your citizens" );
-        CreateResource ( 10, "Fish", "Provides energy to your citizens" );
+        CreateResource ( 9, "Meat", "Provides energy to your citizens", 10.0f );
+        CreateResource ( 10, "Fish", "Provides energy to your citizens", 15.0f );
     }
 
-    private void CreateResource(int id, string name, string description)
+    private void CreateResource(int id, string name, string description, float baseBuy)
     {
-        Resource r = new Resource ( id, name, description );
+        Resource r = new Resource ( id, name, description, baseBuy, baseBuy * 0.65f );
 
         indexDictionary.Add ( id, r );
         nameDictionary.Add ( r.name, r );

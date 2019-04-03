@@ -1,0 +1,8 @@
+Placing a House has created some jobs for your citizens.
+
+They will haul the resources required, Wood & Brick, from the Warehouse to the House, and then they will build it.
+
+If you don't have enough resources, you can click on trees or rocks and order them to be removed. 
+This will provide you with immediate resources, but the entity will be destroyed permanently.
+
+You can view active, open and completed jobs by pressing {0} to open the Jobs Panel.

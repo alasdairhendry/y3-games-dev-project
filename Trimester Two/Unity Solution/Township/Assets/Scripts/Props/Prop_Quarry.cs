@@ -11,7 +11,6 @@ public class Prop_Quarry : Prop_Profession {
     protected override void OnPlaced ()
     {
         base.OnPlaced ();
-
         FindObjectOfType<World> ().DEBUG_UpdateNavMesh ();
     }
 

@@ -5,9 +5,14 @@ using UnityEngine.EventSystems;
 
 public class MovableSiblingPanel : MonoBehaviour, IPointerDownHandler {
 
-    [SerializeField] private Transform transformToMove;
+    [SerializeField] private Transform transformToMove;    
 
     void IPointerDownHandler.OnPointerDown (PointerEventData eventData)
+    {
+        BringToFront ();
+    }
+
+    public void BringToFront ()
     {
         transformToMove.SetAsLastSibling ();
     }

@@ -23,7 +23,7 @@ public class Prop_StonemasonHut : Prop_Profession {
         ProductionRequired = 20.0f;
     }
     protected override void SetInspectable ()
-    {
+    {        
         GetComponent<Inspectable> ().SetAdditiveAction ( () =>
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
@@ -147,6 +147,5 @@ public class Prop_StonemasonHut : Prop_Profession {
     {
         Job_Stonemason job = GetComponent<JobEntity> ().CreateJob_StoneMason ( "Stone Masonry", !HaltProduction, 5.0f, null, this, plinth, plinthPoint);
         professionJobs.Add ( job );
-        //JobController.QueueJob ( job );
     }
 }

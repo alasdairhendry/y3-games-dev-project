@@ -17,6 +17,7 @@ public class CitizenBase : MonoBehaviour {
     public CitizenFamily CitizenFamily { get; protected set; }
     public CitizenHousing CitizenHousing { get; protected set; }
     public CitizenFootsteps CitizenFootsteps { get; protected set; }
+    public CitizenTaxing CitizenTaxing { get; protected set; }
     public Inspectable Inspectable { get; protected set; }
 
     private NavMeshAgent agent { get; set; }
@@ -39,11 +40,15 @@ public class CitizenBase : MonoBehaviour {
         CitizenFamily = GetComponent<CitizenFamily> ();
         CitizenHousing = GetComponent<CitizenHousing> ();
         CitizenFootsteps = FindObjectOfType<CitizenFootsteps> ();
+        CitizenTaxing = FindObjectOfType<CitizenTaxing> ();
         Inspectable = GetComponent<Inspectable> ();
         
         Inventory = new ResourceInventory ( float.MaxValue );
         agent = GetComponent<NavMeshAgent> ();
         EntityManager.Instance.OnEntityCreated ( this.gameObject, this.GetType () );
+
+        CitizenController.Instance.currentCitizensCount++;
+        OnCitizenDied += (cBase) => { CitizenController.Instance.currentCitizensCount--; };
     }
 
     private void Start ()
@@ -53,13 +58,14 @@ public class CitizenBase : MonoBehaviour {
 
     private void SetInspection ()
     {
-        Inspectable.SetDestroyAction ( () => { KillCitizen (); }, false, "Kill" );
+        Inspectable.SetDestroyAction ( () => { KillCitizen ( "Murder By User" ); }, false, "Kill" );
         Inspectable.SetFocusAction ( () => { Inspectable.InspectAndLockCamera (); }, false );
 
         Inspectable.SetAdditiveAction ( () =>
         {
             HUD_EntityInspection_Citizen_Panel panel = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ();
 
+            #region Buttons
             panel.AddButtonData ( () =>
             {
                 if (this == null) return;
@@ -80,9 +86,48 @@ public class CitizenBase : MonoBehaviour {
             {
                 if (this == null) return;
 
-                KillCitizen ();
+                KillCitizen ( "Murder By User" );
 
             }, "Kill Citizen", "Any" );
+            #endregion
+
+            panel.AddTextData ( (pair) =>
+            {
+                if (CitizenFamily.thisMember == null) return "None";
+                string s = "";
+                if (!string.IsNullOrEmpty ( CitizenFamily.thisMember.firstName )) s += CitizenFamily.thisMember.firstName;
+                if (!string.IsNullOrEmpty ( CitizenFamily.familyName )) s += " " + CitizenFamily.familyName;
+                if (string.IsNullOrEmpty ( s )) s = "None";
+                return s;
+            }, "Name", "Overview" );
+
+            if (CitizenJob.profession == ProfessionType.None || CitizenJob.profession == ProfessionType.Student)
+            {
+                panel.AddTextData ( (pair) =>
+                {
+                    return CitizenJob.profession.ToString ();
+                }, "Profession", "Overview" );
+            }
+            else
+            {
+                panel.AddDropdownData ( (index, options) =>
+                {
+                    ProfessionController.Instance.SetProfession ( CitizenJob, options[index].text );
+                }, (pair) =>
+                {
+                    return CitizenJob.profession.ToString ();
+                }, "Profession", "Overview",
+                ProfessionController.Instance.GetProfessionsAreStringList ( 2 ) );
+            }
+
+            panel.AddButtonTextData ( () =>
+            {
+               // Open tax band panel
+            }, (pair) =>
+            {
+                return TaxController.Instance.GetRequiredTax ( CitizenJob.profession ).ToString ( "0.0" );
+
+            }, "Daily Tax", "Overview" );
 
             panel.AddTextData ( (pair) =>
             {
@@ -161,8 +206,11 @@ public class CitizenBase : MonoBehaviour {
         }
     }
 
-    private void KillCitizen ()
+    [ContextMenu ( "Kill" )]
+    public void KillCitizen (string reason)
     {
+        HUD_Notification_Panel.Instance.AddNotification ( CitizenFamily.thisMember.fullName + " has died at age " + CitizenAge.Age + " of " + reason, HUD_Notification_Panel.NotificationSprite.Warning, null );
+
         OnCitizenDied?.Invoke ( this );
         if (this.CitizenJob.GetCurrentJob != null) this.CitizenJob.GetCurrentJob.OnCharacterLeave ( "Citizen Died", true, Job.GetCompletableParams ( Job.CompleteIdentifier.None ) );
         ProfessionController.Instance.SetProfessionExplicit ( this.CitizenJob );
@@ -237,6 +285,18 @@ public class CitizenBase : MonoBehaviour {
         {
             return false;
         }
+    }
+
+    public void EnterProp(Prop prop)
+    {
+        Inspectable.OverrideLockTo ( prop.Inspectable );
+        if (Inspectable.isInspected) Inspectable.InspectAndLockCamera ();
+    }
+
+    public void ExitProp(Prop prop)
+    {
+        Inspectable.OverrideLockTo ( null );
+        if (Inspectable.isInspected) Inspectable.InspectAndLockCamera ();
     }
 
     private void OnDestroy ()

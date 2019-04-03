@@ -17,11 +17,24 @@ public class Resource {
     public bool HasPrefab { get { return !string.IsNullOrEmpty ( prefabPath ); } }
     public GameObject MaterialPrefab { get { return Resources.Load<GameObject> ( prefabPath ) as GameObject; } }
 
-    public Resource(int id, string name, string description)
+    /// <summary>
+    /// How much does the player have to pay to buy this resource?
+    /// </summary>
+    public float baseBuyPrice { get; protected set; }
+
+    /// <summary>
+    /// How much does the player get for selling this resource?
+    /// </summary>
+    public float baseSellPrice { get; protected set; }
+
+    public Resource(int id, string name, string description, float baseBuyPrice, float baseSellPrice)
     {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.baseBuyPrice = baseBuyPrice;
+        this.baseSellPrice = baseSellPrice;
+
         imagePath = "UI/Resource/" + name;
         prefabPath = "Resource/Resource_" + name + "_Prefab";
     }

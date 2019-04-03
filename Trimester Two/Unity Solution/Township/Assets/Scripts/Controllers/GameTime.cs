@@ -4,13 +4,10 @@ using UnityEngine;
 
 public class GameTime : MonoBehaviour
 {
-    public static float DeltaGameTime { get { return gameTimeModifier * Time.deltaTime; } }
-
-    private static bool isPaused = false;
-    public static bool IsPaused { get { return isPaused; } }
-
-    private static float gameTimeModifier = 1.0f;
-    public static float GameTimeModifier { get { return gameTimeModifier; } }
+    public static float DeltaGameTime { get { return GameTimeModifier * Time.deltaTime; } }
+    public static bool IsPaused { get; private set; } = false;
+    public static float GameTimeModifier { get; private set; } = 1.0f;
+    public static List<float> GameTimeSpeeds { get; protected set; } = new List<float> () { 1.0f, 2.0f, 3.0f, 5.0f, 50.0f };
 
     [SerializeField] private float gameTickInterval = 0.1f;
     private float currentGameTickInterval = 0.0f;
@@ -53,11 +50,7 @@ public class GameTime : MonoBehaviour
     public static System.Action<int, int> onMonthChanged;
     public static System.Action<int, int> onYearChanged;
 
-    // Range between 0 - 1 to determine which part of the year the game starts in.
-    //private static float gameTimeStart = 0.95f; // Winter
-    //private static float gameStartMonth = 2;
-
-    private void Awake ()
+    public static void Start_New ()
     {
         if (GameData.Instance.gameDataType == GameData.GameDataType.New)
         {
@@ -142,15 +135,17 @@ public class GameTime : MonoBehaviour
     {
         if (currentDayOfTheMonth < 31)
         {
-            onDayChanged?.Invoke ( currentDayOfTheMonth, currentDayOfTheMonth + 1 );
+            currentDayOfTheGame++;
             currentDayOfTheMonth++;
             currentDayOfTheYear++;
+            onDayChanged?.Invoke ( currentDayOfTheMonth - 1, currentDayOfTheMonth );
         }
         else 
         {
-            onDayChanged?.Invoke ( currentDayOfTheMonth - 1, 1 );
+            currentDayOfTheGame++;
             currentDayOfTheMonth = 1;
             currentDayOfTheYear++;
+            onDayChanged?.Invoke ( 31, 1 );
 
             if(currentMonth < 12)
             {
@@ -173,23 +168,33 @@ public class GameTime : MonoBehaviour
 
     public static void ModifyGameSpeed (bool down)
     {
+        if (!GameTimeSpeeds.Contains ( GameTimeModifier )) GameTimeModifier = GameTimeSpeeds[0];
+        int index = GameTimeSpeeds.IndexOf ( GameTimeModifier );
+
         if (!down)
         {
-            if (gameTimeModifier == 1.0f) gameTimeModifier = 2.0f;
-            else if (gameTimeModifier == 2.0f) gameTimeModifier = 3.0f;
-            else if (gameTimeModifier == 3.0f) gameTimeModifier = 5.0f;
+            index++;
+            index = Mathf.Clamp ( index, 0, GameTimeSpeeds.Count - 1 );
+
+            GameTimeModifier = GameTimeSpeeds[index];
         }
         else
         {
-            if (gameTimeModifier == 2.0f) gameTimeModifier = 1.0f;
-            else if (gameTimeModifier == 3.0f) gameTimeModifier = 2.0f;
-            else if (gameTimeModifier == 5.0f) gameTimeModifier = 3.0f;
+            index--;
+            index = Mathf.Clamp ( index, 0, GameTimeSpeeds.Count - 1 );
+
+            GameTimeModifier = GameTimeSpeeds[index];
         }
+    }
+
+    public static void SetToSlowestSpeed ()
+    {
+        GameTimeModifier = GameTimeSpeeds[0];
     }
 
     public static void PausePlay ()
     {
-        isPaused = !isPaused;
+        IsPaused = !IsPaused;
     }
 
     public static void RegisterGameTick (System.Action<int> foo)

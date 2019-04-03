@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Prop_Profession : Prop {    
@@ -62,31 +63,55 @@ public class Prop_Profession : Prop {
 
             }, "Halt Production", "Overview" );
 
-            panel.AddButtonData ( () =>
+            if (resourceIDToGive >= 0)
             {
-                if (this.gameObject == null) return;
-                if (this.inventory == null) return;
+                panel.AddButtonData ( () =>
+                {
+                    if (this.gameObject == null) return;
+                    if (this.inventory == null) return;
 
-                inventory.AddItemQuantity ( 0, 1, this.transform, data.UIOffsetY );
+                    inventory.AddItemQuantity ( resourceIDToGive, 1, this.transform, data.UIOffsetY );
 
-            }, "Add 1 Wood", "Overview" );
+                }, "Add 1 " + ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name, "Overview" );
 
-            panel.AddButtonData ( () =>
+                panel.AddButtonData ( () =>
+                {
+                    if (this.gameObject == null) return;
+                    if (this.inventory == null) return;
+
+                    inventory.RemoveItemQuantity ( resourceIDToGive, 1, this.transform, data.UIOffsetY );
+
+                }, "Remove 1 " + ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name, "Overview" );
+            }
+
+            if (resourceIDToConsume >= 0)
             {
-                if (this.gameObject == null) return;
-                if (this.inventory == null) return;
+                panel.AddButtonData ( () =>
+                {
+                    if (this.gameObject == null) return;
+                    if (this.inventory == null) return;
 
-                inventory.RemoveItemQuantity ( 0, 1, this.transform, data.UIOffsetY );
+                    inventory.AddItemQuantity ( resourceIDToConsume, 1, this.transform, data.UIOffsetY );
 
-            }, "Remove 1 Wood", "Overview" );
+                }, "Add 1 " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name, "Overview" );
+
+                panel.AddButtonData ( () =>
+                {
+                    if (this.gameObject == null) return;
+                    if (this.inventory == null) return;
+
+                    inventory.RemoveItemQuantity ( resourceIDToConsume, 1, this.transform, data.UIOffsetY );
+
+                }, "Remove 1 " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name, "Overview" );
+            }
 
             if (resourceIDToGive >= 0)
             {
-                if (inventory.CheckIsFull ( resourceIDToGive ))
+                if (!inventory.CheckCanHold ( resourceIDToGive, giveAmount ))
                 {
                     panel.AddTextData ( (pair) =>
                     {
-                        return "Capacity Reached";
+                        return "Cant store any more " + ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name;
 
                     }, "Warning", "Any" );
                 }
@@ -94,29 +119,26 @@ public class Prop_Profession : Prop {
 
             if (resourceIDToConsume >= 0)
             {
-                if (inventory.CheckIsEmpty ( resourceIDToConsume ))
+                if (!inventory.CheckHasQuantityAvailable ( resourceIDToConsume, consumeAmount ))
                 {
                     panel.AddTextData ( (pair) =>
                     {
-                        return "No " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name + " available";
+                        return "More " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name + " required.";
                     }, "Warning", "Any" );
                 }
             }
 
             panel.AddTextData ( (pair) =>
             {
+                if (professionJobs != null)
+                    return professionJobs.FindAll ( x => x.cBase != null ).Count.ToString ( "0" ) + " / " + MaxJobs.ToString ( "0" );
+                else return "0 / " + MaxJobs.ToString ( "0" );
+            }, "Workers", "Overview" );
+
+            panel.AddTextData ( (pair) =>
+            {
                 return ((CurrentProduction / ProductionRequired) * 100.0f).ToString ( "0" ) + "%";
             }, "Production", "Overview" );
-
-            if (resourceIDToGive >= 0)
-            {
-                panel.AddTextData ( (pair) =>
-                {
-                    if (inventory == null) return "0.00";
-                    if (inventory.inventoryOverall == null) return "0.00";
-                    return inventory.inventoryOverall[resourceIDToGive].ToString ( "0.00" );
-                }, ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name, "Overview" );
-            }
 
             if (resourceIDToConsume >= 0)
             {
@@ -124,8 +146,19 @@ public class Prop_Profession : Prop {
                 {
                     if (inventory == null) return "0.00";
                     if (inventory.inventoryOverall == null) return "0.00";
-                    return inventory.inventoryOverall[resourceIDToConsume].ToString ( "0.00" );
-                }, ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name, "Overview" );
+
+                    return inventory.inventoryOverall[resourceIDToConsume].ToString ( "0" ) + " / " + consumeAmount.ToString("0");
+                }, ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name + " ( Consuming )", "Overview" );
+            }
+
+            if (resourceIDToGive >= 0)
+            {
+                panel.AddTextData ( (pair) =>
+                {
+                    if (inventory == null) return "0.00";
+                    if (inventory.inventoryOverall == null) return "0.00";
+                    return inventory.inventoryOverall[resourceIDToGive].ToString ( "0" ) + " / " + giveAmount.ToString ( "0" );
+                }, ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name + " ( Producing )", "Overview" );
             }
         } );
     }
@@ -157,9 +190,11 @@ public class Prop_Profession : Prop {
             {
                 if (!createdSupplyJob)
                 {
-                    GetComponent<JobEntity> ().CreateJob_MarketCart ( "Supply " + ResourceManager.Instance.GetResourceByID(resourceIDToConsume).name + " to " + this.worldEntity.EntityName, true,
-                        5.0f, () => { createdSupplyJob = false; }, this, inventory, resourceIDToConsume, (int)inventory.EntryCapacity, true );
-                    createdSupplyJob = true;                    
+                    supplyJob = GetComponent<JobEntity> ().CreateJob_MarketCart ( "Supply " + ResourceManager.Instance.GetResourceByID ( resourceIDToConsume ).name + " to " + this.worldEntity.EntityName, true,
+                          5.0f, () => { supplyJob = null; createdSupplyJob = false; }, this, inventory, resourceIDToConsume, (int)inventory.EntryCapacity, true );
+
+                    //job.onComplete += () => { marketJobs.Remove ( job ); };
+                    createdSupplyJob = true;
                 }
             }
         }
@@ -170,12 +205,29 @@ public class Prop_Profession : Prop {
             {
                 if (!createdCollectJob)
                 {
-                    GetComponent<JobEntity> ().CreateJob_MarketCart ( "Collect " + ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name + " from " + this.worldEntity.EntityName, true,
-                        5.0f, () => { createdCollectJob = false; }, this, inventory, resourceIDToGive, (int)inventory.EntryCapacity, false );
+                    collectJob = GetComponent<JobEntity> ().CreateJob_MarketCart ( "Collect " + ResourceManager.Instance.GetResourceByID ( resourceIDToGive ).name + " from " + this.worldEntity.EntityName, true,
+                         5.0f, () => { collectJob = null; createdCollectJob = false; }, this, inventory, resourceIDToGive, (int)inventory.EntryCapacity, false );
+
+                    //job.onComplete += () => { marketJobs.Remove ( job ); };
                     createdCollectJob = true;
                 }
             }
         }
+    }
+
+    private Job_MarketCart supplyJob;
+    private Job_MarketCart collectJob;
+
+    protected void DestroyMarketJobs ()
+    {
+        createdSupplyJob = true;
+        createdCollectJob = true;
+
+        JobController.DestroyJob ( supplyJob );
+        JobController.DestroyJob ( collectJob );
+
+        createdSupplyJob = false;
+        createdCollectJob = false;
     }
 
     public void AddProduction(float productionModifier = 1)

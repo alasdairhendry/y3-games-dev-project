@@ -27,7 +27,7 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
     private System.Action destroyAction;
     private System.Action focusAction;
 
-    private string currentTabName = "Default";
+    public string currentTabName { get; protected set; } = "Default";
     private Dictionary<string, GameObject> tabs = new Dictionary<string, GameObject> ();
 
     private List<KeyValueUIPair> keyValueUIPairs = new List<KeyValueUIPair> ();
@@ -207,7 +207,7 @@ public class HUD_EntityInspection_Citizen_Panel : UIPanel {
 
         displayAction = null;
 
-        if (onCloseActions != null) onCloseActions ();
+        onCloseActions?.Invoke ();
         onCloseActions = null;
 
         tickActions = null;

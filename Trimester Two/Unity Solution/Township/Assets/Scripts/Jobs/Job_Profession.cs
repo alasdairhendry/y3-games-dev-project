@@ -29,7 +29,6 @@ public class Job_Profession : Job {
 
     public override void OnCharacterLeave (string reason, bool setOpenToTrue, KeyValuePair<bool, string> isCompletable)
     {
-        //GameTime.RegisterGameTick ( Tick_CheckCompletable );
         if (this.cBase == null)
         {
             if (setOpenToTrue) this.Open = true;
@@ -46,10 +45,7 @@ public class Job_Profession : Job {
         if (setOpenToTrue)
         {
             this.Open = true;
-        }
-        else
-        {
-        }
+        }        
 
         base.IsCompletable = isCompletable.Key;
         base.IsCompletableReason = isCompletable.Value;

@@ -1,0 +1,9 @@
+Great.
+Now your citizens know where they are from.
+
+Next, we need a Warehouse.
+Warehouses are used to store resources that your citizens gather, produce or trade.
+
+You can have as many Warehouses as you wish, and having more means your citizens will have to walk less distance to store resources.
+
+Open the Build Menu again and place a Warehouse this time.

@@ -10,6 +10,7 @@ public class HUD_Tooltip_Panel : UIPanel {
 
     [SerializeField] private GameObject tooltipPrefab;
     private List<Tooltip> activeTooltips = new List<Tooltip> ();
+    private float widestTooltip = 0;
 
     private void Awake ()
     {
@@ -19,7 +20,25 @@ public class HUD_Tooltip_Panel : UIPanel {
 
     protected override void Update ()
     {
-        base.Update ();        
+        base.Update ();
+
+        if (!Hotkey.MouseMoved && !CameraMovement.CameraMoved) return;
+
+        CalculateWidth ();
+    }
+
+    private void CalculateWidth ()
+    {
+        widestTooltip = 0.0f;
+
+        for (int i = 0; i < activeTooltips.Count; i++)
+        {
+            float w = activeTooltips[i].gameObject.GetComponentInChildren<RectTransform> ().sizeDelta.x;
+            if (w > widestTooltip)
+            {
+                widestTooltip = w;
+            }
+        }
     }
 
     protected override void SetAnchoredPosition ()
@@ -28,13 +47,28 @@ public class HUD_Tooltip_Panel : UIPanel {
         base.targetAnchoredPosition = Input.mousePosition;
     }
 
+    protected override void MovePanel ()
+    {
+        if (mouseIsOver && Hotkey.GetKey ( Hotkey.Function.HaltUI )) return;
+        Vector3 targetPosition = targetAnchoredPosition + targetAnchorOffset;
+
+        if (clampToScreen)
+        {
+            targetPosition.x = Mathf.Clamp ( targetPosition.x, 32, 1920.0f - widestTooltip - 32 );
+            targetPosition.y = Mathf.Clamp ( targetPosition.y, 32 + rectTransform.sizeDelta.y, 1080.0f - 64 );
+        }
+
+        rectTransform.anchoredPosition = Vector3.Slerp ( rectTransform.anchoredPosition, targetPosition, Time.deltaTime * 5.0f );
+    }
+
     public GameObject AddTooltip (string message, Tooltip.Preset preset)
     {
-        if (activeTooltips.Exists ( x => x.message == message )) { Debug.LogError ( "Tooltip exists" ); return activeTooltips.Find ( x => x.message == message ).gameObject; }
+        if (activeTooltips.Exists ( x => x.message == message )) { return activeTooltips.Find ( x => x.message == message ).gameObject; }
 
         Tooltip tooltip = new Tooltip ( message, preset );
 
         GameObject go = Instantiate ( tooltipPrefab );
+        go.name = "Tooltip_ " + activeTooltips.Count;
         go.transform.SetParent ( transform.GetChild ( 0 ) );
 
         go.GetComponent<Image> ().color = tooltip.backgroundColour;
@@ -45,6 +79,15 @@ public class HUD_Tooltip_Panel : UIPanel {
         tooltip.gameObject = go;
         activeTooltips.Add ( tooltip );
         return go;
+    }
+
+    public void UpdateTooltip(GameObject go, string message)
+    {
+        Tooltip t = activeTooltips.Find ( x => x.gameObject == go );
+        if (t == null) return;
+
+        t.message = message;
+        t.gameObject.GetComponentInChildren<Text> ().text = message;
     }
 
     public void RemoveTooltip (string message)

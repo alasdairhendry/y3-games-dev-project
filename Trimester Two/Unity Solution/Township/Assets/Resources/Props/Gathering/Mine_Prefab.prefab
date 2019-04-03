@@ -137,6 +137,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1170282487902342
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4638442391901378}
+  m_Layer: 0
+  m_Name: JobPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1187610895560480
 GameObject:
   m_ObjectHideFlags: 1
@@ -148,6 +163,21 @@ GameObject:
   - component: {fileID: 108007788756419516}
   m_Layer: 0
   m_Name: LanternLight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1194626832841084
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4930504642574546}
+  m_Layer: 0
+  m_Name: JobPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -187,6 +217,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1273299347385696
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4812291098235358}
+  m_Layer: 0
+  m_Name: JobPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1301671977744470
 GameObject:
   m_ObjectHideFlags: 1
@@ -197,6 +242,21 @@ GameObject:
   - component: {fileID: 4452353950113930}
   m_Layer: 0
   m_Name: Ground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1459868660988546
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4017909387582734}
+  m_Layer: 0
+  m_Name: JobPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -302,6 +362,21 @@ GameObject:
   - component: {fileID: 114507076811297008}
   m_Layer: 0
   m_Name: Stage_003
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1573981871072640
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4515522008424344}
+  m_Layer: 0
+  m_Name: JobPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -440,6 +515,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1908774341868874
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4180109997546068}
+  m_Layer: 0
+  m_Name: JobPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1944109408325028
 GameObject:
   m_ObjectHideFlags: 1
@@ -506,6 +596,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!4 &4017909387582734
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1459868660988546}
+  m_LocalRotation: {x: -0, y: 0.5998792, z: -0, w: -0.8000906}
+  m_LocalPosition: {x: -4.72, y: 0, z: 1.07}
+  m_LocalScale: {x: 1.0000002, y: 1, z: 1.0000002}
+  m_Children: []
+  m_Father: {fileID: 4515522008424344}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: -433.722, z: 0}
 --- !u!4 &4022017208285176
 Transform:
   m_ObjectHideFlags: 1
@@ -594,6 +697,19 @@ Transform:
   m_Father: {fileID: 4926109428152236}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4180109997546068
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1908774341868874}
+  m_LocalRotation: {x: -0, y: -0.6413272, z: -0, w: -0.7672675}
+  m_LocalPosition: {x: 4.49, y: 0, z: -1.67}
+  m_LocalScale: {x: 1.0000002, y: 1, z: 1.0000002}
+  m_Children: []
+  m_Father: {fileID: 4515522008424344}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: -280.218, z: 0}
 --- !u!4 &4182532659455674
 Transform:
   m_ObjectHideFlags: 1
@@ -713,6 +829,24 @@ Transform:
   m_Father: {fileID: 4666416556202686}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90.00001, z: 0}
+--- !u!4 &4515522008424344
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1573981871072640}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4638442391901378}
+  - {fileID: 4812291098235358}
+  - {fileID: 4180109997546068}
+  - {fileID: 4930504642574546}
+  - {fileID: 4017909387582734}
+  m_Father: {fileID: 4714300722393434}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4528347288708638
 Transform:
   m_ObjectHideFlags: 1
@@ -752,6 +886,19 @@ Transform:
   m_Father: {fileID: 4666416556202686}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4638442391901378
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1170282487902342}
+  m_LocalRotation: {x: -0, y: -0.90050167, z: -0, w: 0.43485257}
+  m_LocalPosition: {x: -2.66, y: 0, z: -3.24}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4515522008424344}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -128.44801, z: 0}
 --- !u!4 &4666416556202686
 Transform:
   m_ObjectHideFlags: 1
@@ -797,6 +944,7 @@ Transform:
   - {fileID: 4926109428152236}
   - {fileID: 4417972766167588}
   - {fileID: 4677651038789020}
+  - {fileID: 4515522008424344}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -830,6 +978,19 @@ Transform:
   m_Father: {fileID: 4176422413575110}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4812291098235358
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1273299347385696}
+  m_LocalRotation: {x: -0, y: -0.9772429, z: -0, w: -0.21212345}
+  m_LocalPosition: {x: 1.29, y: 0, z: -4.82}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4515522008424344}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: -204.49399, z: 0}
 --- !u!4 &4814087859477354
 Transform:
   m_ObjectHideFlags: 1
@@ -912,6 +1073,19 @@ Transform:
   m_Father: {fileID: 4714300722393434}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4930504642574546
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1194626832841084}
+  m_LocalRotation: {x: -0, y: -0.51688486, z: -0, w: -0.856055}
+  m_LocalPosition: {x: 3.07, y: 0, z: 1.32}
+  m_LocalScale: {x: 1.0000002, y: 1, z: 1.0000002}
+  m_Children: []
+  m_Father: {fileID: 4515522008424344}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: -297.753, z: 0}
 --- !u!4 &4966195534746520
 Transform:
   m_ObjectHideFlags: 1
@@ -1606,8 +1780,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   citizenInteractionPoint: {x: 0, y: 0, z: 11}
-  MaxJobs: 4
+  MaxJobs: 5
   ProductionRequired: 30
+  jobPoints:
+  - {fileID: 4638442391901378}
+  - {fileID: 4812291098235358}
+  - {fileID: 4180109997546068}
+  - {fileID: 4930504642574546}
+  - {fileID: 4017909387582734}
 --- !u!114 &114375178411352258
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1669,6 +1849,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb2936f7049800e4daa61605502a35f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayType: 1
   offset: {x: 0, y: 12, z: 0}
 --- !u!114 &114876566832380668
 MonoBehaviour:

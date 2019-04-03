@@ -1,0 +1,13 @@
+A Merchant, {0}, has arrived in {1}.
+
+Merchants will arrive from time to time, and propose a set of deals.
+
+Each Merchant will have their own preference of Resources that they wish to buy or sell.
+
+Merchants may propose one deal, or many. Each deal can contain multiple items and the direction of trade can change within deals.
+
+Be sure to read the deals carefully, as Merchants wont reverse a deal that has been accepted.
+
+Look out for the best price, as each Merchant will buy or sell Resources at their own rates.
+
+You wont be able to accept any deals that you can't afford.

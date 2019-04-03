@@ -6,10 +6,13 @@ using UnityEngine.AI;
 public class WarehouseController : MonoBehaviour {
 
     public static WarehouseController Instance;
-    [SerializeField] private List<Prop_Warehouse> warehouses = new List<Prop_Warehouse> ();
+    public List<Prop_Warehouse> warehouses { get; protected set; } = new List<Prop_Warehouse> ();
 
-    private ResourceInventory inventory;
-    public ResourceInventory Inventory { get { return inventory; } }
+    public ResourceInventory Inventory { get; private set; }
+    private bool addedStartingResources = false;
+
+    public Dictionary<int, float> dailyResources { get; protected set; } = new Dictionary<int, float> ();
+    public System.Action<Dictionary<int, float>> onDailyResourcesChanged;
 
     private void Awake ()
     {
@@ -20,25 +23,49 @@ public class WarehouseController : MonoBehaviour {
             return;
         }
 
-        inventory = new ResourceInventory ( float.MaxValue );
-        inventory.AddItemQuantity ( 0, 30 );
-        inventory.AddItemQuantity ( 1, 10 );
+        Inventory = new ResourceInventory ( float.MaxValue );
+
+        for (int i = 0; i < ResourceManager.Instance.GetResourceList().Count; i++)
+        {
+            dailyResources.Add ( ResourceManager.Instance.GetResourceList ()[i].id, 0.0f );
+        }
+
+        Inventory.RegisterOnResourceAdded ( OnResourceAdded );
+        Inventory.RegisterOnResourceRemoved ( OnResourceRemoved );
+        GameTime.onDayChanged += OnDayChanged;
+        //inventory.AddItemQuantity ( 0, 30 );
+        //inventory.AddItemQuantity ( 1, 10 );
+    }
+
+    private void AddStartingResources ()
+    {
+        if (GameData.Instance.gameDataType == GameData.GameDataType.Loaded) return;
+        if (addedStartingResources) return;
+
+        for (int i = 0; i < GameData.Instance.startingConditions.startingResources.Count; i++)
+        {
+            Inventory.AddItemQuantity ( GameData.Instance.startingConditions.startingResources[i].Key, GameData.Instance.startingConditions.startingResources[i].Value );
+        }
+
+        addedStartingResources = true;
     }
 
     public void Load (PersistentData.SaveData data)
     {
-        inventory = new ResourceInventory ( float.MaxValue );
+        //inventory = new ResourceInventory ( float.MaxValue );
+
+        Inventory.CLEAR_ALL ();
 
         for (int i = 0; i < data.WarehouseResourceIDs.Count; i++)
         {
-            inventory.AddItemQuantity ( data.WarehouseResourceIDs[i], data.WarehouseResourceQuantities[i] );
+            Inventory.AddItemQuantity ( data.WarehouseResourceIDs[i], data.WarehouseResourceQuantities[i] );
         }
     }
 
     public Prop_Warehouse FindWarehouseToHaul (Transform citizenTransform, int resourceID, float resourceQuantity)
     {
         if (!PreFindWarehouseCheck ( citizenTransform )) { return null; }
-        if (!inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity )) { return null; }
+        if (!Inventory.CheckHasQuantityAvailable ( resourceID, resourceQuantity )) { return null; }
 
         return FindClosestWarehouse ( citizenTransform );
     }
@@ -46,7 +73,7 @@ public class WarehouseController : MonoBehaviour {
     public Prop_Warehouse FindWarehouseToHaulAnyQuantity (Transform citizenTransform, int resourceID, float resourceQuantity)
     {
         if (!PreFindWarehouseCheck ( citizenTransform )) { return null; }
-        if (inventory.CheckIsEmpty ( resourceID )) { return null; }
+        if (Inventory.CheckIsEmpty ( resourceID )) { return null; }
 
         return FindClosestWarehouse ( citizenTransform );
     }
@@ -54,14 +81,14 @@ public class WarehouseController : MonoBehaviour {
     public Prop_Warehouse FindWarehouseToStore (Transform citizenTransform, int resourceID, float resourceQuantity)
     {
         if (!PreFindWarehouseCheck ( citizenTransform )) { return null; }
-        if (!inventory.CheckCanHold ( resourceID, resourceQuantity )) { return null; }
+        if (!Inventory.CheckCanHold ( resourceID, resourceQuantity )) { return null; }
 
         return FindClosestWarehouse ( citizenTransform );
     }
 
     private bool PreFindWarehouseCheck (Transform citizenTransform)
     {
-        if (inventory == null) { return false; }
+        if (Inventory == null) { return false; }
         if (warehouses.Count <= 0) { return false; }
         if (citizenTransform == null) { return false; }
 
@@ -121,6 +148,8 @@ public class WarehouseController : MonoBehaviour {
         }
 
         warehouses.Add ( warehouse );
+
+        AddStartingResources ();
     }
 
     public void RemoveWarehouse (Prop_Warehouse warehouse)
@@ -133,4 +162,36 @@ public class WarehouseController : MonoBehaviour {
 
         warehouses.Remove ( warehouse );
     }   
+
+    private void OnDayChanged(int p, int c)
+    {
+        dailyResources.Clear ();
+
+        for (int i = 0; i < ResourceManager.Instance.GetResourceList ().Count; i++)
+        {
+            dailyResources.Add ( ResourceManager.Instance.GetResourceList ()[i].id, 0.0f );
+        }
+
+        onDailyResourcesChanged?.Invoke ( dailyResources );
+    }
+
+    private void OnResourceAdded(int id, float q)
+    {
+        if (dailyResources.ContainsKey ( id ))
+            dailyResources[id] += q;
+        else dailyResources.Add ( id, q );
+
+        onDailyResourcesChanged?.Invoke ( dailyResources );
+    }
+
+    private void OnResourceRemoved(int id, float q)
+    {
+        if (dailyResources.ContainsKey ( id ))
+            dailyResources[id] -= q;
+        else dailyResources.Add ( id, -q );
+
+        Debug.Log ( "Daily resource removed " + ResourceManager.Instance.GetResourceByID ( id ).name + " // " + q );
+
+        onDailyResourcesChanged?.Invoke ( dailyResources );
+    }
 }

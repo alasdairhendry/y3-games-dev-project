@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
-public class SelfDestruct : MonoBehaviour {
+public class SelfDestruct : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
 
     [SerializeField] private float lifetime;
     [SerializeField] private bool playOnAwake;
+    [SerializeField] private bool inactiveOnHover = false;
+    private bool isHovered = false;
     private System.Action onDestroyAction;
     private bool isPlaying = false;
 
@@ -17,6 +20,11 @@ public class SelfDestruct : MonoBehaviour {
 	
 	private void Update ()
     {
+        if (inactiveOnHover)
+        {
+            if (isHovered) return;
+        }
+
         if (isPlaying)
         {
             lifetime -= Time.deltaTime;
@@ -50,8 +58,18 @@ public class SelfDestruct : MonoBehaviour {
     }
 
     private void Destroy ()
-    {               
-        if (onDestroyAction != null) onDestroyAction ();
+    {
+        onDestroyAction?.Invoke ();
         Destroy ( this.gameObject );
+    }
+
+    void IPointerEnterHandler.OnPointerEnter (PointerEventData eventData)
+    {
+        isHovered = true;
+    }
+
+    void IPointerExitHandler.OnPointerExit (PointerEventData eventData)
+    {
+        isHovered = false;
     }
 }

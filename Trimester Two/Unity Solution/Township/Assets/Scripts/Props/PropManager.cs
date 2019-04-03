@@ -59,6 +59,7 @@ public class PropManager : MonoBehaviour {
           "House",
           "A basic, wooden house",
           "Basic_House",
+          250,          
           PropCategory.Housing,
           PlacementType.Plopable,
           PlacementArea.Ground,
@@ -77,6 +78,7 @@ public class PropManager : MonoBehaviour {
           "Warehouse",
           "Stores 40 tons of any resource",
           "Basic_Warehouse",
+          650,
           PropCategory.Storage,
           PlacementType.Plopable,
           PlacementArea.Ground,
@@ -94,6 +96,7 @@ public class PropManager : MonoBehaviour {
            "Lumberjack's Hut",
            "Allows a lumberjack to chop logs",
            "LumberjackHut",
+           500,
            PropCategory.Gathering,
            PlacementType.Plopable,
            PlacementArea.Ground,
@@ -109,6 +112,7 @@ public class PropManager : MonoBehaviour {
           "Fishing Hut",
           "Allows a fisherman to catch fish",
           "FishingHut",
+          650,
           PropCategory.Gathering,
           PlacementType.Plopable,
           PlacementArea.Waterside,
@@ -124,6 +128,7 @@ public class PropManager : MonoBehaviour {
             "Quarry",
             "Allows a quarryman to mine bricks",
             "Quarry",
+            1000,
             PropCategory.Gathering,
             PlacementType.Plopable,
             PlacementArea.Ground,
@@ -139,6 +144,7 @@ public class PropManager : MonoBehaviour {
           "Mine",
           "Allows a miner to gather iron ore",
           "Mine",
+          1500,
           PropCategory.Gathering,
           PlacementType.Plopable,
           PlacementArea.Ground,
@@ -155,6 +161,7 @@ public class PropManager : MonoBehaviour {
           "Vineyard",
           "Allows a Vintner to grow apples",
           "Orchard",
+          3000,
           PropCategory.Gathering,
           PlacementType.Plopable,
           PlacementArea.Ground,
@@ -173,6 +180,7 @@ public class PropManager : MonoBehaviour {
            "Stonemason's Hut",
            "Allows a stonemason to craft bricks into stone",
            "StonemasonHut",
+           1250,
            PropCategory.Production,
            PlacementType.Plopable,
            PlacementArea.Ground,
@@ -190,6 +198,7 @@ public class PropManager : MonoBehaviour {
            "Coal Burner Hut",
            "Allows a Charcoal Burner to turn wood into charcoal",
            "CharcoalBurnerHut",
+           1650,
            PropCategory.Production,
            PlacementType.Plopable,
            PlacementArea.Ground,
@@ -205,6 +214,7 @@ public class PropManager : MonoBehaviour {
            "Smithery",
            "Allows a blacksmith to smelt iron ore into iron bars",
            "Smithery",
+           2000,
            PropCategory.Production,
            PlacementType.Plopable,
            PlacementArea.Ground,
@@ -220,6 +230,7 @@ public class PropManager : MonoBehaviour {
            "Winery",
            "Allows a Winemaker to ferment grapes into wine",
            "Brewery",
+           5000,
            PropCategory.Production,
            PlacementType.Plopable,
            PlacementArea.Ground,
@@ -235,19 +246,52 @@ public class PropManager : MonoBehaviour {
     private void CreateProps_Misc ()
     {
         propData.Add ( new PropData (
-   "Campfire",
-   "Provide a place for your citizens to relax",
-   "Campfire",
-   PropCategory.Misc,
-   PlacementType.Plopable,
-   PlacementArea.Ground,
-   3.0f,
-   new List<RequiredBuildMaterial> ()
-   {
-                    { new RequiredBuildMaterial(0, 4) },
-                    { new RequiredBuildMaterial(1, 4) }
-   }
-) );
+           "Marketplace",
+           "Provides travelling Merchants the ability to trade with you",
+           "MarketPlace",
+           1500,
+           PropCategory.Misc,
+           PlacementType.Plopable,
+           PlacementArea.Ground,
+           3.0f,
+           new List<RequiredBuildMaterial> ()
+           {
+                { new RequiredBuildMaterial(0, 12) },
+                { new RequiredBuildMaterial(1, 8) },
+                { new RequiredBuildMaterial(2, 4) }
+           }
+        ) );
+
+        propData.Add ( new PropData (
+           "Campfire",
+           "Provide a place for your citizens to relax",
+           "Campfire",
+           100,
+           PropCategory.Misc,
+           PlacementType.Plopable,
+           PlacementArea.Ground,
+           3.0f,
+           new List<RequiredBuildMaterial> ()
+           {
+                            { new RequiredBuildMaterial(0, 4) },
+                            { new RequiredBuildMaterial(1, 4) }
+           }
+        ) );
+
+        propData.Add ( new PropData (
+           "Town Plaque",
+           "Build a plaque to claim this territory as your own",
+           "TownPlaque",
+           100,
+           PropCategory.Misc,
+           PlacementType.Plopable,
+           PlacementArea.Ground,
+           3.0f,
+           new List<RequiredBuildMaterial> ()
+           {
+                            
+           }, false
+        ) );
     }
 
     private void GenerateDictionaries ()

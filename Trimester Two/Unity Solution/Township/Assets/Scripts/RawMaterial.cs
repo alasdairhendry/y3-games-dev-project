@@ -12,6 +12,8 @@ public class RawMaterial : MonoBehaviour
 
     public WorldEntity worldEntity { get; protected set; }
 
+    public System.Action<GameObject> onSetRemoval;
+
     private void Awake ()
     {
         Inspectable = GetComponent<Inspectable> ();
@@ -41,8 +43,16 @@ public class RawMaterial : MonoBehaviour
         GetComponent<JobEntity> ().CreateJob_GatherResource ( removalDescription + " " + worldEntity.EntityName, true, timeToRemove, null, resourceProvided, quantityProvided, this );
     }
 
+    public virtual void RemoveOnBuildingPlaced ()
+    {
+        GetComponent<JobEntity> ().DestroyJobs ();
+        OnGathered ();
+    }
+
     public virtual void OnGathered ()
     {
+        Debug.Log ( "OnGathered" );
+        onSetRemoval?.Invoke ( this.gameObject );
         if (GetComponent<Wobblable> () != null)
             GetComponent<Wobblable> ().Break ( DestroyOnGathered );
         else DestroyOnGathered ();
@@ -54,12 +64,6 @@ public class RawMaterial : MonoBehaviour
     protected virtual void DestroyOnGathered ()
     {
         Destroy ( this.gameObject );
-    }
-
-    public virtual void RemoveOnBuildingPlaced ()
-    {
-        GetComponent<JobEntity> ().DestroyJobs ();
-        OnGathered ();
     }
 
     private void SetInspectable ()

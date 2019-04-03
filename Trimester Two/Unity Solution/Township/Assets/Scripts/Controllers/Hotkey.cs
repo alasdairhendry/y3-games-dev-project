@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Hotkey : MonoBehaviour {
     
@@ -23,7 +26,10 @@ public class Hotkey : MonoBehaviour {
 
         ToggleResources,
         ToggleJobs,
-        ToggleProfessions
+        ToggleProfessions,
+
+        TogglePreferences,
+        ToggleTaxBands
     }
 
     public enum Category
@@ -36,7 +42,7 @@ public class Hotkey : MonoBehaviour {
         UI
     }
 
-    private static Dictionary<Function, HotkeyData> hotkeys = new Dictionary<Function, HotkeyData> ();
+    public static Dictionary<Function, HotkeyData> hotkeys { get; protected set; } = new Dictionary<Function, HotkeyData> ();
     public static bool MouseMoved { get; protected set; }
     private Vector3 previousMousePosition = new Vector3 ();
 
@@ -62,20 +68,23 @@ public class Hotkey : MonoBehaviour {
 
         AddHotkey ( new HotkeyData ( Function.BuildMode, Category.Modes, KeyCode.B, "Build Mode" ) );
 
-        AddHotkey ( new HotkeyData ( Function.PropRotateClockwise, Category.BuildMode, KeyCode.R, KeyCode.LeftShift, "Rotate Props" ) );
-        AddHotkey ( new HotkeyData ( Function.PropRotateAntiClockwise, Category.BuildMode, KeyCode.None, "Rotate Props" ) );
+        AddHotkey ( new HotkeyData ( Function.PropRotateClockwise, Category.BuildMode, KeyCode.R, KeyCode.LeftShift, "Rotate Props Clockwise" ) );
+        AddHotkey ( new HotkeyData ( Function.PropRotateAntiClockwise, Category.BuildMode, KeyCode.None, "Rotate Props Anti-Clockwise" ) );
 
-        AddHotkey ( new HotkeyData ( Function.PropRotateIncrementClockwise, Category.BuildMode, KeyCode.R, "Rotate Props By 45 Degrees" ) );
-        AddHotkey ( new HotkeyData ( Function.PropRotateIncrementAntiClockwise, Category.BuildMode, KeyCode.None, "Rotate Props By 45 Degrees" ) );
+        AddHotkey ( new HotkeyData ( Function.PropRotateIncrementClockwise, Category.BuildMode, KeyCode.R, "Rotate Props Clockwise (Increment)" ) );
+        AddHotkey ( new HotkeyData ( Function.PropRotateIncrementAntiClockwise, Category.BuildMode, KeyCode.None, "Rotate Props Anti-Clockwise (Increment)" ) );
 
         AddHotkey ( new HotkeyData ( Function.HaltUI, Category.Misc, KeyCode.LeftShift, "Halt UI" ) );
 
         AddHotkey ( new HotkeyData ( Function.Save, Category.System, KeyCode.S, KeyCode.LeftShift, "Save Current Game" ) );
         AddHotkey ( new HotkeyData ( Function.Exit, Category.System, KeyCode.Escape, KeyCode.LeftAlt, "Exit The Game" ) );
 
-        AddHotkey ( new HotkeyData ( Function.ToggleResources, Category.UI, KeyCode.R, KeyCode.LeftShift, "Toggle The Resources Panel" ) );
-        AddHotkey ( new HotkeyData ( Function.ToggleJobs, Category.UI, KeyCode.J, KeyCode.LeftShift, "Toggle The Jobs Panel" ) );
-        AddHotkey ( new HotkeyData ( Function.ToggleProfessions, Category.UI, KeyCode.P, KeyCode.LeftShift, "Toggle The Professions Panel" ) );
+        AddHotkey ( new HotkeyData ( Function.ToggleResources, Category.UI, KeyCode.I, KeyCode.None, "Toggle The Resources Panel" ) );
+        AddHotkey ( new HotkeyData ( Function.ToggleJobs, Category.UI, KeyCode.J, KeyCode.None, "Toggle The Jobs Panel" ) );
+        AddHotkey ( new HotkeyData ( Function.ToggleProfessions, Category.UI, KeyCode.P, KeyCode.None, "Toggle The Professions Panel" ) );
+        AddHotkey ( new HotkeyData ( Function.ToggleTaxBands, Category.UI, KeyCode.T, KeyCode.None, "Toggle The Professions Panel" ) );
+
+        AddHotkey ( new HotkeyData ( Function.TogglePreferences, Category.UI, KeyCode.P, KeyCode.LeftShift, "Toggle The Preferences Panel" ) );
     }
 
     private void AddHotkey(HotkeyData hotkey)
@@ -93,8 +102,28 @@ public class Hotkey : MonoBehaviour {
         hotkeys.Add ( hotkey.Function, hotkey );        
     }
 
+    public static bool InputFieldIsActive ()
+    {
+        if (EventSystem.current.currentSelectedGameObject == null)
+        {
+            return false;
+        }
+
+        InputField iField = EventSystem.current.currentSelectedGameObject.GetComponent<InputField> ();
+        TMP_InputField tmp_iField = EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField> ();
+
+        if (iField == null && tmp_iField == null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public static bool GetKeyDown (Function function)
     {
+        if (InputFieldIsActive ()) return false;
+
         if (!hotkeys.ContainsKey ( function )) { Debug.LogError ( "Function does not exist, please assin in CreateHotkeys()" ); return false; }
 
         if (hotkeys[function].Modifier == KeyCode.None)
@@ -114,6 +143,8 @@ public class Hotkey : MonoBehaviour {
 
     public static bool GetKeyUp (Function function, bool includeModifier = false)
     {
+        if (InputFieldIsActive ()) return false;
+
         if (!hotkeys.ContainsKey ( function )) { Debug.LogError ( "Function does not exist, please assin in CreateHotkeys()" ); return false; }
 
         if (includeModifier)
@@ -137,6 +168,8 @@ public class Hotkey : MonoBehaviour {
 
     public static bool GetKey (Function function)
     {
+        if (InputFieldIsActive ()) return false;
+
         if (!hotkeys.ContainsKey ( function )) { Debug.LogError ( "Function does not exist, please assin in CreateHotkeys()" ); return false; }
 
         if (hotkeys[function].Modifier == KeyCode.None)
@@ -202,9 +235,9 @@ public class Hotkey : MonoBehaviour {
                 }
             }
 
-            s += KeyCode.ToString ();
+            s += KeyCode.ToString ().ToUpper ();
 
-            return "[" + s + "]";
+            return "[ " + s + " ]";
         }
 
         public HotkeyData (Function function, Category category, KeyCode keyCode, string description)

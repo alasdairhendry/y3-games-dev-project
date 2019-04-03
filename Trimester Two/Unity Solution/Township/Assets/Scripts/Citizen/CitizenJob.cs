@@ -21,13 +21,15 @@ public class CitizenJob : MonoBehaviour {
 
     private int initialJobTickSkip = 0;
 
+    private bool hadNormalJob = false;
+
     private void Awake ()
     {
         cBase = GetComponent<CitizenBase> ();
         initialJobTickSkip = UnityEngine.Random.Range ( 0, 9 );
     }
 
-    void Start ()
+    private void Start ()
     {
         GameTime.RegisterGameTick ( OnGameTick );
 
@@ -144,7 +146,7 @@ public class CitizenJob : MonoBehaviour {
 
     private void GetIdleJob ()
     {
-        currentJob = cBase.CitizenIdleJob.GetIdleJob ();        
+        currentJob = cBase.CitizenIdleJob.GetIdleJob (hadNormalJob);        
     }
 
     public void SwitchToDefaultIdleJob (GameObject senderGO, Type senderType)
@@ -178,6 +180,9 @@ public class CitizenJob : MonoBehaviour {
         }        
 
         if (currentJob == null) return;
+
+        if (!currentJob.IdleJob) hadNormalJob = true;
+        else hadNormalJob = false;
 
         if (!previouslyAttemptedJobs.Contains ( currentJob ))
             previouslyAttemptedJobs.Add ( currentJob );

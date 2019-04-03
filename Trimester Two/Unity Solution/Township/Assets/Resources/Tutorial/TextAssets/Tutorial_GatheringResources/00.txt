@@ -1,0 +1,10 @@
+To get started, you'll want to gather a surplus of Wood.
+Wood is the most basic, but most important, resource in Township.
+It can be used to build new buildings and provide fire for your citizens.
+
+To gather wood, you'll need to build a Lumberjack's Hut.
+
+After it's built, select 2 citizens and change their profession to Lumberjack.
+They will start working the Lumberjack's Hut.
+
+Alternatively, you can press {0} to open the Professions Panel, and assign professions through there.

@@ -26,7 +26,13 @@ public class HUD_Toolbar_Panel : UIPanel {
 
     public void OnClick_Save ()
     {
-        SaveLoad.Instance.Save ("");
+        if (string.IsNullOrEmpty ( GameData.Instance.CurrentSaveFileName ))
+        {
+            Debug.LogError ( "CANNOT SAVE FROM TOOLBAR WHEN NO GAME IS ACTIVE" );
+            return;
+        }
+
+        SaveLoad.Instance.Save ();
     }
 
     public void OnClick_Quit ()

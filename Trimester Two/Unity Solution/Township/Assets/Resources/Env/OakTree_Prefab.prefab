@@ -269,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb2936f7049800e4daa61605502a35f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayType: 1
   offset: {x: 0, y: 15, z: 0}
 --- !u!114 &114556450441976680
 MonoBehaviour:
@@ -282,7 +283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceProvided: 0
-  quantityProvided: 0.25
+  quantityProvided: 1
   timeToRemove: 10
   removalDescription: Cut Down
 --- !u!114 &114683170163150524

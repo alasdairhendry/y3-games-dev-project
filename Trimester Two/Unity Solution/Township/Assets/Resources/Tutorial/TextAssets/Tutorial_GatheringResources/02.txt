@@ -1,0 +1,10 @@
+Every job in Township requires a citizen of a specific profession to work it.
+
+Workmen will work all labour-based jobs, such as hauling resources, building and using the marketcart.
+
+Lumberjacks will work in a Lumberjack's Hut and provide Wood to the town.
+
+Quarrymen will mine a Quarry and provide Brick to the town.
+
+You can see what type of profession is required for a job by opening the Jobs Panel.
+You can also see which profession is required for a building by clicking on the building.

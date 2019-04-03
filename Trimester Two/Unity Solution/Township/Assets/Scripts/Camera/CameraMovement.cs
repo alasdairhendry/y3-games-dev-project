@@ -48,7 +48,7 @@ public class CameraMovement : MonoBehaviour {
     }
 
     private void Update () {
-        if (Input.GetKeyDown ( KeyCode.F ))
+        if (Input.GetKeyDown ( KeyCode.F ) && !Hotkey.InputFieldIsActive ())
         {
             PanTo ( new Vector3 ( 0.0f, 16.0f, -24.5f ) );
             //PanTo ( new Vector3 ( 0.0f, 110.84f, -110.41f ) );

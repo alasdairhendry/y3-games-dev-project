@@ -46,21 +46,16 @@ public class PartnerController : MonoSingleton<PartnerController> {
     {
         if(eligibleMales.Count > 0 && eligibleFemales.Count > 0)
         {
-            Debug.Log ( string.Format ( "Just partnered {0} and {1}", eligibleMales[0].CitizenFamily.thisMember.fullName, eligibleFemales[0].CitizenFamily.thisMember.fullName ) );
-
             eligibleMales[0].CitizenFamily.SetPartner ( eligibleFemales[0].CitizenFamily.thisMember );
             eligibleFemales[0].CitizenFamily.SetPartner ( eligibleMales[0].CitizenFamily.thisMember );
 
+            CitizenController.Instance.SetAsNewFamily ( eligibleMales[0], eligibleFemales[0] );
+
+            eligibleMales[0].CitizenHousing.LeaveHouse ( true );
+            eligibleFemales[0].CitizenHousing.LeaveHouse ( true );
+
             SetIneligible ( eligibleMales[0] );
             SetIneligible ( eligibleFemales[0] );
-
-            //int max = Mathf.Min ( eligibleMales.Count, eligibleFemales.Count );
-
-            //for (int i = 0; i < max; i++)
-            //{
-
-              
-            //}
         }
     }
 }

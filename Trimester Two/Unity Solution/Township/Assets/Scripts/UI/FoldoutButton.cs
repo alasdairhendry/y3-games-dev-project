@@ -57,11 +57,11 @@ public class FoldoutButton : MonoBehaviour {
     {
         if (hasHotkey)
         {
-            if(Hotkey.GetKeyDown(hotkey))
+            if (Hotkey.GetKeyDown ( hotkey ))
             {
                 if (button.onClick != null)
                 {
-                    button.onClick.Invoke ();                    
+                    button.onClick.Invoke ();
                 }
             }
         }

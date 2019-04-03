@@ -1,0 +1,5 @@
+Welcome!
+This is your new town. {0}.
+
+If you would like to skip this particular tutorial, you can do so using the button below.
+Or if you'd like to turn them off completely, you can do that also.

@@ -14,3 +14,20 @@ MonoBehaviour:
   autoUpdate: 0
   detailData:
   - {fileID: 11400000, guid: 42823b4f12ab99d429b0af0fb79fbb74, type: 2}
+  - {fileID: 11400000, guid: 5037ecc432bf205438d12abd9c53eebc, type: 2}
+  - {fileID: 0}
+  detailGroups:
+  - GroupName: Plains Forest Brick
+    BiomeName: Forest
+    overallModifier: 0.5
+    group:
+    - data: {fileID: 11400000, guid: 5037ecc432bf205438d12abd9c53eebc, type: 2}
+      ratio: 15
+    - data: {fileID: 11400000, guid: 1e03f58cbfd50ff45a37f795d84298bc, type: 2}
+      ratio: 1
+  - GroupName: Forest Wood
+    BiomeName: Forest
+    overallModifier: 1
+    group:
+    - data: {fileID: 11400000, guid: 42823b4f12ab99d429b0af0fb79fbb74, type: 2}
+      ratio: 1

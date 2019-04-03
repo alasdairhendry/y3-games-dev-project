@@ -14,23 +14,54 @@ public class Inspectable : MonoBehaviour {
     public Vector3 LockOffset { get { return lockOffset; } }
     public float LockDistance { get { return lockDistance; } }
 
+    private Inspectable overrideLockTo = null;
+    public bool isInspected { get; protected set; } = false;
+
     [SerializeField] protected string defaultTab = "Overview";
 
     protected virtual void Start () { }
 
     public void InspectAndLockCamera ()
     {
-        FindObjectOfType<CameraMovement> ().LockTo ( this.transform, lockOffset, lockDistance );
+        if (overrideLockTo == null)
+        {
+            FindObjectOfType<CameraMovement> ().LockTo ( this.transform, lockOffset, lockDistance );
+        }
+        else
+        {
+            FindObjectOfType<CameraMovement> ().LockTo ( overrideLockTo.transform, overrideLockTo.LockOffset, overrideLockTo.LockDistance );
+        }
         Inspect ();
+    }
+
+    public void OverrideLockTo(Inspectable ins)
+    {
+        overrideLockTo = ins;
     }
 
 	public virtual void Inspect ()
     {
-        if (action == null) return;
+        if (action == null) { Debug.Log ( "Inspectable action null" ); return; }
         FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().Hide ();
+        isInspected = true;
         FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().ShowPanel ( this.gameObject );
         FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().SetAction ( action, destroyAction, focusAction, destroyDescription );        
+        FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().AddOnCloseAction ( () => { isInspected = false; } );        
         FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().SetActiveTab ( defaultTab );
+    }
+
+    public virtual void Refresh ()
+    {
+        //if (isInspected)
+        //{
+        //    string currTab = FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().currentTabName;
+        //    FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().Hide ();
+        //    isInspected = true;
+        //    FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().ShowPanel ( this.gameObject );
+        //    //FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().SetAction ( action, destroyAction, focusAction, destroyDescription );
+        //    FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().AddOnCloseAction ( () => { isInspected = false; } );
+        //    FindObjectOfType<HUD_EntityInspection_Citizen_Panel> ().SetActiveTab ( currTab );
+        //}
     }
 
     public void SetAction (System.Action action)

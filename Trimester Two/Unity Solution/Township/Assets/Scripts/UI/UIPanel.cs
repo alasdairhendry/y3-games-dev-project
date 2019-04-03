@@ -17,9 +17,10 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [SerializeField] private bool isStatic = true;
     [SerializeField] private bool isDraggable = false;
     [SerializeField] private RectTransform draggableTransform;
+    [SerializeField] protected MovableSiblingPanel movableItem;
     private bool isDragging = false;
     private Vector2 dragOffset = new Vector2 ();
-    [SerializeField] private bool clampToScreen = true;
+    [SerializeField] protected bool clampToScreen = true;
 
     protected CanvasGroup cGroup;
     protected bool active = false;
@@ -30,6 +31,7 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     protected Vector3 targetAnchorOffset = Vector3.zero;
 
     protected bool mouseIsOver = false;
+
 
     protected virtual void Update ()
     {
@@ -86,6 +88,8 @@ public class UIPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (blockRaycasts)
             cGroup.blocksRaycasts = true;
         else cGroup.blocksRaycasts = false;
+
+        movableItem?.BringToFront ();
     }
 
     public virtual void Toggle ()

@@ -18,6 +18,7 @@ public class CitizenIdleJob : MonoBehaviour {
 
     private void CreateJobs ()
     {
+        idleJobs.Add ( new IdleJob_Wander ( null, "Wander" ) );
         idleJobs.Add ( new IdleJob_StandByCampfire ( null, "Warm up" ) );
         idleJobs.Add ( new IdleJob_Dance ( null, "Dance The YMCA" ) );
     }
@@ -45,14 +46,25 @@ public class CitizenIdleJob : MonoBehaviour {
         return job;
     }
 
-    public Job GetIdleJob ()
+    public Job GetIdleJob (bool hadNormalJob)
     {
         if(eligibleJobs.Count <= 0) { Debug.LogError ( "Eligible Idle Jobs are 0" ); return null; }
 
-        Job job = eligibleJobs[Random.Range(0, eligibleJobs.Count)];
+        if (hadNormalJob)
+        {
+            Job job = eligibleJobs[0];
 
-        job.OnCharacterAccept ( cBase );
+            job.OnCharacterAccept ( cBase );
 
-        return job;
+            return job;
+        }
+        else
+        {
+            Job job = eligibleJobs[Random.Range ( 0, eligibleJobs.Count )];
+
+            job.OnCharacterAccept ( cBase );
+
+            return job;
+        }        
     }
 }

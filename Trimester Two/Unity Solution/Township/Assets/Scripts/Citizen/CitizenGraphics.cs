@@ -171,6 +171,12 @@ public class CitizenGraphics : MonoBehaviour {
         SetUsingLantern ( SunController.Instance.time );
     }
 
+    public void SetIsSquashing (bool state)
+    {
+        DisableGraphics ( crateGraphics, marketCartGraphics, logsGraphics, rocksGraphics, pickAxeGraphics, rodGraphics );
+        cBase.CitizenAnimation.SetAnimationState = state == true ? CitizenAnimation.AnimationState.Squashing : CitizenAnimation.AnimationState.Idle;
+    }
+
     private void DisableGraphics(params GameObject[] objects)
     {
         for (int i = 0; i < objects.Length; i++)

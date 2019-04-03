@@ -39,7 +39,7 @@ public class Prop_Campfire : Prop {
         {
             isLit = true;
             OnLight ();
-            inventory.RemoveItemQuantity ( 0, 0.5f * GameTime.DeltaGameTime );
+            inventory.RemoveItemQuantity ( 0, 0.15f * GameTime.DeltaGameTime );
         }
 
         if (jobEntity.HasNonNullJob ()) return;
@@ -90,8 +90,9 @@ public class Prop_Campfire : Prop {
         } );
     }
 
-    private void OnDestroy ()
+    protected override void OnDestroy ()
     {
+        base.OnDestroy ();
         GameTime.UnRegisterGameTick ( Tick_CheckWood );
     }
 }

@@ -5,8 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class IdleJob : Job
 {
-    protected float averageIdleTime = 7.5f;
-    protected float targetIdleTime = 7.5f;
+    protected float averageIdleTime = 15.0f;
+    protected float targetIdleTime = 15.0f;
     protected float currentIdleTime = 0.0f;
 
     public override void DoJob ()

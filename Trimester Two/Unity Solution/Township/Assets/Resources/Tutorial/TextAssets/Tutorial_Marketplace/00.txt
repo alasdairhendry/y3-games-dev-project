@@ -1,0 +1,11 @@
+It looks like you've placed your first Marketplace.
+
+The Marketplace is a passive building that allows travelling Merchants to trade with you.
+
+Each day, Merchants travel all around Township looking for the best deals.
+
+Having one Marketplace shows the world that you are open for trade. However, Merchants rarely travel to places that aren't worth their time.
+
+Each Marketplace that is built increases your reputation as a Market Town. This will influence Merchants when they are deciding where to travel next.
+
+You can toggle trading at any time by clicking on a Marketplace building.
